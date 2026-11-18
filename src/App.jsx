@@ -12,6 +12,8 @@ import AnnuairePage from './pages/AnnuairePage';
 import ContactPage from './pages/ContactPage';
 import AppelsOffres from './pages/AppelsOffres';
 import DevenirFournisseur from './pages/DevenirFournisseur';
+import Logistique from './pages/Logistique';
+import SecuritePage from './pages/Securite';
 
 // Composants Sécurité, Auth & Expérience Utilisateur
 import PrivateRoute from './components/PrivateRoute';
@@ -128,6 +130,19 @@ const App = () => {
                   />
                 }
               />
+              <Route path="/fournisseurs" element={<AnnuairePage />} />
+              <Route
+                path="/logistique"
+                element={
+                  <Logistique
+                    buyerMode={buyerMode}
+                    setBuyerMode={setBuyerMode}
+                    currency={currency}
+                    setCurrency={setCurrency}
+                  />
+                }
+              />
+              <Route path="/securite" element={<SecuritePage />} />
               <Route path="/fournisseurs" element={<AnnuairePage />} />
               <Route path="/contact" element={<ContactPage />} />
 
