@@ -1,0 +1,256 @@
+version: '3.8'
+
+services:
+  # =================== DATABASES ===================
+  
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: yabiso-sqlserver
+    environment:
+      SA_PASSWORD: "YaBiso@Secure2026!"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    networks:
+      - yabiso-network
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "YaBiso@Secure2026!", "-Q", "SELECT 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+  
+  mysql:
+    image: mysql:8.0
+    container_name: yabiso-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "YaBiso@MySQL2026!"
+      MYSQL_USER: yabiso_user
+      MYSQL_PASSWORD: "YaBiso@Pass2026!"
+      MYSQL_DATABASE: yabiso_transactional
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - yabiso-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "yabiso_user", "-pYaBiso@Pass2026!"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+  
+  mongodb:
+    image: mongo:7.0
+    container_name: yabiso-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: yabiso_admin
+      MONGO_INITDB_ROOT_PASSWORD: "YaBiso@Mongo2026!"
+      MONGO_INITDB_DATABASE: yabiso_documents
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - yabiso-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+  
+  # =================== CACHE & QUEUE ===================
+  
+  redis:
+    image: redis:7-alpine
+    container_name: yabiso-redis
+    command: redis-server --requirepass YaBiso@Redis2026!
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - yabiso-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+  
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: yabiso-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: yabiso
+      RABBITMQ_DEFAULT_PASS: "YaBiso@RabbitMQ2026!"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - yabiso-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+  
+  # =================== MICROSERVICES ===================
+  
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: yabiso-gateway
+    environment:
+      APP_ENV: development
+      DEBUG: "True"
+      LOG_LEVEL: INFO
+      HOST: 0.0.0.0
+      PORT: 8000
+      CORS_ORIGINS: "http://localhost:3000,http://localhost:5173,http://localhost:8000,http://127.0.0.1:3000"
+      JWT_SECRET_KEY: "your-secret-key-change-in-production-min-32-chars"
+      JWT_ALGORITHM: HS256
+      JWT_EXPIRE_HOURS: 24
+      JWT_REFRESH_EXPIRE_DAYS: 7
+      AUTH_SERVICE_URL: "http://auth-service:8001"
+      PRODUCTS_SERVICE_URL: "http://products-service:8002"
+      PAYMENTS_SERVICE_URL: "http://payments-service:8003"
+      ANALYTICS_SERVICE_URL: "http://analytics-service:8004"
+    ports:
+      - "8000:8000"
+    depends_on:
+      - auth-service
+      - products-service
+      - payments-service
+      - analytics-service
+    networks:
+      - yabiso-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: yabiso-auth
+    environment:
+      APP_ENV: development
+      DEBUG: "True"
+      LOG_LEVEL: INFO
+      HOST: 0.0.0.0
+      PORT: 8001
+      CORS_ORIGINS: "http://localhost:3000,http://localhost:5173,http://localhost:8000,http://127.0.0.1:3000"
+      JWT_SECRET_KEY: "your-secret-key-change-in-production-min-32-chars"
+      JWT_ALGORITHM: HS256
+      JWT_EXPIRE_HOURS: 24
+      JWT_REFRESH_EXPIRE_DAYS: 7
+      BCRYPT_ROUNDS: 12
+      SQLSERVER_URL: "mssql+pyodbc://sa:YaBiso@Secure2026!@sqlserver:1433/yabiso_auth?driver=ODBC+Driver+17+for+SQL+Server"
+    ports:
+      - "8001:8001"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - yabiso-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  products-service:
+    build:
+      context: ./products-service
+      dockerfile: Dockerfile
+    container_name: yabiso-products
+    environment:
+      APP_ENV: development
+      DEBUG: "True"
+      LOG_LEVEL: INFO
+      HOST: 0.0.0.0
+      PORT: 8002
+      MYSQL_URL: "mysql+pymysql://yabiso_user:YaBiso@Pass2026!@mysql:3306/yabiso_transactional"
+    ports:
+      - "8002:8002"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - yabiso-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  payments-service:
+    build:
+      context: ./payments-service
+      dockerfile: Dockerfile
+    container_name: yabiso-payments
+    environment:
+      APP_ENV: development
+      DEBUG: "True"
+      LOG_LEVEL: INFO
+      HOST: 0.0.0.0
+      PORT: 8003
+      MYSQL_URL: "mysql+pymysql://yabiso_user:YaBiso@Pass2026!@mysql:3306/yabiso_transactional"
+    ports:
+      - "8003:8003"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - yabiso-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  analytics-service:
+    build:
+      context: ./analytics-service
+      dockerfile: Dockerfile
+    container_name: yabiso-analytics
+    environment:
+      APP_ENV: development
+      DEBUG: "True"
+      LOG_LEVEL: INFO
+      HOST: 0.0.0.0
+      PORT: 8004
+      MONGODB_URL: "mongodb://yabiso_admin:YaBiso@Mongo2026!@mongodb:27017/yabiso_documents?authSource=admin"
+    ports:
+      - "8004:8004"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - yabiso-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8004/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+# =================== VOLUMES ===================
+
+volumes:
+  sqlserver_data:
+  mysql_data:
+  mongodb_data:
+  redis_data:
+  rabbitmq_data:
+
+# =================== NETWORKS ===================
+
+networks:
+  yabiso-network:
+    driver: bridge

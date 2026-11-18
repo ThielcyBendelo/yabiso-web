@@ -1,17 +1,18 @@
 import React from 'react';
 import NavbarSecured from '../components/NavbarSecured';
 import Hero from '../components/Hero';
+import FeatureShowcase from '../components/FeatureShowcase'; // <-- Importation de votre nouvelle section dynamique NoSQL
 import Footer from '../components/Footer';
-import FAQSection from '../components/FAQSection';
 
 export default function Home() {
   return (
     <>
       <NavbarSecured />
-      <div className="mt-5">
+      <main className="bg-slate-950"> {/* Aligné avec le thème sombre de votre plateforme */}
         <Hero />
-        <FAQSection />
-      </div>
+        {/* Section vitrine animée pour les producteurs et produits de RDC */}
+        <FeatureShowcase />
+      </main>
       <Footer />
     </>
   );

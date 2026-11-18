@@ -150,7 +150,7 @@ const SecureContactForm = () => {
   return (
   <div className="max-w-2xl mx-auto bg-white dark:bg-stone-900 p-8 md:p-10 rounded-[40px] shadow-xl border border-stone-100 dark:border-stone-800 transition-all duration-300">
     
-    {/* EN-TÊTE DU FORMULAIRE THÉMATISÉ M-DELICE */}
+    {/* EN-TÊTE DU FORMULAIRE THÉMATISÉ Ya_Biso */}
     <div className="text-center mb-8">
       <div className="inline-flex p-3 bg-amber-100 dark:bg-amber-500/20 rounded-2xl text-amber-800 dark:text-amber-400 mb-3">
         <FaUtensils size={22} />
@@ -213,7 +213,7 @@ const SecureContactForm = () => {
     {/* INDICATEURS DE SÉCURITÉ RESTRUCTURÉS EN COULISSES PRO */}
     <div className="mt-8 pt-6 border-t border-stone-100 dark:border-stone-800 text-center">
       <span className="text-[10px] uppercase font-extrabold tracking-[0.2em] text-stone-400 block mb-4">
-        Garanties de protection des données M-DELICE
+        Garanties de protection des données Ya_Biso
       </span>
       
       {/* Grille de badges de sécurité épurés */}

@@ -1,16 +1,14 @@
+import React from 'react';
 import { Navigate } from 'react-router-dom';
 import authService from '../services/authService';
 
-/**
- * Composant de protection des routes privées
- * Redirige vers login si non authentifié
- */
-const PrivateRoute = ({ children }) => {
-  if (!authService.isLoggedIn()) {
+// Protège les routes privées : redirige vers /login si aucun token JWT valide n'est présent
+export default function PrivateRoute({ children }) {
+  const isAuthenticated = authService.isLoggedIn();
+
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
   return children;
-};
-
-export default PrivateRoute;
+}

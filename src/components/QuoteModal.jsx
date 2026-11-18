@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import emailService from '../services/emailService';
 import { FaUser, FaEnvelope, FaPhone, FaBirthdayCake, FaCalendarAlt, FaPaperPlane, FaTimes, FaQuoteLeft, FaMoneyBillWave, FaUtensils, FaUsers } from 'react-icons/fa';
 
-// Typologie des demandes événementielles M-DELICE
+// Typologie des demandes événementielles Ya_Biso
 const SERVICES = [
   { value: 'Cake Design Mariage', label: 'Pièce Montée & Mariage' },
   { value: 'Cake Design Anniversaire', label: 'Gâteau d\'Anniversaire Personnalisé' },

@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { FaChartLine, FaMoneyBillWave, FaPercentage, FaWallet, FaArrowRight, FaDownload, FaPlusCircle } from 'react-icons/fa';
 
-// Indicateurs clés de rentabilité M-DELICE Abidjan
+// Indicateurs clés de rentabilité Ya_Biso Abidjan
 const indicateursFinanciers = [
   {
     nom: "Chiffre d'Affaires Brut",
@@ -74,7 +74,7 @@ export default function Finances() {
           </motion.h2>
           <div className="h-1.5 w-24 bg-orange-500 mx-auto rounded-full mt-6"></div>
           <p className="text-xl text-stone-600 dark:text-stone-300 mt-8 max-w-3xl mx-auto leading-relaxed">
-            Analysez la santé commerciale de la pâtisserie M-DELICE. Maîtrisez vos coûts d'exploitation et optimisez vos marges sur chaque entremet produit.
+            Analysez la santé commerciale de la pâtisserie Ya_Biso. Maîtrisez vos coûts d'exploitation et optimisez vos marges sur chaque entremet produit.
           </p>
         </div>
 

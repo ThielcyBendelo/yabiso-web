@@ -7,7 +7,7 @@ import QuoteModal from "./QuoteModal";
 import { profileImage } from '../assets/assets.js';
 import { gateau1, gateau2, gateau3, gateau4, gateau5, gateau6 } from "../assets/assets";
 
-// Galerie des créations phares Cake Design de M-DELICE Abidjan
+// Galerie des créations phares Cake Design de Ya_Biso Abidjan
 const creationsCakeDesign = [
   {
     title: "Pièce Montée Prestige Blanc & Or",
@@ -28,7 +28,7 @@ const creationsCakeDesign = [
     image: gateau2,
   },
   {
-    title: "Le Box Corporate M-DELICE",
+    title: "Le Box Corporate Ya_Biso",
     subtitle: "Événements d'entreprise",
     description: "Gâteau épuré aux lignes géométriques arborant le logo de votre entreprise en impression alimentaire haute définition.",
     details: [{ label: "Focus", value: "Identité de Marque" }, { label: "Format", value: "Rectangulaire" }, { label: "Statut", value: "Sur mesure" }],
@@ -91,7 +91,7 @@ export default function CakeDesign() {
   <div className="absolute inset-0 w-full h-full pointer-events-none z-0">
     <img 
       src={profileImage} 
-      alt="Haute Pâtisserie Cake Design M-DELICE" 
+      alt="Haute Pâtisserie Cake Design Ya_Biso" 
       className="w-full h-full object-cover object-center filter brightness-[0.25] contrast-[1.05]"
       loading="eager"
     />

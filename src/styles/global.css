@@ -1,0 +1,249 @@
+/* 🎨 Styles Globaux avec Variables de Thème */
+
+:root {
+  --color-primary: #0ea5e9;
+  --color-secondary: #06b6d4;
+  --color-accent: #10b981;
+  --color-background: #ffffff;
+  --color-surface: #f8fafc;
+  --color-text: #000000;
+  --color-text-secondary: #475569;
+  --color-error: #ef4444;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Thème Sombre */
+[data-theme='dark'] {
+  --color-primary: #0ea5e9;
+  --color-secondary: #06b6d4;
+  --color-accent: #10b981;
+  --color-background: #0f172a;
+  --color-surface: #1e293b;
+  --color-text: #ffffff;
+  --color-text-secondary: #cbd5e1;
+  --color-error: #f87171;
+  --color-success: #34d399;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  line-height: 1.6;
+  transition: var(--transition-smooth);
+  overflow-x: hidden;
+}
+
+/* Ripple Grid Pattern pour thème clair */
+[data-theme='light']::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(circle at 1px 1px, rgba(148, 163, 184, 0.1), transparent 1px);
+  background-size: 30px 30px;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Smooth Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-text-secondary);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+/* Animations de base */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(14, 165, 233, 0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+/* Utilitaires */
+.fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.slide-in {
+  animation: slideIn 0.4s ease-out;
+}
+
+.pulse-glow {
+  animation: pulseGlow 2s infinite;
+}
+
+/* Focus states pour accessibilité */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Liens */
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: var(--transition-fast);
+}
+
+a:hover {
+  color: var(--color-secondary);
+  text-decoration: underline;
+}
+
+/* Sélection */
+::selection {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+/* Responsive Typography */
+h1 {
+  font-size: clamp(1.5rem, 5vw, 3rem);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+h2 {
+  font-size: clamp(1.25rem, 4vw, 2rem);
+  font-weight: 600;
+}
+
+h3 {
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
+  font-weight: 600;
+}
+
+p {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+}
+
+/* Containers */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.container-sm {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.container-lg {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Grille */
+.grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.grid-cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.grid-cols-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 768px) {
+  .grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+  
+  .grid-cols-3,
+  .grid-cols-4 {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+  
+  a {
+    text-decoration: underline;
+  }
+}

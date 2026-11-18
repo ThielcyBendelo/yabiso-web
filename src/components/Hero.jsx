@@ -1,340 +1,466 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import {
+  FaSearch, FaMapMarkerAlt, FaStore, FaHandshake, FaLeaf,
+  FaCheckCircle, FaArrowRight, FaMobileAlt, FaShieldAlt, FaTruck, FaWhatsapp
+} from 'react-icons/fa';
 
-// Hooks & Services
-import useParallax from '../hooks/useParallax';
-import useIntersectionObserver from '../hooks/useIntersectionObserver';
-
-// Composants & Assets
-import LazyImage from './LazyImage';
-import AnimatedSection from './AnimatedSection';
-import { profileImage } from '../assets/assets.js';
-
-// Icônes
-import { FaUtensils, FaBirthdayCake, FaTruck, FaAward, FaHeart, FaStar, FaQuoteLeft, FaShoppingBag, FaGraduationCap } from 'react-icons/fa';
-
-export default function Hero() {
-  const scrollY = useParallax();
-  const [elementRef] = useIntersectionObserver();
+export default function Hero({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF' }) {
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedProvince, setSelectedProvince] = useState('');
 
-  const backgrounds = [
-    '/background1.png',
-    '/background2.png',
-    '/background3.png',
+  const EXCHANGE_RATE = 2850; // 1 USD = 2850 CDF
+
+  const provinces = [
+    'Kinshasa', 'Kongo-Central', 'Nord-Kivu', 'Sud-Kivu',
+    'Lualaba', 'Haut-Katanga', 'Tshopo', 'Équateur'
   ];
-  const [bgIndex, setBgIndex] = useState(0);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setBgIndex((prev) => (prev + 1) % backgrounds.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [backgrounds.length]);
+  const featuredProducts = [
+    {
+      id: 1,
+      name: 'Café Arabica du Kivu (Torréfié)',
+      category: 'Agro-alimentaire',
+      province: 'Sud-Kivu',
+      supplier: 'Coopérative Sopacdi',
+      verified: true,
+      priceB2C: 12,
+      unitB2C: 'Sachet 500g',
+      priceB2B: 9.5,
+      unitB2B: 'Sac 10kg (Min. 5 sacs)',
+      image: 'https://unsplash.com'
+    },
+    {
+      id: 2,
+      name: 'Miel Pur de Forêt Équatoriale',
+      category: 'Agriculture',
+      province: 'Équateur',
+      supplier: 'Rucher Mbandaka Bio',
+      verified: true,
+      priceB2C: 8,
+      unitB2C: 'Pot 1 Litre',
+      priceB2B: 6,
+      unitB2B: 'Bidon 20L (Min. 2 bidons)',
+      image: 'https://unsplash.com'
+    },
+    {
+      id: 3,
+      name: 'Panier Artisanal Tressé Raphia',
+      category: 'Artisanat',
+      province: 'Kasaï',
+      supplier: 'Atelier Mains d’Or',
+      verified: true,
+      priceB2C: 25,
+      unitB2C: 'Pièce unique',
+      priceB2B: 18,
+      unitB2B: 'Lot de 10 pièces',
+      image: 'https://unsplash.com'
+    },
+    {
+      id: 4,
+      name: 'Farine de Manioc Panifiable (Fufu)',
+      category: 'Agriculture',
+      province: 'Kongo-Central',
+      supplier: 'Ferme Nsioni',
+      verified: true,
+      priceB2C: 15,
+      unitB2C: 'Sac 25kg',
+      priceB2B: 12,
+      unitB2B: 'Sac 50kg (Min. 20 sacs)',
+      image: 'https://unsplash.com'
+    }
+  ];
+
+  const basins = [
+    { name: 'Kinshasa', specialty: 'Transformation, Mode & Artisanat', count: '140+ fournisseurs' },
+    { name: 'Sud-Kivu', specialty: 'Café, Thé, Miel & Haricots', count: '95+ coopératives' },
+    { name: 'Kongo-Central', specialty: 'Manioc, Fruits & Huile de palme', count: '110+ producteurs' },
+    { name: 'Haut-Katanga', specialty: 'Maïs, Maraîchage & Élevage', count: '80+ fermes' }
+  ];
+
+  const formatPrice = (usdAmount) => {
+    if (currency === 'USD') return usdAmount.toFixed(2) + ' $';
+    return Math.round(usdAmount * EXCHANGE_RATE).toLocaleString('fr-FR') + ' FC';
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    navigate(
+      '/catalogue?search=' +
+        encodeURIComponent(searchQuery) +
+        '&province=' +
+        encodeURIComponent(selectedProvince)
+    );
+  };
+
+  const handleProvinceClick = (province) => {
+    setSelectedProvince(province);
+    navigate('/catalogue?province=' + encodeURIComponent(province));
+  };
+
+  const handleWhatsAppProduct = (product) => {
+    const msg =
+      'Bonjour ' +
+      product.supplier +
+      ', je suis intéressé par "' +
+      product.name +
+      '" (' +
+      buyerMode +
+      ') sur YaBiso RDC.';
+    window.open('https://wa.me' + encodeURIComponent(msg), '_blank', 'noopener,noreferrer');
+  };
 
   return (
-    <div className="bg-stone-50">
-      {/* ================= SECTION HERO ================= */}
-      <section ref={elementRef} id="home" className="relative min-h-screen flex flex-col justify-center items-center text-center px-10 pt-24 overflow-hidden" >
-        
-        {/* Background Slider */}
-        <div className="absolute inset-0 w-full h-full transition-all duration-1000" style={{ backgroundImage: `url(${backgrounds[bgIndex]})`, backgroundSize: 'cover', backgroundPosition: 'center', filter: 'brightness(0.35)', transform: `translateY(${scrollY * 0.5}px)`, }} />
+    <div className="bg-white dark:bg-[#070a1d] text-slate-900 dark:text-gray-100">
+      
+      {/* 1. SECTION HERO PRINCIPALE */}
+      <section className="relative bg-gradient-to-b from-sky-50/90 via-white to-white dark:from-[#0b102b] dark:via-[#070a1d] dark:to-[#070a1d] pt-32 pb-16 px-4 sm:px-6 border-b border-slate-100 dark:border-gray-800">
+        <div className="max-w-5xl mx-auto text-center">
+          
+          {/* Badge */}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300 text-xs font-bold uppercase tracking-wider mb-6"
+          >
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+            <span>
+              {buyerMode === 'B2B'
+                ? 'Espace Pro : Approvisionnement en gros pour Hôtels & Supermarchés'
+                : 'Le Hub B2C & B2B du Made in RDC 🇨🇩'}
+            </span>
+          </motion.div>
 
-        {/* Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-b from-amber-950/40 via-transparent to-stone-50 z-10" />
+          {/* Titre Principal */}
+          <motion.h1
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-4xl sm:text-6xl font-black tracking-tight text-slate-900 dark:text-white leading-tight"
+          >
+            Valorisons nos{' '}
+            <span className="text-sky-600 dark:text-sky-400">Produits</span>{' '}
+            <span className="relative inline-block">
+              <span className="relative z-10">Locaux</span>
+              <span className="absolute bottom-1 left-0 w-full h-3 bg-amber-300/80 dark:bg-amber-400/30 -z-0 rounded"></span>
+            </span>
+          </motion.h1>
 
-        {/* Éclats Animés */}
-        <div className="absolute inset-0 z-15 pointer-events-none">
-          {[...Array(15)].map((_, i) => (
-            <motion.div 
-              key={i} 
-              className={`absolute w-1.5 h-1.5 rounded-full ${i % 2 === 0 ? 'bg-amber-400' : 'bg-orange-400'}`} 
-              animate={{ y: [0, -120], opacity: [0, 0.8, 0], scale: [0.5, 1.2, 0] }} 
-              transition={{ duration: Math.random() * 6 + 4, repeat: Infinity, delay: Math.random() * 2 }} 
-              style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%` }} 
-            />
-          ))}
-        </div>
+          <p className="mt-5 text-base sm:text-xl text-slate-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
+            Achetez en direct auprès des coopératives agricoles, grossistes et artisans de la{' '}
+            <strong className="text-sky-600 dark:text-sky-400">République Démocratique du Congo</strong> avec paiement Mobile Money sécurisé.
+          </p>
 
-        <div className="relative z-20 max-w-5xl">
-          {/* Logo Signature */}
-          <AnimatedSection variant="scaleIn" delay={0.2}>
-            <div className="mb-6 flex justify-center">
-              <motion.div whileHover={{ scale: 1.05 }} className="relative">
-                <LazyImage 
-                  src={profileImage} 
-                  alt="M-DELICE Maison de Pâtisserie" 
-                  className="w-44 h-44 md:w-52 md:h-52 rounded-full object-cover border-4 border-amber-400 shadow-[0_0_30px_rgba(251,191,36,0.3)] relative z-10" 
-                />
-                <motion.div 
-                  className="absolute inset-[-10px] rounded-full border-2 border-orange-400/40 border-t-transparent" 
-                  animate={{ rotate: 360 }} 
-                  transition={{ duration: 12, repeat: Infinity, ease: 'linear' }} 
-                />
-              </motion.div>
+          {/* BARRE DE RECHERCHE RAPIDE */}
+          <form
+            onSubmit={handleSearch}
+            className="mt-8 max-w-4xl mx-auto bg-white dark:bg-[#131936] p-2.5 rounded-2xl shadow-xl shadow-sky-900/5 border border-slate-200 dark:border-gray-700 flex flex-col md:flex-row gap-2 items-center"
+          >
+            <div className="w-full flex-1 flex items-center px-3 border-b md:border-b-0 md:border-r border-slate-200 dark:border-gray-700 pb-2.5 md:pb-0">
+              <FaSearch className="text-sky-500 mr-3 shrink-0" />
+              <input
+                type="text"
+                placeholder={
+                  buyerMode === 'B2B'
+                    ? 'Ex: 50 sacs de maïs, café vert du Kivu...'
+                    : 'Que cherchez-vous ? (ex: Miel pur, Farine de manioc, Pagne...)'
+                }
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-transparent text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none text-sm"
+              />
             </div>
-          </AnimatedSection>
 
-          {/* Titres & Slogan */}
-          <AnimatedSection variant="slideUp" delay={0.4}>
-            <div className="mb-10 text-center px-2">
-              <div className="flex justify-center mb-6">
-                <span className="px-4 py-1.5 rounded-full border border-amber-400/30 bg-amber-400/10 text-amber-300 text-xs md:text-sm font-bold uppercase tracking-[0.2em] backdrop-blur-sm">
-                  Haute Pâtisserie • Cake Design • Abidjan
-                </span>
-              </div>
-              
-              <h1 className="text-5xl md:text-8xl font-black mb-6 tracking-tight">
-                <span className="bg-gradient-to-r from-white via-amber-100 to-orange-400 text-transparent bg-clip-text font-serif">
-                  M-DELICE
-                </span>
-              </h1>
-
-              <div className="max-w-3xl mx-auto space-y-4">
-                <p className="text-xl md:text-3xl text-stone-50 font-light italic leading-tight">
-                  "L'art de la haute gourmandise et des créations <span className="text-amber-400 font-semibold not-italic">sur mesure</span> pour sublimer vos moments."
-                </p>
-                
-                <div className="flex justify-center items-center gap-4 my-6">
-                  <div className="h-[1px] w-12 bg-amber-500/50"></div>
-                  <div className="h-2 w-2 rounded-full bg-amber-500"></div>
-                  <div className="h-[1px] w-12 bg-amber-500/50"></div>
-                </div>
-                
-                <p className="text-sm md:text-base text-amber-500/50 uppercase tracking-widest font-medium">
-                  Atelier d'Exception : <span className="text-white">Côte d'Ivoire</span>
-                </p>
-              </div>
-            </div>
-          </AnimatedSection>
-
-          {/* Boutons */}
-          <AnimatedSection variant="slideUp" delay={0.8}>
-            <div className="flex flex-col sm:flex-row gap-2 justify-center">
-              <button 
-                onClick={() => navigate('/services')} 
-                className="px-6 py-4 pt-4 bg-amber-600 hover:bg-amber-500 text-white rounded-full font-bold shadow-lg transition-all transform hover:scale-105 flex items-center justify-center gap-2"
+            <div className="w-full md:w-60 flex items-center px-3 pb-2.5 md:pb-0">
+              <FaMapMarkerAlt className="text-amber-500 mr-2.5 shrink-0" />
+              <select
+                value={selectedProvince}
+                onChange={(e) => setSelectedProvince(e.target.value)}
+                className="w-full bg-transparent text-slate-700 dark:text-gray-200 focus:outline-none cursor-pointer text-sm font-semibold"
               >
-                <FaShoppingBag /> Découvrir la carte
-              </button>
-              <button 
-                onClick={() => navigate('/work')} 
-                className="px-6 py-2 pt-4 bg-transparent text-amber-500  border-2 border-amber-400/80 rounded-full font-bold shadow-lg hover:bg-white/10 transition-all transform hover:scale-105"
-              >
-                Commander un gâteau
-              </button>
+                <option value="" className="text-slate-900">Toutes les provinces</option>
+                {provinces.map((prov) => (
+                  <option key={prov} value={prov} className="text-slate-900">
+                    {prov}
+                  </option>
+                ))}
+              </select>
             </div>
-          </AnimatedSection>
+
+            <button
+              type="submit"
+              className="w-full md:w-auto px-7 py-3.5 bg-sky-500 hover:bg-sky-600 text-white rounded-xl font-bold text-sm shadow-md shadow-sky-500/20 transition shrink-0"
+            >
+              Rechercher
+            </button>
+          </form>
+
+          {/* FILTRAGE RAPIDE PAR PROVINCE */}
+          <div className="mt-8">
+            <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-3">
+              Filtrer par bassin de production :
+            </p>
+            <div className="flex flex-wrap justify-center gap-2 max-w-3xl mx-auto">
+              {provinces.map((province) => (
+                <button
+                  key={province}
+                  type="button"
+                  onClick={() => handleProvinceClick(province)}
+                  className="px-3.5 py-1.5 text-xs font-semibold rounded-full bg-slate-100 dark:bg-[#131936] hover:bg-amber-400 dark:hover:bg-amber-400 text-slate-700 dark:text-gray-300 hover:text-slate-900 transition"
+                >
+                  {province}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* BOUTONS D'ACTION PRINCIPAUX */}
+          <div className="mt-10 flex flex-wrap justify-center gap-4">
+            <button
+              type="button"
+              onClick={() => navigate('/catalogue')}
+              className="px-6 py-3.5 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold text-sm flex items-center gap-2 shadow-sm transition"
+            >
+              <span>Explorer le catalogue</span>
+              <FaArrowRight />
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/devenir-fournisseur')}
+              className="px-6 py-3.5 rounded-xl bg-white dark:bg-[#131936] hover:bg-sky-50 border-2 border-sky-500 text-sky-600 dark:text-sky-400 font-bold text-sm flex items-center gap-2 transition"
+            >
+              <FaStore />
+              <span>Devenir Fournisseur (Gratuit)</span>
+            </button>
+          </div>
         </div>
       </section>
 
-     {/* ================= SECTION CHIFFRES CLÉS ET STATISTIQUES AVANCÉES ================= */}
-<section className="py-20 bg-gradient-to-br from-amber-950 via-stone-900 to-amber-950 text-stone-100 relative overflow-hidden">
-  
-  {/* Effets de lumière en arrière-plan (Glow statistique) */}
-  <div className="absolute top-1/2 left-1/4 w-72 h-72 bg-amber-500/10 rounded-full blur-[120px] pointer-events-none -translate-y-1/2" />
-  <div className="absolute top-1/2 right-1/4 w-72 h-72 bg-orange-500/5 rounded-full blur-[120px] pointer-events-none -translate-y-1/2" />
+            {/* 2. GARANTIES POUR LA RDC */}
+      <section className="max-w-7xl mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white dark:bg-[#131936] p-6 rounded-2xl border border-slate-200 dark:border-gray-800 shadow-sm flex items-start gap-4">
+            <div className="p-3 rounded-xl bg-sky-100 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400">
+              <FaMobileAlt size={22} />
+            </div>
+            <div>
+              <h3 className="font-bold text-slate-900 dark:text-white text-sm">Mobile Money & Multi-devises</h3>
+              <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">
+                Payez en CDF ou USD via M-Pesa, Airtel Money, Orange Money et Afrimoney.
+              </p>
+            </div>
+          </div>
 
-  <div className="max-w-7xl mx-auto px-6 relative z-10">
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-      
-      {/* GRAPHIC 1 : Jauge semi-circulaire d'atteinte d'objectifs (Événements) */}
-      <div className="bg-stone-900/40 backdrop-blur-md border border-amber-500/10 rounded-[32px] p-6 flex flex-col items-center justify-between shadow-xl transition-all duration-300 hover:border-amber-500/30 group">
-        <div className="relative flex items-center justify-center w-28 h-28 mb-4">
-          {/* Cercle SVG de progression de données */}
-          <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="40" stroke="#292524" strokeWidth="8" fill="transparent" />
-            <motion.circle 
-              cx="50" cy="50" r="40" stroke="#f59e0b" strokeWidth="8" fill="transparent" 
-              strokeDasharray="251.2"
-              initial={{ strokeDashoffset: 251.2 }}
-              whileInView={{ strokeDashoffset: 251.2 - (251.2 * 0.85) }} // Simule 85% de progression visuelle
-              viewport={{ once: true }}
-              transition={{ duration: 1.5, ease: "easeOut" }}
-            />
-          </svg>
-          <div className="absolute text-amber-400 group-hover:scale-110 transition-transform duration-300">
-            <FaAward size={28} />
+          <div className="bg-white dark:bg-[#131936] p-6 rounded-2xl border border-slate-200 dark:border-gray-800 shadow-sm flex items-start gap-4">
+            <div className="p-3 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400">
+              <FaShieldAlt size={22} />
+            </div>
+            <div>
+              <h3 className="font-bold text-slate-900 dark:text-white text-sm">Paiement Sécurisé (Séquestre)</h3>
+              <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">
+                Vos fonds sont protégés et libérés au vendeur uniquement après livraison.
+              </p>
+            </div>
           </div>
-        </div>
-        <div className="text-center w-full">
-          <span className="text-3xl md:text-4xl font-white block tracking-tight text-white mb-1">+500</span>
-          <span className="text-[11px] uppercase tracking-widest text-amber-400/80 font-bold block mb-3">Événements Réussis</span>
-          <div className="bg-stone-800/80 rounded-full px-3 py-1 text-[10px] text-stone-400 font-semibold inline-block">
-            Objectif annuel : 85% atteint
-          </div>
-        </div>
-      </div>
 
-      {/* GRAPHIC 2 : Graphique à Barres de distribution volumétrique (Cake Designs) */}
-      <div className="bg-stone-900/40 backdrop-blur-md border border-amber-500/10 rounded-[32px] p-6 flex flex-col items-center justify-between shadow-xl transition-all duration-300 hover:border-amber-500/30 group">
-        <div className="flex items-end justify-center gap-2 w-28 h-28 mb-4 px-2">
-          {/* Barres d'analyses professionnelles simulées */}
-          <motion.div initial={{ height: 0 }} whileInView={{ height: "40%" }} viewport={{ once: true }} transition={{ duration: 1, delay: 0.1 }} className="w-3 bg-stone-800 rounded-t-sm" />
-          <motion.div initial={{ height: 0 }} whileInView={{ height: "70%" }} viewport={{ once: true }} transition={{ duration: 1, delay: 0.2 }} className="w-3 bg-amber-600/50 rounded-t-sm" />
-          <motion.div initial={{ height: 0 }} whileInView={{ height: "95%" }} viewport={{ once: true }} transition={{ duration: 1, delay: 0.3 }} className="w-3 bg-orange-500 rounded-t-sm" />
-          <div className="absolute text-amber-400 group-hover:scale-110 transition-transform duration-300 -translate-y-4">
-            <FaBirthdayCake size={26} />
+          <div className="bg-white dark:bg-[#131936] p-6 rounded-2xl border border-slate-200 dark:border-gray-800 shadow-sm flex items-start gap-4">
+            <div className="p-3 rounded-xl bg-sky-100 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400">
+              <FaTruck size={22} />
+            </div>
+            <div>
+              <h3 className="font-bold text-slate-900 dark:text-white text-sm">Logistique Interprovinciale</h3>
+              <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">
+                Achetez dans les provinces et recevez vos colis à Kinshasa, Lubumbashi ou Goma.
+              </p>
+            </div>
           </div>
         </div>
-        <div className="text-center w-full">
-          <span className="text-3xl md:text-4xl font-white block tracking-tight text-white mb-1">+150</span>
-          <span className="text-[11px] uppercase tracking-widest text-amber-400/80 font-bold block mb-3">Cake Designs Uniques</span>
-          <div className="bg-stone-800/80 rounded-full px-3 py-1 text-[10px] text-stone-400 font-semibold inline-block">
-            Croissance mensuelle : +12%
-          </div>
-        </div>
-      </div>
+      </section>
 
-      {/* GRAPHIC 3 : Anneau de charge pleine à 100% (Fait maison) */}
-      <div className="bg-stone-900/40 backdrop-blur-md border border-amber-500/10 rounded-[32px] p-6 flex flex-col items-center justify-between shadow-xl transition-all duration-300 hover:border-amber-500/30 group">
-        <div className="relative flex items-center justify-center w-28 h-28 mb-4">
-          <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="40" stroke="#292524" strokeWidth="8" fill="transparent" />
-            <motion.circle 
-              cx="50" cy="50" r="40" stroke="#ea580c" strokeWidth="8" fill="transparent" 
-              strokeDasharray="251.2"
-              initial={{ strokeDashoffset: 251.2 }}
-              whileInView={{ strokeDashoffset: 0 }} // 0 indique que l'anneau est complété à 100%
-              viewport={{ once: true }}
-              transition={{ duration: 1.8, ease: "easeInOut" }}
-            />
-          </svg>
-          <div className="absolute text-orange-500 group-hover:scale-110 transition-transform duration-300">
-            <FaHeart size={26} />
+      {/* 3. PRODUITS LOCAUX VEDETTES */}
+      <section className="max-w-7xl mx-auto px-4 py-12">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-4">
+          <div>
+            <span className="text-xs font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400">
+              Sélection Vérifiée
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black mt-1">
+              {buyerMode === 'B2B' ? 'Offres en Gros & Approvisionnement' : 'Produits Locaux Populaires'}
+            </h2>
+          </div>
+
+          {setBuyerMode && (
+            <div className="flex items-center gap-1 bg-slate-100 dark:bg-[#131936] p-1 rounded-xl border border-slate-200 dark:border-gray-800">
+              <button
+                type="button"
+                onClick={() => setBuyerMode('B2C')}
+                className={
+                  'px-3.5 py-1.5 rounded-lg text-xs font-bold transition ' +
+                  (buyerMode === 'B2C'
+                    ? 'bg-sky-500 text-white shadow'
+                    : 'text-slate-600 dark:text-gray-400')
+                }
+              >
+                Prix Détail (B2C)
+              </button>
+              <button
+                type="button"
+                onClick={() => setBuyerMode('B2B')}
+                className={
+                  'px-3.5 py-1.5 rounded-lg text-xs font-bold transition ' +
+                  (buyerMode === 'B2B'
+                    ? 'bg-amber-400 text-slate-900 shadow'
+                    : 'text-slate-600 dark:text-gray-400')
+                }
+              >
+                Prix de Gros (B2B)
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {featuredProducts.map((product) => (
+            <motion.div
+              key={product.id}
+              whileHover={{ y: -4 }}
+              className="bg-white dark:bg-[#131936] rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-slate-200 dark:border-gray-800 flex flex-col justify-between transition"
+            >
+              <div>
+                <div
+                  onClick={() => navigate('/produit/' + product.id)}
+                  className="relative h-48 overflow-hidden bg-slate-100 cursor-pointer"
+                >
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                  <span className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-white/95 dark:bg-[#0a0e27]/90 text-slate-900 dark:text-white text-[11px] font-bold flex items-center gap-1 shadow">
+                    <FaMapMarkerAlt className="text-amber-500" /> {product.province}
+                  </span>
+                  {product.verified && (
+                    <span className="absolute top-3 right-3 px-2 py-1 rounded-lg bg-sky-500 text-white text-[10px] font-bold flex items-center gap-1 shadow">
+                      <FaCheckCircle /> Vérifié
+                    </span>
+                  )}
+                </div>
+
+                <div className="p-4">
+                  <span className="text-[11px] font-bold text-sky-600 dark:text-sky-400 uppercase">
+                    {product.category}
+                  </span>
+                  <h3
+                    onClick={() => navigate('/produit/' + product.id)}
+                    className="font-bold text-base mt-1 line-clamp-1 cursor-pointer hover:text-sky-500"
+                  >
+                    {product.name}
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">
+                    Par {product.supplier}
+                  </p>
+
+                  <div className="mt-4 pt-3 border-t border-slate-100 dark:border-gray-800">
+                    <div className="text-lg font-black text-sky-600 dark:text-sky-400">
+                      {formatPrice(buyerMode === 'B2B' ? product.priceB2B : product.priceB2C)}
+                    </div>
+                    <div className="text-xs text-slate-500 dark:text-gray-400">
+                      {buyerMode === 'B2B' ? product.unitB2B : product.unitB2C}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 pt-0 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => navigate('/produit/' + product.id)}
+                  className={
+                    'flex-1 py-2.5 rounded-xl font-bold text-xs transition ' +
+                    (buyerMode === 'B2B'
+                      ? 'bg-amber-400 hover:bg-amber-500 text-slate-900'
+                      : 'bg-sky-500 hover:bg-sky-600 text-white')
+                  }
+                >
+                  {buyerMode === 'B2B' ? 'Demander un devis' : 'Commander'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleWhatsAppProduct(product)}
+                  className="p-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white transition flex items-center justify-center"
+                  title="Discuter sur WhatsApp"
+                >
+                  <FaWhatsapp size={16} />
+                </button>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* 4. EXPLORER PAR PROVINCE */}
+      <section className="bg-slate-50 dark:bg-[#0b102b] py-16 px-4 border-y border-slate-100 dark:border-gray-800">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-2xl mx-auto mb-10">
+            <span className="text-xs font-bold uppercase tracking-wider text-amber-500">
+              Richesses de nos terroirs
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black mt-1">Explorez par Province</h2>
+            <p className="text-sm text-slate-600 dark:text-gray-400 mt-2">
+              Chaque province de la RDC possède un savoir-faire unique. Commandez directement auprès des bassins de production.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {basins.map((prov) => (
+              <div
+                key={prov.name}
+                onClick={() => handleProvinceClick(prov.name)}
+                className="cursor-pointer bg-white dark:bg-[#131936] p-6 rounded-2xl border border-slate-200 dark:border-gray-800 hover:border-sky-500 shadow-sm transition group"
+              >
+                <div className="flex justify-between items-center mb-3">
+                  <FaLeaf className="text-sky-500 text-xl group-hover:scale-110 transition" />
+                  <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400">
+                    {prov.count}
+                  </span>
+                </div>
+                <h3 className="font-bold text-lg">{prov.name}</h3>
+                <p className="text-xs text-slate-500 dark:text-gray-400 mt-1">{prov.specialty}</p>
+              </div>
+            ))}
           </div>
         </div>
-        <div className="text-center w-full">
-          <span className="text-3xl md:text-4xl font-white block tracking-tight text-white mb-1">100%</span>
-          <span className="text-[11px] uppercase tracking-widest text-amber-400/70 font-bold block mb-3">Fait Maison & Amour</span>
-          <div className="bg-stone-800/80 rounded-full px-3 py-1 text-[10px] text-stone-400 font-semibold inline-block">
-            Contrôle qualité certifié
+      </section>
+
+            {/* 5. BANNIÈRE APPELS D'OFFRES B2B */}
+      <section className="max-w-7xl mx-auto px-4 py-16">
+        <div className="rounded-3xl bg-gradient-to-r from-sky-500 to-blue-600 text-white p-8 sm:p-12 flex flex-col lg:flex-row items-center justify-between gap-8 shadow-xl">
+          <div className="max-w-xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-xs font-bold mb-4">
+              <FaHandshake /> SPÉCIAL HÔTELS, SUPERMARCHÉS & RESTAURANTS
+            </div>
+            <h2 className="text-2xl sm:text-4xl font-black leading-tight">
+              Vous avez un besoin régulier en produits locaux ?
+            </h2>
+            <p className="text-sky-100 text-sm sm:text-base mt-3">
+              Publiez un appel d’offres gratuitement et recevez plusieurs devis chiffrés de nos coopératives et grossistes vérifiés en moins de 24h.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+            <button
+              type="button"
+              onClick={() => navigate('/appels-offres')}
+              className="px-7 py-4 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-900 font-black text-sm text-center transition shadow-lg"
+            >
+              Publier un besoin (B2B)
+            </button>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* GRAPHIC 4 : Indicateur linéaire de taux de satisfaction (Avis) */}
-      <div className="bg-stone-900/40 backdrop-blur-md border border-amber-500/10 rounded-[32px] p-6 flex flex-col items-center justify-between shadow-xl transition-all duration-300 hover:border-amber-500/30 group">
-        <div className="relative flex flex-col items-center justify-center w-full h-28 mb-4 px-4">
-          <div className="text-amber-400 mb-3 group-hover:rotate-12 transition-transform duration-300">
-            <FaStar size={32} />
-          </div>
-          {/* Jauge de progression horizontale pro */}
-          <div className="w-full bg-stone-800 h-2 rounded-full overflow-hidden relative">
-            <motion.div 
-              initial={{ width: 0 }} 
-              whileInView={{ width: "98%" }} // Taux proportionnel à la note de 4.9/5
-              viewport={{ once: true }} 
-              transition={{ duration: 1.5, ease: "easeOut" }} 
-              className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full"
-            />
-          </div>
-        </div>
-        <div className="text-center w-full">
-          <span className="text-3xl md:text-4xl font-white block tracking-tight text-white mb-1">4.9/5</span>
-          <span className="text-[11px] uppercase tracking-widest text-amber-400/80 font-bold block mb-3">Avis Gourmands</span>
-          <div className="bg-stone-800/80 rounded-full px-3 py-1 text-[10px] text-stone-400 font-semibold inline-block">
-            Basé sur +1 200 avis vérifiés
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-
-      {/* ================= SECTION UNIVERS / SAVOIR-FAIRE ENRICHI ================= */}
-<section className="py-24 bg-white dark:bg-stone-950 transition-colors duration-500">
-  <div className="max-w-7xl mx-auto px-6 text-center">
-    
-    <AnimatedSection variant="slideUp">
-      <span className="text-orange-500 font-black uppercase tracking-[0.25em] text-xs block mb-3">
-        L'excellence au cœur d'Abidjan
-      </span>
-      <h2 className="text-4xl md:text-5xl font-black text-amber-950 font-serif mb-4">
-        Notre Savoir-Faire
-      </h2>
-      <p className="text-stone-500 mb-16 max-w-2xl mx-auto">
-        Chaque création est une œuvre d'art unique pensée pour émerveiller vos papilles et vos yeux.
-      </p> 
-    </AnimatedSection>
-
-    {/* Grille adaptative mise à jour de 3 à 4 colonnes professionnelles */}
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-      
-      {/* PÔLE 1 : Pâtisserie fine */}
-      <div className="group p-8 rounded-[40px] bg-stone-50 dark:bg-stone-900 border border-stone-100 dark:border-stone-800 shadow-xl hover:shadow-amber-500/5 transition-all duration-500 hover:-translate-y-3 relative overflow-hidden flex flex-col justify-between text-left">
-        <div className="absolute top-0 right-0 p-6 text-amber-900/5 group-hover:text-amber-900/10 pointer-events-none"><FaUtensils size={120} /></div>
-        <div className="relative z-10">
-          <div className="w-14 h-14 bg-amber-600 text-white rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-amber-600/20">
-            <FaUtensils size={24} />
-          </div>
-          <h3 className="text-2xl font-bold mb-4 text-amber-950 font-serif">Pâtisserie Fine</h3>
-          <p className="text-stone-600 dark:text-stone-300 text-sm leading-relaxed mb-4">
-            Entremets modernes, tartes destructurées et macarons craquants confectionnés avec des matières premières nobles.
-          </p>
-        </div>
-        <div className="border-t border-stone-200/60 dark:border-stone-800/80 pt-4 mt-4 relative z-10 text-[11px] font-black text-amber-800 dark:text-amber-400 uppercase tracking-wider">
-          Matières premières AOP • Fraîcheur
-        </div>
-      </div>
-
-      {/* PÔLE 2 : Cake Design */}
-      <div className="group p-8 rounded-[40px] bg-stone-50 dark:bg-stone-900 border border-stone-100 dark:border-stone-800 shadow-xl hover:shadow-orange-500/5 transition-all duration-500 hover:-translate-y-3 relative overflow-hidden flex flex-col justify-between text-left">
-        <div className="absolute top-0 right-0 p-6 text-orange-900/5 group-hover:text-orange-900/10 pointer-events-none"><FaBirthdayCake size={120} /></div>
-        <div className="relative z-10">
-          <div className="w-14 h-14 bg-orange-500 text-white rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-orange-500/20">
-            <FaBirthdayCake size={24} />
-          </div>
-          <h3 className="text-2xl font-bold mb-4 text-amber-950 font-serif">Cake Design</h3>
-          <p className="text-stone-600 dark:text-stone-300 text-sm leading-relaxed mb-4">
-            Gâteaux sculptés et personnalisés pour tous vos événements, réalisés avec une précision artistique et un goût exquis.
-          </p>
-        </div>
-        <div className="border-t border-stone-200/60 dark:border-stone-800/80 pt-4 mt-4 relative z-10 text-[11px] font-black text-orange-500 uppercase tracking-wider">
-          Sur Devis • Pièces Personnalisées
-        </div>
-      </div>
-
-      {/* PÔLE 3 : NOUVEAUTÉ - Traiteur Sucré Corporate (Utile pour le B2B à Abidjan) */}
-      <div className="group p-8 rounded-[40px] bg-stone-50 dark:bg-stone-900 border border-stone-100 dark:border-stone-800 shadow-xl hover:shadow-amber-950/5 transition-all duration-500 hover:-translate-y-3 relative overflow-hidden flex flex-col justify-between text-left">
-        <div className="absolute top-0 right-0 p-6 text-stone-900/5 group-hover:text-amber-900/10 pointer-events-none"><FaTruck size={120} /></div>
-        <div className="relative z-10">
-          <div className="w-14 h-14 bg-amber-900 text-white rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-amber-900/20">
-            <FaTruck size={24} />
-          </div>
-          <h3 className="text-2xl font-bold mb-4 text-amber-950 font-serif">Buffets & Cocktails</h3>
-          <p className="text-stone-600 dark:text-stone-300 text-sm leading-relaxed mb-4">
-            Mignardises de prestige et box de mini-viennoiseries adaptées pour vos lancements, réunions et réceptions d'affaires.
-          </p>
-        </div>
-        <div className="border-t border-stone-200/60 dark:border-stone-800/80 pt-4 mt-4 relative z-10 text-[11px] font-black text-amber-900 dark:text-amber-500 uppercase tracking-wider">
-          Formules Entreprises • Logistique
-        </div>
-      </div>
-
-      {/* PÔLE 4 : NOUVEAUTÉ - Ateliers & Masterclass (En lien avec la M-DELICE Academy) */}
-      <div className="group p-8 rounded-[40px] bg-stone-50 dark:bg-stone-900 border border-stone-100 dark:border-stone-800 shadow-xl hover:shadow-stone-700/5 transition-all duration-500 hover:-translate-y-3 relative overflow-hidden flex flex-col justify-between text-left">
-        <div className="absolute top-0 right-0 p-6 text-stone-900/5 group-hover:text-stone-700/10 pointer-events-none"><FaGraduationCap size={120} /></div>
-        <div className="relative z-10">
-          <div className="w-14 h-14 bg-stone-800 text-white rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-stone-800/20">
-            <FaGraduationCap size={24} />
-          </div>
-          <h3 className="text-2xl font-bold mb-4 text-amber-950 font-serif">Masterclass & Ateliers</h3>
-          <p className="text-stone-600 dark:text-stone-300 text-sm leading-relaxed mb-4">
-            Découvrez l'art du pochage, du montage et des glaçages miroir lors de sessions de formation exclusives collectives ou privées.
-          </p>
-        </div>
-        <div className="border-t border-stone-200/60 dark:border-stone-800/80 pt-4 mt-4 relative z-10 text-[11px] font-black text-stone-600 dark:text-stone-400 uppercase tracking-wider">
-          M-DELICE Academy • Certificat
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
     </div>
   );
 }

@@ -1,362 +1,224 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useFormSecurity from '../hooks/useFormSecurity';
+import { FaBuilding, FaUser, FaEnvelope, FaLock, FaWhatsapp, FaMapMarkerAlt, FaIdCard } from 'react-icons/fa';
 import authService from '../services/authService';
-import { register as apiRegister } from '../services/authApi';
+import notificationService from '../services/notificationService';
 
-const SecureRegister = () => {
+export default function SecureRegister() {
   const navigate = useNavigate();
-  const [apiError, setApiError] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [passwordStrength, setPasswordStrength] = useState(null);
+  
+  // Liste des provinces majeures de la RDC pour l'ancrage régional
+  const provinces = [
+    'Kinshasa', 'Kongo Central', 'Nord-Kivu', 'Sud-Kivu', 
+    'Lualaba', 'Haut-Katanga', 'Tshopo', 'Équateur', 'Kasaï-Central'
+  ];
 
-  const formSchema = {
-    name: { type: 'text', minLength: 2, maxLength: 50, required: true },
-    email: { type: 'email', required: true },
-    password: { type: 'password', required: true },
-    confirmPassword: { type: 'password', required: true },
-  };
-
-  const {
-    formData,
-    errors,
-    touched,
-    isLoading,
-    handleChange: baseHandleChange,
-    handleBlur,
-    handleSubmit: handleFormSubmit,
-  } = useFormSecurity(formSchema, async (data) => {
-    try {
-      setApiError('');
-
-      // Vérifier que les mots de passe correspondent
-      if (data.password !== data.confirmPassword) {
-        setApiError('Les mots de passe ne correspondent pas');
-        return;
-      }
-
-      // Appeler le service d'API pour l'inscription
-      const resp = await apiRegister({
-        name: data.name,
-        email: data.email,
-        password: data.password
-      });
-
-      // NE PAS rediriger automatiquement vers le dashboard admin.
-      // Les utilisateurs enregistrés obtiennent le rôle 'user' et ne doivent
-      // pas accéder à l'admin. Rediriger vers le profil utilisateur.
-      const user = resp?.user || authService.getCurrentUser();
-      if (user?.role === 'admin') {
-        navigate('/dashboard');
-      } else {
-        navigate('/profile');
-      }
-    } catch (error) {
-      setApiError(error.userMessage || error.message || 'Erreur lors de l\'inscription');
-    }
+  // État initial du formulaire d'inscription
+  const [formData, setFormData] = useState({
+    companyName: '',
+    managerName: '',
+    email: '',
+    whatsappNumber: '',
+    province: '',
+    city: '',
+    rccm: '',
+    idNat: '',
+    password: '',
+    confirmPassword: ''
   });
 
-  // Handler personnalisé pour afficher la force du mot de passe
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const [errors, setErrors] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-    // Afficher la force du mot de passe en temps réel
-    if (name === 'password' && value.length > 0) {
-      const strength = authService.validatePasswordStrength(value);
-      setPasswordStrength(strength);
-    } else if (name === 'password') {
-      setPasswordStrength(null);
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleRegisterSubmit = async (e) => {
+    e.preventDefault();
+    setErrors('');
+
+    if (formData.password !== formData.confirmPassword) {
+      setErrors('Les mots de passe ne correspondent pas.');
+      notificationService.error('Les mots de passe ne correspondent pas.');
+      return;
     }
 
-    baseHandleChange(e);
-  };
-
-  const handleSubmit = (e) => {
-  setApiError('');
-  handleFormSubmit(e);
-  };
-
-  // Fonction pour afficher la couleur de force du mot de passe
-  const getPasswordStrengthColor = (score) => {
-    if (score <= 2) return 'text-red-400';
-    if (score <= 3) return 'text-orange-400';
-    if (score <= 4) return 'text-yellow-400';
-    if (score <= 5) return 'text-lime-400';
-    return 'text-green-400';
+    setIsLoading(true);
+    try {
+      await authService.register(formData);
+      notificationService.success('Inscription réussie ! Bienvenue sur la plateforme.');
+      navigate('/dashboard');
+    } catch (err) {
+      setErrors(err.message);
+      notificationService.error(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-dark-200 to-dark-300 px-4">
-      <div className="w-full max-w-md bg-dark-300/80 backdrop-blur-sm p-8 rounded-2xl shadow-2xl border border-gray-700/50">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-purple to-pink rounded-lg mb-4">
-            <span className="text-white text-xl font-bold">✍️</span>
-          </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Créer un compte</h1>
-          <p className="text-gray-400">Rejoignez notre plateforme sécurisée</p>
+    <div className="min-h-screen bg-[var(--bg)] flex items-center justify-center px-4 py-12 text-white">
+      <form 
+        onSubmit={handleRegisterSubmit} 
+        className="w-full max-w-2xl bg-[var(--surface)] p-6 md:p-10 rounded-3xl border border-[var(--border-color)] shadow-2xl space-y-6"
+      >
+        {/* En-tête de la page */}
+        <div className="text-center">
+          <span className="px-3 py-1 text-[10px] font-black uppercase bg-[var(--accent-1)]/10 text-[var(--accent-1)] rounded-full tracking-wider border border-[var(--accent-1)]/20">
+            Espace Grossistes & Coopératives
+          </span>
+          <h2 className="text-3xl font-black uppercase tracking-tight text-white mt-3">Créer un compte Vendeur</h2>
+          <p className="text-xs text-[var(--muted-2)] mt-1">Rejoignez le marché global du Made in DRC et boostez vos commandes.</p>
         </div>
 
-        {/* API Error */}
-        {apiError && (
-          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
-            <p className="text-red-300 text-sm">🚨 {apiError}</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          
+          {/* SECTION 1 : IDENTIFICATION DE L'ENTREPRISE */}
+          <div className="space-y-4 md:col-span-2">
+            <h3 className="text-xs font-black uppercase tracking-widest text-[var(--accent-1)] border-b border-[var(--border-color)] pb-1">
+              🏢 L'Entreprise ou Coopérative
+            </h3>
+          </div>
+
+          <div>
+            <label className="text-[11px] font-bold uppercase tracking-wider block mb-1 text-gray-300">Nom de l'entreprise *</label>
+            <div className="relative flex items-center bg-[var(--bg)] rounded-xl border border-[var(--border-color)] px-3 py-2.5">
+              <FaBuilding className="text-gray-500 mr-2 shrink-0 text-sm" />
+              <input type="text" name="companyName" required value={formData.companyName} onChange={handleChange} className="w-full bg-transparent text-white text-xs focus:outline-none" placeholder="ex: Ets Elikya & Fils" />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-[11px] font-bold uppercase tracking-wider block mb-1 text-gray-300">Nom du Responsable *</label>
+            <div className="relative flex items-center bg-[var(--bg)] rounded-xl border border-[var(--border-color)] px-3 py-2.5">
+              <FaUser className="text-gray-500 mr-2 shrink-0 text-sm" />
+              <input type="text" name="managerName" required value={formData.managerName} onChange={handleChange} className="w-full bg-transparent text-white text-xs focus:outline-none" placeholder="ex: Jean Mukendi" />
+            </div>
+          </div>
+
+          {/* SECTION 2 : LOCALISATION ET CONTACT */}
+          <div className="space-y-4 md:col-span-2 pt-2">
+            <h3 className="text-xs font-black uppercase tracking-widest text-[var(--accent-1)] border-b border-[var(--border-color)] pb-1">
+              📍 Localisation & WhatsApp
+            </h3>
+          </div>
+
+          <div>
+            <label className="text-[11px] font-bold uppercase tracking-wider block mb-1 text-gray-300">Province d'Origine *</label>
+            <div className="relative flex items-center bg-[var(--bg)] rounded-xl border border-[var(--border-color)] px-3 py-2">
+              <FaMapMarkerAlt className="text-gray-500 mr-2 shrink-0 text-sm" />
+              <select name="province" required value={formData.province} onChange={handleChange} className="w-full bg-transparent text-white text-xs py-1 focus:outline-none appearance-none cursor-pointer">
+                <option value="" className="bg-[var(--surface)]">Sélectionnez la province</option>
+                {provinces.map((prov) => (
+                  <option key={prov} value={prov} className="bg-[var(--surface)] text-white">{prov}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="text-[11px] font-bold uppercase tracking-wider block mb-1 text-gray-300">Ville / Territoire *</label>
+            <div className="relative flex items-center bg-[var(--bg)] rounded-xl border border-[var(--border-color)] px-3 py-2.5">
+              <FaMapMarkerAlt className="text-gray-500 mr-2 shrink-0 text-sm" />
+              <input type="text" name="city" required value={formData.city} onChange={handleChange} className="w-full bg-transparent text-white text-xs focus:outline-none" placeholder="ex: Goma, Moanda, Maluku" />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-[11px] font-bold uppercase tracking-wider block mb-1 text-gray-300">Numéro WhatsApp Business *</label>
+            <div className="relative flex items-center bg-[var(--bg)] rounded-xl border border-[var(--border-color)] px-3 py-2.5">
+              <FaWhatsapp className="text-emerald-500 mr-2 shrink-0 text-base" />
+              <input type="tel" name="whatsappNumber" required value={formData.whatsappNumber} onChange={handleChange} className="w-full bg-transparent text-white text-xs focus:outline-none" placeholder="ex: 243812345678" />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-[11px] font-bold uppercase tracking-wider block mb-1 text-gray-300">Adresse Email Professionnelle *</label>
+            <div className="relative flex items-center bg-[var(--bg)] rounded-xl border border-[var(--border-color)] px-3 py-2.5">
+              <FaEnvelope className="text-gray-500 mr-2 shrink-0 text-sm" />
+              <input type="email" name="email" required value={formData.email} onChange={handleChange} className="w-full bg-transparent text-white text-xs focus:outline-none" placeholder="ex: direction@cooperative.cd" />
+            </div>
+          </div>
+
+          {/* SECTION 3 : ENREGISTREMENT LEGAL (RCCM / ID NAT) */}
+          <div className="space-y-4 md:col-span-2 pt-2">
+            <h3 className="text-xs font-black uppercase tracking-widest text-[var(--accent-1)] border-b border-[var(--border-color)] pb-1">
+              ⚖️ Documents Légaux (Optionnel pour artisans)
+            </h3>
+          </div>
+
+          <div>
+            <label className="text-[11px] font-bold uppercase tracking-wider block mb-1 text-gray-300">Numéro RCCM</label>
+            <div className="relative flex items-center bg-[var(--bg)] rounded-xl border border-[var(--border-color)] px-3 py-2.5">
+              <FaIdCard className="text-gray-500 mr-2 shrink-0 text-sm" />
+              <input type="text" name="rccm" value={formData.rccm} onChange={handleChange} className="w-full bg-transparent text-white text-xs focus:outline-none" placeholder="ex: CD/KIN/RCCM/..." />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-[11px] font-bold uppercase tracking-wider block mb-1 text-gray-300">Identification Nationale (ID NAT)</label>
+            <div className="relative flex items-center bg-[var(--bg)] rounded-xl border border-[var(--border-color)] px-3 py-2.5">
+              <FaIdCard className="text-gray-500 mr-2 shrink-0 text-sm" />
+              <input type="text" name="idNat" value={formData.idNat} onChange={handleChange} className="w-full bg-transparent text-white text-xs focus:outline-none" placeholder="ex: 01-83-N..." />
+            </div>
+          </div>
+
+          {/* SECTION 4 : SECURITE DU COMPTE */}
+          <div className="space-y-4 md:col-span-2 pt-2">
+            <h3 className="text-xs font-black uppercase tracking-widest text-[var(--accent-1)] border-b border-[var(--border-color)] pb-1">
+              🔐 Sécurité de l'accès
+            </h3>
+          </div>
+
+          <div>
+            <label className="text-[11px] font-bold uppercase tracking-wider block mb-1 text-gray-300">Mot de passe *</label>
+            <div className="relative flex items-center bg-[var(--bg)] rounded-xl border border-[var(--border-color)] px-3 py-2.5">
+              <FaLock className="text-gray-500 mr-2 shrink-0 text-sm" />
+              <input type="password" name="password" required minLength="6" value={formData.password} onChange={handleChange} className="w-full bg-transparent text-white text-xs focus:outline-none" placeholder="••••••••" />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-[11px] font-bold uppercase tracking-wider block mb-1 text-gray-300">Confirmer le mot de passe *</label>
+            <div className="relative flex items-center bg-[var(--bg)] rounded-xl border border-[var(--border-color)] px-3 py-2.5">
+              <FaLock className="text-gray-500 mr-2 shrink-0 text-sm" />
+              <input type="password" name="confirmPassword" required minLength="6" value={formData.confirmPassword} onChange={handleChange} className="w-full bg-transparent text-white text-xs focus:outline-none" placeholder="••••••••" />
+            </div>
+          </div>
+        </div>
+
+        {errors && (
+          <div className="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-semibold text-center">
+            {errors}
           </div>
         )}
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} noValidate className="space-y-5">
-          {/* Name Field */}
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
-              Nom complet
-            </label>
-            <div className="relative">
-              <input
-                id="name"
-                name="name"
-                type="text"
-                placeholder="Thielcy Bendelo"
-                value={formData.name || ''}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                disabled={isLoading}
-                className={`w-full px-4 py-3 bg-dark-100/50 border rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 transition-all ${
-                  touched.name && errors.name
-                    ? 'border-red-500 focus:ring-red-500/50'
-                    : 'border-gray-600/50 focus:ring-purple/50 focus:border-purple/50'
-                } disabled:opacity-50`}
-              />
-              <span className="absolute right-3 top-3 text-gray-500">👤</span>
-            </div>
-            {touched.name && errors.name && (
-              <p className="text-red-400 text-xs mt-1">⚠️ {errors.name}</p>
-            )}
-          </div>
+        {/* Bouton de validation final */}
+        <button 
+          type="submit" 
+          disabled={isLoading}
+          className="w-full mt-4 py-3.5 bg-[var(--accent-1)] hover:bg-[#ff5722] disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl font-bold text-sm shadow-lg transition-all transform active:scale-95 duration-150"
+        >
+          {isLoading ? 'Inscription en cours...' : 'Valider mon inscription fournisseur'}
+        </button>
 
-          {/* Email Field */}
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
-              Email
-            </label>
-            <div className="relative">
-              <input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="bendelothielcy@gmail.com"
-                value={formData.email || ''}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                disabled={isLoading}
-                className={`w-full px-4 py-3 bg-dark-100/50 border rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 transition-all ${
-                  touched.email && errors.email
-                    ? 'border-red-500 focus:ring-red-500/50'
-                    : 'border-gray-600/50 focus:ring-purple/50 focus:border-purple/50'
-                } disabled:opacity-50`}
-              />
-              <span className="absolute right-3 top-3 text-gray-500">✉️</span>
-            </div>
-            {touched.email && errors.email && (
-              <p className="text-red-400 text-xs mt-1">⚠️ {errors.email}</p>
-            )}
-          </div>
-
-          {/* Password Field */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label htmlFor="password" className="block text-sm font-medium text-gray-300">
-                Mot de passe
-              </label>
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="text-xs text-purple hover:text-pink transition"
-              >
-                {showPassword ? '👁️ Masquer' : '👁️ Afficher'}
-              </button>
-            </div>
-            <div className="relative">
-              <input
-                id="password"
-                name="password"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="bendelo1996$$$$$"
-                value={formData.password || ''}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                disabled={isLoading}
-                className={`w-full px-4 py-3 bg-dark-100/50 border rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 transition-all ${
-                  touched.password && errors.password
-                    ? 'border-red-500 focus:ring-red-500/50'
-                    : 'border-gray-600/50 focus:ring-purple/50 focus:border-purple/50'
-                } disabled:opacity-50`}
-              />
-              <span className="absolute right-3 top-3 text-gray-500">🔒</span>
-            </div>
-
-            {/* Password Strength Indicator */}
-            {passwordStrength && (
-              <div className="mt-2">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-gray-400">Force du mot de passe:</span>
-                  <span className={`text-xs font-semibold ${getPasswordStrengthColor(passwordStrength.score)}`}>
-                    {passwordStrength.strength} ({passwordStrength.score}/{passwordStrength.maxScore})
-                  </span>
-                </div>
-                <div className="w-full bg-gray-700 rounded-full h-1.5">
-                  <div
-                    className={`h-1.5 rounded-full transition-all ${
-                      passwordStrength.score <= 2
-                        ? 'bg-red-500 w-1/6'
-                        : passwordStrength.score <= 3
-                        ? 'bg-orange-500 w-1/3'
-                        : passwordStrength.score <= 4
-                        ? 'bg-yellow-500 w-1/2'
-                        : passwordStrength.score <= 5
-                        ? 'bg-lime-500 w-2/3'
-                        : 'bg-green-500 w-full'
-                    }`}
-                  />
-                </div>
-
-                {/* Checklist de sécurité */}
-                <div className="mt-2 space-y-1 text-xs">
-                  <div className={passwordStrength.checks.length ? 'text-green-400' : 'text-gray-400'}>
-                    {passwordStrength.checks.length ? '✓' : '○'} Au moins 8 caractères
-                  </div>
-                  <div className={passwordStrength.checks.uppercase ? 'text-green-400' : 'text-gray-400'}>
-                    {passwordStrength.checks.uppercase ? '✓' : '○'} Majuscule (A-Z)
-                  </div>
-                  <div className={passwordStrength.checks.lowercase ? 'text-green-400' : 'text-gray-400'}>
-                    {passwordStrength.checks.lowercase ? '✓' : '○'} Minuscule (a-z)
-                  </div>
-                  <div className={passwordStrength.checks.numbers ? 'text-green-400' : 'text-gray-400'}>
-                    {passwordStrength.checks.numbers ? '✓' : '○'} Chiffre (0-9)
-                  </div>
-                  <div className={passwordStrength.checks.special ? 'text-green-400' : 'text-gray-400'}>
-                    {passwordStrength.checks.special ? '✓' : '○'} Caractère spécial (!@#$%^&*)
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {touched.password && errors.password && (
-              <p className="text-red-400 text-xs mt-1">⚠️ {errors.password}</p>
-            )}
-          </div>
-
-          {/* Confirm Password Field */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300">
-                Confirmer le mot de passe
-              </label>
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="text-xs text-purple hover:text-pink transition"
-              >
-                {showConfirmPassword ? '👁️ Masquer' : '👁️ Afficher'}
-              </button>
-            </div>
-            <div className="relative">
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type={showConfirmPassword ? 'text' : 'password'}
-                placeholder="Confirmez votre mot de passe"
-                value={formData.confirmPassword || ''}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                disabled={isLoading}
-                className={`w-full px-4 py-3 bg-dark-100/50 border rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 transition-all ${
-                  touched.confirmPassword && errors.confirmPassword
-                    ? 'border-red-500 focus:ring-red-500/50'
-                    : 'border-gray-600/50 focus:ring-purple/50 focus:border-purple/50'
-                } disabled:opacity-50`}
-              />
-              <span className="absolute right-3 top-3 text-gray-500">🔒</span>
-            </div>
-
-            {/* Vérifier la correspondance */}
-            {formData.confirmPassword && formData.password && (
-              <div className={`text-xs mt-1 ${formData.password === formData.confirmPassword ? 'text-green-400' : 'text-red-400'}`}>
-                {formData.password === formData.confirmPassword ? '✓ Les mots de passe correspondent' : '✗ Les mots de passe ne correspondent pas'}
-              </div>
-            )}
-
-            {touched.confirmPassword && errors.confirmPassword && (
-              <p className="text-red-400 text-xs mt-1">⚠️ {errors.confirmPassword}</p>
-            )}
-          </div>
-
-          {/* Terms & Conditions */}
-          <div className="flex items-start gap-3 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
-            <input
-              type="checkbox"
-              id="terms"
-              className="w-4 h-4 mt-1 rounded border-gray-600 text-purple focus:ring-purple"
-              required
-            />
-            <label htmlFor="terms" className="text-xs text-gray-300">
-              Je reconnais avoir lu et accepté les{' '}
-              <button type="button" className="text-purple hover:text-pink transition">
-                conditions d'utilisation
-              </button>
-            </label>
-          </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={isLoading || !formData.name || !formData.email || !formData.password || !formData.confirmPassword}
-            className="w-full py-3 px-4 bg-gradient-to-r from-purple to-pink text-white font-semibold rounded-lg transform transition-all hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isLoading ? (
-              <span className="flex items-center justify-center gap-2">
-                <span className="animate-spin">⏳</span> Création du compte...
-              </span>
-            ) : (
-              '✓ Créer un compte'
-            )}
-          </button>
-        </form>
-
-        {/* Security Info */}
-        <div className="mt-6 p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
-          <p className="text-green-300 text-xs leading-relaxed">
-            🔐 <strong>Votre compte est protégé par:</strong>
-            <br />
-            • Validation des données côté client
-            <br />
-            • Hashe bcrypt côté serveur
-            <br />
-            • Tokens JWT sécurisés
-            <br />
-            • Rate limiting anti-brute force
-            <br />
-            • Chiffrage SSL/TLS en transmission
-          </p>
-        </div>
-
-        {/* Login Link */}
-        <div className="mt-6 text-center">
-          <p className="text-gray-400 text-sm">
-            Vous avez déjà un compte?{' '}
-            <button
-              type="button"
-              onClick={() => navigate('/login')}
-              className="text-purple hover:text-pink transition font-semibold"
+        <div className="text-center pt-2">
+          <p className="text-xs text-[var(--muted-2)]">
+            Vous possédez déjà un compte ?{' '}
+            <button 
+              type="button" 
+              onClick={() => navigate('/login')} 
+              className="text-[var(--accent-1)] font-bold hover:underline"
             >
-              Se connecter
+              Se connecter ici
             </button>
           </p>
         </div>
-      </div>
+      </form>
     </div>
   );
-};
-
-export default SecureRegister;
+}

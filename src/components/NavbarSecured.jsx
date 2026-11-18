@@ -5,25 +5,32 @@ import { motion, AnimatePresence } from 'framer-motion';
 // Services
 import notificationService from '../services/notificationService';
 import audioService from '../services/audioService';
-import analyticsService from '../services/analyticsService';
 import authService from '../services/authService';
 
 // Icônes
 import { 
   FaTachometerAlt, FaHome, FaBars, FaTimes, FaMoon, FaSun, 
-  FaVolumeUp, FaVolumeMute, FaUtensils, FaBirthdayCake, FaBoxes, 
-  FaChartLine, FaSearch, FaShareAlt, FaGift 
+  FaVolumeUp, FaVolumeMute, FaStore, FaBoxes, FaHandshake,
+  FaSearch, FaShareAlt, FaChevronDown, FaUserCircle, FaBuilding, FaUser
 } from 'react-icons/fa';
 
-export default function NavbarSecured() {
+export default function Navbar({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF', setCurrency }) {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(audioService.isEnabled());
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
-  
-  // NOUVEL ÉTAT DYNAMIQUE : Gestion du défilement collant (sticky scroll)
   const [isSticky, setIsSticky] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [openCategories, setOpenCategories] = useState(null);
+
+  // Gestion locale si les props ne sont pas encore passées par App.jsx
+  const [localMode, setLocalMode] = useState(buyerMode);
+  const [localCurrency, setLocalCurrency] = useState(currency);
+
+  const activeMode = setBuyerMode ? buyerMode : localMode;
+  const activeCurrency = setCurrency ? currency : localCurrency;
 
   const [theme, setTheme] = useState(() => {
     try {
@@ -35,15 +42,33 @@ export default function NavbarSecured() {
     }
   });
 
-  // Écouteur de défilement pour activer l'effet sticky
+  // Catégories enrichies selon nos priorités RDC
+  const categories = [
+    {
+      name: 'Produits',
+      icon: <FaBoxes />,
+      subcategories: [
+        { name: 'Agriculture & Vivres', href: '/catalogue?category=agriculture' },
+        { name: 'Agro-alimentaire transformé', href: '/catalogue?category=transformation' },
+        { name: 'Artisanat & Déco', href: '/catalogue?category=artisanat' },
+        { name: 'Textiles & Mode', href: '/catalogue?category=textiles' },
+        { name: 'Tout le catalogue', href: '/catalogue' },
+      ]
+    },
+    {
+      name: 'Fournisseurs',
+      icon: <FaStore />,
+      subcategories: [
+        { name: 'Annuaire Vérifié 🇨🇩', href: '/fournisseurs' },
+        { name: 'Grossistes (B2B)', href: '/fournisseurs?type=wholesaler' },
+        { name: 'Coopératives Agricoles', href: '/fournisseurs?type=cooperative' },
+        { name: 'Artisans Locaux', href: '/fournisseurs?type=artisan' },
+      ]
+    }
+  ];
+
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 45) {
-        setIsSticky(true);
-      } else {
-        setIsSticky(false);
-      }
-    };
+    const handleScroll = () => setIsSticky(window.scrollY > 35);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -63,6 +88,11 @@ export default function NavbarSecured() {
   }, []);
 
   useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
   }, [theme]);
@@ -71,269 +101,378 @@ export default function NavbarSecured() {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
     audioService.playClick();
-    notificationService.info(`Mode ${newTheme === 'dark' ? 'sombre' : 'clair'} activé`, { autoClose: 2000 });
+    notificationService.info(`Mode ${newTheme === 'dark' ? 'sombre' : 'clair'} activé`, { autoClose: 1500 });
   };
 
   const toggleAudio = () => {
     const newState = audioService.toggle();
     setAudioEnabled(newState);
-    newState ? notificationService.success('🔊 Sons activés') : notificationService.info('🔇 Sons désactivés');
+    newState ? notificationService.success('🔊 Effets sonores activés') : notificationService.info('🔇 Sons coupés');
+  };
+
+  const handleModeSwitch = (mode) => {
+    audioService.playClick();
+    setBuyerMode ? setBuyerMode(mode) : setLocalMode(mode);
+    notificationService.info(
+      mode === 'B2B' 
+        ? '🏢 Mode Professionnel (Gros & Devis) activé' 
+        : '🛍️ Mode Particulier (Détail) activé',
+      { autoClose: 2000 }
+    );
+  };
+
+  const handleCurrencyToggle = () => {
+    audioService.playClick();
+    const next = activeCurrency === 'CDF' ? 'USD' : 'CDF';
+    setCurrency ? setCurrency(next) : setLocalCurrency(next);
+    notificationService.info(`Devise : ${next === 'CDF' ? 'Franc Congolais (FC)' : 'Dollar Américain ($)'}`, { autoClose: 1500 });
   };
 
   const handleNavClick = (href, e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     setIsOpen(false);
+    setOpenCategories(null);
     audioService.playNavigate();
     navigate(href);
   };
 
-  // 1. Nouvel état pour ouvrir/fermer la barre de recherche rapide
-const [searchOpen, setSearchOpen] = useState(false);
-const [searchQuery, setSearchQuery] = useState("");
-
-// 2. Fonction de partage native (WhatsApp, SMS, Réseaux sociaux)
-const handleShareClick = async () => {
-  audioService.playClick();
-  if (navigator.share) {
-    try {
-      await navigator.share({
-        title: 'M-DELICE Abidjan',
-        text: 'Découvrez les meilleures pâtisseries fines et Cake Designs d’Abidjan !',
-        url: window.location.origin,
-      });
-      notificationService.success('Merci pour le partage ! 🍰');
-    } catch (err) {
-      console.log("Partage annulé ou bloqué");
+  const handleShareClick = async () => {
+    audioService.playClick();
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'YaBiso RDC | Fournisseurs du Made in DRC',
+          text: 'Achetez directement auprès des producteurs, coopératives et artisans de la RDC !',
+          url: window.location.origin,
+        });
+        notificationService.success('Merci pour le partage ! 🇨🇩');
+      } catch (err) {
+        console.log("Partage annulé");
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.origin);
+      notificationService.info('Lien copié dans le presse-papiers !');
     }
-  } else {
-    // Si le navigateur ne gère pas le partage natif (ex: vieux PC)
-    navigator.clipboard.writeText(window.location.origin);
-    notificationService.info('Lien du site copié dans le presse-papier !');
-  }
-};
+  };
 
-// 3. Fonction pour le bouton Cadeaux
-const handleGiftClick = () => {
-  audioService.playClick();
-  // Option A : Ouvre votre modale de devis pré-remplie avec l'option cadeau
-  setSelectedIngredient("Fiche Recette Gratuite - Cadeau Bienvenue");
-  setModalOpen(true);
-  notificationService.success('🎁 Complétez vos informations pour recevoir votre fiche recette !');
-};
+  const handleQuickSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      setSearchOpen(false);
+      navigate(`/catalogue?search=${encodeURIComponent(searchQuery)}&mode=${activeMode}`);
+    }
+  };
 
-
-  // NavItems de base pour tous les utilisateurs (Vitrine M-DELICE)
-  const navItems = [
-    { href: '/', label: 'Accueil', icon: <FaHome /> },
-    { href: '/services', label: 'Notre Vitrine', icon: <FaUtensils /> },
-    { href: '/projects', label: 'Cake Design', icon: <FaBirthdayCake /> },
-    { href: '/boutique', label: 'Notre Boutique', icon: <FaBirthdayCake /> },
-  ];
-
-  // Si l'utilisateur est connecté, on injecte dynamiquement la gestion de stock et financière
-  if (isAuthenticated) {
-    navItems.push(
-      { href: '/skills', label: 'Gestion Stock', icon: <FaBoxes /> },
-      { href: '/work', label: 'Finances', icon: <FaChartLine /> }
-    );
-  }
-
-  return (
-    <>
-      {/* STRUCTURE GLOBALE ENVELOPPANTE DE FIXATION
-      <div className="fixed top-0 left-0 right-0 z-[100] flex flex-col w-full shadow-sm">
-        
-        {/* NOUVEAUTÉ : PREMIÈRE NAVBAR SUPÉRIEURE (Bandeau d'annonces comme l'image modèle) */}
-        {/* <div className={`w-full transition-all duration-300 bg-amber-100 dark:bg-stone-950 text-stone-800 dark:text-stone-200 border-b border-amber-200/50 dark:border-stone-800 text-xs md:text-sm font-medium px-4 py-2.5 flex items-center justify-between overflow-hidden ${
-          isSticky ? 'h-0 py-0 opacity-0 border-b-0 pointer-events-none' : 'h-auto opacity-100'
-        }`}>
-          <div className="max-w-7xl mx-auto w-full flex items-center justify-between gap-4">
-            <p className="truncate font-sans tracking-wide">
-              <span className="font-bold text-amber-800 dark:text-amber-400">M-DELICE Academy c'est : </span> 
-              des ateliers vidéos exclusifs, des réductions sur vos commandes et des fiches recettes imprimables...
-            </p>
-            <button 
-              onClick={() => navigate('/services')} 
-              className="bg-orange-500 hover:bg-orange-600 text-white text-[11px] font-black uppercase tracking-wider px-4 py-1.5 rounded-full shadow-sm transition-all flex-shrink-0"
-            >
-              Découvrir
-            </button>
-          </div>
-        </div> */} 
-
-        {/* DEUXIÈME NAVBAR PRINCIPALE (STICKY AVEC STYLE DE VAGUE SUR MESURE) */}
-        <nav className={`w-full transition-all duration-300 border-b border-stone-100 dark:border-stone-800 shadow-sm ${
-          isSticky 
-            ? 'bg-white/95 dark:bg-stone-900/95 backdrop-blur-md py-2' 
-            : 'bg-white dark:bg-stone-900 py-4'
-        }`}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between h-16 items-center">
-              
-              {/* LOGO DYNAMIQUE M-DELICE */}
-              <motion.div 
-                whileHover={{ scale: 1.02 }} 
-                className="flex flex-col cursor-pointer" 
-                onClick={() => navigate('/')}
+    return (
+    <header className="fixed top-0 left-0 right-0 z-50 w-full">
+      {/* BANDEAU SUPÉRIEUR : SÉLECTEUR B2C / B2B & DEVISE */}
+      <div className="bg-sky-600 dark:bg-[#060919] text-white text-xs py-1.5 px-4 border-b border-sky-500/30">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <span className="hidden sm:inline text-sky-100">Espace :</span>
+            <div className="inline-flex rounded-full bg-sky-800/70 dark:bg-gray-800 p-0.5">
+              <button
+                type="button"
+                onClick={() => handleModeSwitch('B2C')}
+                className={`flex items-center gap-1 px-2.5 py-0.5 rounded-full font-semibold transition-all ${
+                  activeMode === 'B2C' ? 'bg-amber-400 text-gray-900 shadow-sm' : 'text-gray-200 hover:text-white'
+                }`}
               >
-                <span className="text-2xl font-black bg-gradient-to-r from-amber-700 to-orange-500 dark:from-amber-400 dark:to-orange-400 text-transparent bg-clip-text font-serif tracking-wide">
-                  M-DELICE
-                </span>
-                <span className="text-[8px] uppercase tracking-[3px] text-stone-500 dark:text-amber-500/70 font-bold">
-                  Haute Pâtisserie • Abidjan
-                </span>
-              </motion.div>
-
-              {/* DESKTOP NAV */}
-              <div className="hidden md:flex items-center gap-1">
-                {navItems.map((item) => (
-                  <button 
-                    key={item.href} 
-                    onClick={(e) => handleNavClick(item.href, e)} 
-                    className="px-4 py-2 flex items-center gap-2 text-sm font-semibold text-stone-700 dark:text-stone-200 hover:text-amber-600 dark:hover:text-amber-400 transition-all rounded-full hover:bg-stone-50 dark:hover:bg-stone-800/50"
-                  >
-                    <span className="opacity-60">{item.icon}</span>
-                    {item.label}
-                  </button>
-                ))}
-
-                {/* AJOUTS OPTIONS SECONDAIRES ISSUES DU MODÈLE DE L'IMAGE */}
-               {/* COMPOSANT MIS À JOUR ET OPTIMISÉ POUR LA NAVBAR */}
-<div className="flex items-center gap-1 ml-2 border-l border-stone-200 dark:border-stone-800 pl-2 relative">
-  
-  {/* BARRE DE RECHERCHE RAPIDE DÉPLOYABLE (Pas besoin de créer une nouvelle page !) */}
-  <div className="relative flex items-center">
-    <AnimatePresence>
-      {searchOpen && (
-        <motion.input
-          initial={{ width: 0, opacity: 0 }}
-          animate={{ width: 150, opacity: 1 }}
-          exit={{ width: 0, opacity: 0 }}
-          type="text"
-          placeholder="Rechercher un gâteau..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl px-3 py-1.5 text-xs outline-none focus:ring-1 focus:ring-amber-500 mr-2 text-stone-800 dark:text-white"
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && searchQuery.trim()) {
-              notificationService.info(`Recherche de "${searchQuery}" en cours...`);
-              setSearchOpen(false);
-              setSearchQuery("");
-              navigate('/services'); // Redirige vers la vitrine où se trouvent les gâteaux
-            }
-          }}
-        />
-      )}
-    </AnimatePresence>
-    <button 
-      onClick={() => { audioService.playClick(); setSearchOpen(!searchOpen); }}
-      title="Rechercher une recette" 
-      className={`p-2 rounded-xl transition-colors ${searchOpen ? 'text-amber-600 bg-stone-100 dark:bg-stone-800' : 'text-stone-400 hover:text-amber-600'}`}
-    >
-      <FaSearch />
-    </button>
-  </div>
-
-  {/* BOUTON PARTAGER (Déclenche le menu de partage du téléphone/PC) */}
-  <button 
-    onClick={handleShareClick}
-    title="Partager le site à un proche" 
-    className="p-2 text-stone-400 hover:text-amber-600 transition-colors rounded-xl hover:bg-stone-50 dark:hover:bg-stone-800/50"
-  >
-    <FaShareAlt />
-  </button>
-
-  {/* BOUTON CADEAUX (Connecté à votre formulaire / modale) */}
-  <button 
-    onClick={handleGiftClick}
-    title="Recevoir ma recette gratuite" 
-    className="p-2 text-stone-400 hover:text-amber-600 transition-colors rounded-xl hover:bg-stone-50 dark:hover:bg-stone-800/50 flex items-center gap-1 animate-pulse hover:animate-none"
-  >
-    <FaGift />
-    <span className="text-[10px] font-black uppercase tracking-wider hidden xl:inline bg-amber-500 text-white px-1.5 py-0.5 rounded-md">Offert</span>
-  </button>
-
-</div>
-
-
-                <div className="h-6 w-[1px] bg-stone-200 dark:bg-stone-800 mx-4" />
-
-                {/* OUTILS ACCESSIBILITÉ : THEME, AUDIO & ESPACE PRO */}
-                <div className="flex items-center gap-2">
-                  <button 
-                    onClick={toggleAudio} 
-                    className="p-2 rounded-full text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
-                  >
-                    {audioEnabled ? <FaVolumeUp /> : <FaVolumeMute />}
-                  </button>
-
-                  <button 
-                    onClick={toggleTheme} 
-                    className="p-2 rounded-full bg-stone-100 dark:bg-stone-800 text-amber-600 dark:text-amber-400 hover:rotate-12 transition-all"
-                  >
-                    {theme === 'dark' ? <FaSun size={18} /> : <FaMoon size={18} />}
-                  </button>
-
-                  {isAuthenticated ? (
-                    <button 
-                      onClick={() => navigate('/dashboard')} 
-                      className="ml-2 w-10 h-10 rounded-full bg-amber-700 text-white flex items-center justify-center shadow-lg hover:bg-orange-500 transition-all" 
-                      title="Tableau de bord"
-                    >
-                      <FaTachometerAlt />
-                    </button>
-                  ) : (
-                    <button 
-                      onClick={() => navigate('/login')} 
-                      className="ml-2 px-5 py-2 bg-amber-800 dark:bg-amber-500 text-white dark:text-stone-950 rounded-full text-sm font-bold shadow-md hover:shadow-amber-500/10 transition-all"
-                    >
-                      Connexion
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* MOBILE MENU BUTTON */}
-              <div className="md:hidden flex items-center gap-4">
-                <button onClick={toggleTheme} className="text-amber-600 dark:text-amber-400">
-                  {theme === 'dark' ? <FaSun size={20} /> : <FaMoon size={20} />}
-                </button>
-                <button onClick={() => setIsOpen(!isOpen)} className="text-amber-950 dark:text-white text-2xl">
-                  {isOpen ? <FaTimes /> : <FaBars />}
-                </button>
-              </div>
-
+                <FaUser size={10} /> Particulier
+              </button>
+              <button
+                type="button"
+                onClick={() => handleModeSwitch('B2B')}
+                className={`flex items-center gap-1 px-2.5 py-0.5 rounded-full font-semibold transition-all ${
+                  activeMode === 'B2B' ? 'bg-amber-400 text-gray-900 shadow-sm' : 'text-gray-200 hover:text-white'
+                }`}
+              >
+                <FaBuilding size={10} /> Entreprise / Gros
+              </button>
             </div>
           </div>
 
-          {/* MOBILE NAV DROPDOWN */}
-          <AnimatePresence>
-            {isOpen && (
-              <motion.div 
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="md:hidden bg-stone-100 dark:bg-stone-800 border-t border-stone-200 dark:border-stone-800"
+          <div className="flex items-center gap-3">
+            <span className="hidden md:inline text-sky-100">Paiement Mobile Money & Séquestre 100% Sécurisé</span>
+            <button
+              type="button"
+              onClick={handleCurrencyToggle}
+              className="px-2.5 py-0.5 rounded bg-white/15 hover:bg-white/25 font-bold tracking-wider transition"
+              title="Changer la devise d'affichage"
+            >
+              {activeCurrency === 'CDF' ? '🇨🇩 CDF (FC)' : '🇺🇸 USD ($)'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* NAVBAR PRINCIPALE */}
+      <nav className={`w-full transition-all duration-300 ${
+        isSticky 
+          ? 'bg-white/95 dark:bg-[#0a0e27]/95 backdrop-blur-md shadow-lg py-2' 
+          : 'bg-white dark:bg-[#0a0e27] shadow-md py-3'
+      }`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex justify-between items-center h-14">
+            
+            {/* LOGO */}
+            <motion.div 
+              whileHover={{ scale: 1.03 }} 
+              className="flex flex-col cursor-pointer flex-shrink-0" 
+              onClick={() => handleNavClick('/')}
+            >
+              <div className="flex items-center gap-1">
+                <span className="text-2xl font-black bg-gradient-to-r from-sky-500 via-amber-400 to-red-500 text-transparent bg-clip-text font-serif tracking-wide">
+                  YaBiso
+                </span>
+                <span className="text-xs font-extrabold px-1.5 py-0.5 rounded bg-sky-100 dark:bg-sky-900/50 text-sky-600 dark:text-sky-400">
+                  RDC
+                </span>
+              </div>
+              <span className="text-[9px] uppercase tracking-[2px] text-gray-500 dark:text-gray-400 font-bold">
+                Made in Congo
+              </span>
+            </motion.div>
+
+            {/* NAVIGATION DESKTOP */}
+            <div className="hidden lg:flex items-center gap-1">
+              <button 
+                type="button"
+                onClick={(e) => handleNavClick('/', e)} 
+                className="px-3 py-2 flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:text-sky-500 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800/60"
               >
-                <div className="py-4 px-6">
-                  {navItems.map((item) => (
+                <FaHome className="text-sky-500" />
+                <span>Accueil</span>
+              </button>
+
+              {/* Dropdowns Catégories */}
+              {categories.map((category) => (
+                <div 
+                  key={category.name}
+                  className="relative"
+                  onMouseEnter={() => setOpenCategories(category.name)}
+                  onMouseLeave={() => setOpenCategories(null)}
+                >
+                  <button 
+                    type="button"
+                    className="px-3 py-2 flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:text-sky-500 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800/60"
+                  >
+                    <span className="text-sky-500">{category.icon}</span>
+                    <span>{category.name}</span>
+                    <FaChevronDown size={11} className="opacity-60" />
+                  </button>
+
+                  <AnimatePresence>
+                    {openCategories === category.name && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 8 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute top-full left-0 mt-1 w-56 bg-white dark:bg-[#131936] rounded-xl shadow-xl border border-gray-100 dark:border-gray-800 py-2 z-50"
+                      >
+                        {category.subcategories.map((sub) => (
+                          <button
+                            type="button"
+                            key={sub.name}
+                            onClick={(e) => handleNavClick(sub.href, e)}
+                            className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-sky-50 dark:hover:bg-sky-900/30 hover:text-sky-600 dark:hover:text-sky-400 transition-colors"
+                          >
+                            {sub.name}
+                          </button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ))}
+
+              {/* Lien Spécial Appels d'offres B2B */}
+              <button 
+                type="button"
+                onClick={(e) => handleNavClick('/appels-offres', e)} 
+                className="px-3 py-2 flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:text-amber-500 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800/60"
+              >
+                <FaHandshake className="text-amber-500" />
+                <span>Appels d'Offres</span>
+              </button>
+
+              {isAuthenticated && (
+                <button 
+                  type="button"
+                  onClick={(e) => handleNavClick('/dashboard', e)} 
+                  className="px-3 py-2 flex items-center gap-2 text-sm font-semibold text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-900/20 rounded-lg"
+                >
+                  <FaTachometerAlt />
+                  <span>Mon Espace</span>
+                </button>
+              )}
+            </div>
+
+            {/* ACTIONS DROITE */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setSearchOpen(!searchOpen)}
+                className="p-2.5 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+                aria-label="Rechercher"
+              >
+                <FaSearch />
+              </button>
+
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="p-2.5 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+                aria-label="Changer de thème"
+              >
+                {theme === 'dark' ? <FaSun className="text-amber-400" /> : <FaMoon />}
+              </button>
+
+              <button
+                type="button"
+                onClick={toggleAudio}
+                className="hidden sm:flex p-2.5 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+                aria-label="Son"
+              >
+                {audioEnabled ? <FaVolumeUp className="text-sky-500" /> : <FaVolumeMute />}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleShareClick}
+                className="hidden sm:flex p-2.5 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+                aria-label="Partager"
+              >
+                <FaShareAlt />
+              </button>
+
+              {/* Bouton Connexion / Mon Compte */}
+              {!isAuthenticated ? (
+                <button
+                  type="button"
+                  onClick={(e) => handleNavClick('/connexion', e)}
+                  className="hidden md:flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white text-sm font-bold shadow-md shadow-sky-500/20 transition"
+                >
+                  <FaUserCircle />
+                  <span>Connexion</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={(e) => handleNavClick('/dashboard', e)}
+                  className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-sky-500/40 text-sky-600 dark:text-sky-400 text-sm font-bold"
+                >
+                  <FaUserCircle />
+                  <span>{currentUser?.name || 'Compte'}</span>
+                </button>
+              )}
+
+                           {/* Bouton Menu Mobile */}
+              <button
+                type="button"
+                onClick={() => setIsOpen(!isOpen)}
+                className="lg:hidden p-2.5 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+                aria-label="Menu"
+              >
+                {isOpen ? <FaTimes size={22} /> : <FaBars size={22} />}
+              </button>
+            </div>
+          </div>
+
+          {/* BARRE DE RECHERCHE DÉPLIABLE */}
+          <AnimatePresence>
+            {searchOpen && (
+              <motion.form
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                onSubmit={handleQuickSearchSubmit}
+                className="pb-3 overflow-hidden"
+              >
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder={
+                      activeMode === 'B2B'
+                        ? "Rechercher en gros (ex: 50 sacs de maïs, café Kivu...)"
+                        : "Que cherchez-vous ? (ex: miel pur, pagne, manioc...)"
+                    }
+                    className="w-full px-4 py-2.5 rounded-xl bg-gray-100 dark:bg-[#131936] text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 focus:outline-none focus:border-sky-500 text-sm"
+                    autoFocus
+                  />
+                  <button
+                    type="submit"
+                    className="px-5 py-2.5 bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-xl text-sm transition"
+                  >
+                    Trouver
+                  </button>
+                </div>
+              </motion.form>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* MENU MOBILE */}
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="lg:hidden bg-white dark:bg-[#0a0e27] border-t border-gray-200 dark:border-gray-800 px-4 py-4 space-y-3 shadow-2xl"
+            >
+              <button
+                type="button"
+                onClick={(e) => handleNavClick('/', e)}
+                className="w-full text-left py-2 font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2"
+              >
+                <FaHome className="text-sky-500" />
+                <span>Accueil</span>
+              </button>
+
+              {categories.map((cat) => (
+                <div key={cat.name} className="space-y-1">
+                  <div className="text-xs font-bold uppercase text-gray-400 pt-2">
+                    {cat.name}
+                  </div>
+                  {cat.subcategories.map((sub) => (
                     <button
-                      key={item.href}
-                      onClick={(e) => {
-                        handleNavClick(item.href, e);
-                        setIsOpen(false);
-                      }}
-                      className="block w-full text-left px-4 py-2 text-sm font-semibold text-stone-700 dark:text-stone-200 hover:text-amber-600 dark:hover:text-amber-400 transition-all"
+                      type="button"
+                      key={sub.name}
+                      onClick={(e) => handleNavClick(sub.href, e)}
+                      className="block w-full text-left pl-4 py-1.5 text-sm text-gray-700 dark:text-gray-300 hover:text-sky-500"
                     >
-                      {item.label}
+                      {sub.name}
                     </button>
                   ))}
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </nav>
-      {/* </div> */}
-    </>
+              ))}
+
+              <button
+                type="button"
+                onClick={(e) => handleNavClick('/appels-offres', e)}
+                className="w-full text-left py-2 font-semibold text-amber-500 flex items-center gap-2"
+              >
+                <FaHandshake />
+                <span>Appels d'Offres (B2B)</span>
+              </button>
+
+              <div className="pt-3 border-t border-gray-200 dark:border-gray-800">
+                <button
+                  type="button"
+                  onClick={(e) => handleNavClick(isAuthenticated ? '/dashboard' : '/connexion', e)}
+                  className="w-full py-2.5 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-bold text-center text-sm transition"
+                >
+                  {isAuthenticated ? 'Mon Tableau de Bord' : 'Connexion / Inscription'}
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </nav>
+    </header>
   );
 }

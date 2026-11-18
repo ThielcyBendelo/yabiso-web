@@ -1,205 +1,188 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useFormSecurity from '../hooks/useFormSecurity';
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaArrowRight } from 'react-icons/fa';
 import authService from '../services/authService';
+import notificationService from '../services/notificationService';
 
-// IMPORTATION DES ICÔNES REACT-ICONS/FA SÉLECTIONNÉES POUR LE FORMULAIRE
-import { 
-  FaLock, FaEnvelope, FaEye, FaEyeSlash, FaExclamationTriangle, 
-  FaCheck, FaShieldAlt, FaFlask, FaSignInAlt, FaUtensils 
-} from 'react-icons/fa';
-
-const SecureLogin = () => {
+export default function SecureLogin() {
   const navigate = useNavigate();
-  const [apiError, setApiError] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const formSchema = {
-    email: { type: 'email', required: true },
-    password: { type: 'password', required: true },
-  };
-
-  const {
-    formData,
-    errors,
-    touched,
-    isLoading,
-    handleChange,
-    handleBlur,
-    handleSubmit: handleFormSubmit,
-  } = useFormSecurity(formSchema, async (data) => {
-    try {
-      setApiError('');
-      // Utiliser le service mock pour le login
-      const resp = await authService.login(data.email, data.password);
-      if (resp?.user?.role === 'admin') {
-        navigate('/dashboard');
-      } else {
-        navigate('/profile');
-      }
-    } catch (error) {
-      setApiError(error.userMessage || error.message);
-    }
-  });
-
-  const handleSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    setApiError('');
-    handleFormSubmit(e);
+    setError('');
+    setIsLoading(true);
+
+    try {
+      await authService.login(email, password);
+      notificationService.success('Connexion réussie, bienvenue !');
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.message);
+      notificationService.error(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-stone-950 px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-[#0b132b] flex items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden text-white">
       
-      {/* Background décoratif immersif (Effet Glow Or & Cannelle en arrière-plan) */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-96 h-96 bg-amber-600/10 rounded-full blur-[120px] pointer-events-none" />
-      
-      <div className="w-full max-w-md bg-stone-900/60 backdrop-blur-md p-8 md:p-10 rounded-[40px] shadow-2xl border border-stone-800/80 relative z-10 transition-all duration-300">
+      {/* Arrière-plan dynamique (Flous de lumière) */}
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[var(--accent-1)]/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
+
+      {/* Conteneur Principal Grand Format split (Visuel + Formulaire) */}
+      <div className="w-full max-w-5xl bg-[#1c2541]/40 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-12 min-h-[600px] relative z-10">
         
-        {/* Header de marque M-DELICE */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-amber-600 to-orange-500 rounded-2xl mb-4 shadow-lg shadow-orange-600/10">
-            <span className="text-white text-xl"><FaUtensils /></span>
-          </div>
-          <h1 className="text-3xl font-black text-white font-serif tracking-tight">Espace Gérant</h1>
-          <p className="text-stone-400 text-sm mt-1">Accédez au laboratoire de gestion M-DELICE</p>
-        </div>
-
-        {/* Message d'erreur API dynamique stylisé */}
-        {apiError && (
-          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center gap-3">
-            <FaExclamationTriangle className="text-red-400 shrink-0" size={16} />
-            <p className="text-red-300 text-xs font-medium">{apiError}</p>
-          </div>
-        )}
-
-        {/* Formulaire de saisie sécurisé */}
-        <form onSubmit={handleSubmit} noValidate className="space-y-5">
+        {/* PANNEAU GAUCHE : Visuel & Branding (Masqué sur mobile) */}
+        <div className="hidden md:flex md:col-span-5 bg-gradient-to-br from-[#1c2541] via-[#0b132b] to-[#1c2541] p-10 flex-col justify-between border-r border-white/5 relative">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--accent-1)]/5 rounded-full blur-3xl" />
           
-          {/* Email Field */}
-          <div>
-            <label htmlFor="email" className="block text-xs uppercase tracking-wider font-extrabold text-stone-400 mb-2 pl-1">
-              Adresse Email
-            </label>
-            <div className="relative">
-              <input 
-                id="email" 
-                name="email" 
-                type="email" 
-                placeholder="Ex: gerant@m-delice.com" 
-                value={formData.email || ''} 
-                onChange={handleChange} 
-                onBlur={handleBlur} 
-                disabled={isLoading} 
-                className={`w-full pl-11 pr-4 py-3.5 bg-stone-950/40 border rounded-2xl text-white placeholder-stone-600 font-medium focus:outline-none focus:ring-2 transition-all ${
-                  touched.email && errors.email 
-                    ? 'border-red-500 focus:ring-red-500/20' 
-                    : 'border-stone-800 focus:ring-amber-600/30 focus:border-amber-600'
-                } disabled:opacity-50`} 
-              />
-              <span className="absolute left-4 top-[17px] text-stone-600">
-                <FaEnvelope size={14} />
-              </span>
+          {/* Logo / Badge */}
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-[var(--accent-1)] flex items-center justify-center font-black text-sm tracking-tighter">
+              P
             </div>
-            {touched.email && errors.email && (
-              <p className="text-red-400 text-xs mt-1.5 flex items-center gap-1 pl-1 font-semibold">
-                <FaExclamationTriangle size={10} /> {errors.email}
-              </p>
-            )}
+            <span className="font-bold text-sm tracking-wider uppercase text-slate-200">Portail Fournisseurs</span>
           </div>
 
-          {/* Password Field */}
-          <div>
-            <div className="flex items-center justify-between mb-2 pl-1">
-              <label htmlFor="password" className="block text-xs uppercase tracking-wider font-extrabold text-stone-400">
-                Mot de passe
-              </label>
-              <button 
-                type="button" 
-                onClick={() => setShowPassword(!showPassword)} 
-                className="text-xs font-bold text-amber-500 hover:text-orange-400 transition flex items-center gap-1"
-              >
-                {showPassword ? <><FaEyeSlash /> Masquer</> : <><FaEye /> Afficher</>}
-              </button>
-            </div>
-            <div className="relative">
-              <input 
-                id="password" 
-                name="password" 
-                type={showPassword ? 'text' : 'password'} 
-                placeholder="••••••••••••" 
-                value={formData.password || ''} 
-                onChange={handleChange} 
-                onBlur={handleBlur} 
-                disabled={isLoading} 
-                className={`w-full pl-11 pr-4 py-3.5 bg-stone-950/40 border rounded-2xl text-white placeholder-stone-700 font-medium focus:outline-none focus:ring-2 transition-all ${
-                  touched.password && errors.password 
-                    ? 'border-red-500 focus:ring-red-500/20' 
-                    : 'border-stone-800 focus:ring-amber-600/30 focus:border-amber-600'
-                } disabled:opacity-50`} 
-              />
-              <span className="absolute left-4 top-[17px] text-stone-600">
-                <FaLock size={14} />
-              </span>
-            </div>
-            {touched.password && errors.password && (
-              <p className="text-red-400 text-xs mt-1.5 flex items-center gap-1 pl-1 font-semibold">
-                <FaExclamationTriangle size={10} /> {errors.password}
-              </p>
-            )}
+          {/* Accroche textuelle */}
+          <div className="space-y-4">
+            <span className="text-xs font-bold uppercase tracking-widest text-[var(--accent-1)] bg-[var(--accent-1)]/10 px-3 py-1 rounded-full">
+              Production Locale
+            </span>
+            <h1 className="text-3xl font-black leading-tight text-white">
+              Valorisons le savoir-faire de nos provinces.
+            </h1>
+            <p className="text-sm text-slate-400 leading-relaxed">
+              Connectez-vous à votre espace sécurisé pour gérer vos stocks, suivre vos commandes et propulser vos produits sur le marché.
+            </p>
           </div>
 
-          {/* Remember Me & Forgot Password */}
-          <div className="flex items-center justify-between text-xs font-semibold py-1">
-            <label className="flex items-center gap-2 text-stone-400 hover:text-stone-300 cursor-pointer select-none">
-              <input 
-                type="checkbox" 
-                className="w-4 h-4 rounded-md border-stone-800 bg-stone-950 text-amber-600 focus:ring-amber-600/20 focus:ring-offset-stone-900" 
-              />
-              <span>Se souvenir de moi</span>
-            </label>
-            <button 
-              type="button" 
-              onClick={() => navigate('/forgot-password')} 
-              className="text-amber-500 hover:text-orange-400 transition"
-            >
-              Mot de passe oublié ?
-            </button>
-          </div>
-
-          {/* Submit Button */}
-          <button 
-            type="submit" 
-            disabled={isLoading} 
-            className="w-full py-4 px-4 bg-gradient-to-r from-amber-700 to-orange-500 text-white font-black text-sm uppercase tracking-wider rounded-2xl transition-all shadow-xl shadow-orange-600/5 hover:shadow-orange-500/10 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {isLoading ? (
-              <span className="flex items-center justify-center gap-2">
-                <span className="animate-spin duration-1000">⏳</span> Chiffrement des jetons...
-              </span>
-            ) : (
-              <><FaSignInAlt /> Valider la connexion</>
-            )}
-          </button>
-        </form>
-
-        {/* Footer Navigation Link */}
-        <div className="mt-6 text-center border-t border-stone-800 pt-5">
-          <p className="text-stone-500 text-xs font-medium">
-            Pas encore de compte gérant ?{' '}
-            <button 
-              type="button" 
-              onClick={() => navigate('/register')} 
-              className="text-amber-500 hover:text-orange-400 font-extrabold transition ml-1"
-            >
-              S'inscrire
-            </button>
+          {/* Footer de marque */}
+          <p className="text-xs text-slate-500 font-medium">
+            © {new Date().getFullYear()} — Fièrement produit en RDC.
           </p>
         </div>
 
+        {/* PANNEAU DROIT : Le Formulaire */}
+        <div className="col-span-1 md:col-span-7 p-8 sm:p-12 flex flex-col justify-center bg-[#141d36]/20">
+          
+          {/* En-tête (Adapté pour mobile & desktop) */}
+          <div className="mb-8">
+            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              Connexion Vendeur
+            </h2>
+            <p className="text-sm text-slate-400 mt-2">
+              Ravi de vous revoir ! Entrez vos accès pour continuer.
+            </p>
+          </div>
+
+          <form onSubmit={handleLoginSubmit} className="space-y-5">
+
+            {error && (
+              <div className="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-semibold">
+                {error}
+              </div>
+            )}
+
+            {/* Champ Email */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider block text-slate-300">
+                Adresse Email
+              </label>
+              <div className="relative group">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 group-focus-within:text-[var(--accent-1)] transition-colors">
+                  <FaEnvelope size={14} />
+                </span>
+                <input 
+                  type="email" 
+                  required 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)} 
+                  className="w-full pl-11 pr-4 py-3.5 rounded-xl bg-[#0b132b]/60 border border-white/10 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-[var(--accent-1)] focus:ring-2 focus:ring-[var(--accent-1)]/20 transition-all" 
+                  placeholder="ex: contact@cooperative.cd" 
+                />
+              </div>
+            </div>
+
+            {/* Champ Mot de passe */}
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-300">
+                  Mot de passe
+                </label>
+                <a href="#forgot" className="text-xs font-bold text-[var(--accent-1)] hover:underline transition-all">
+                  Oublié ?
+                </a>
+              </div>
+              <div className="relative group">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 group-focus-within:text-[var(--accent-1)] transition-colors">
+                  <FaLock size={14} />
+                </span>
+                <input 
+                  type={showPassword ? "text" : "password"} 
+                  required 
+                  value={password} 
+                  onChange={(e) => setPassword(e.target.value)} 
+                  className="w-full pl-11 pr-12 py-3.5 rounded-xl bg-[#0b132b]/60 border border-white/10 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-[var(--accent-1)] focus:ring-2 focus:ring-[var(--accent-1)]/20 transition-all" 
+                  placeholder="••••••••" 
+                />
+                <button 
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-white transition-colors"
+                >
+                  {showPassword ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
+                </button>
+              </div>
+            </div>
+
+            {/* Options additionnelles */}
+            <div className="flex items-center justify-between pt-1">
+              <label className="flex items-center gap-2 cursor-pointer group select-none">
+                <input 
+                  type="checkbox" 
+                  className="w-4 h-4 rounded border-white/10 bg-[#0b132b] text-[var(--accent-1)] focus:ring-0 focus:ring-offset-0 checked:bg-[var(--accent-1)] cursor-pointer"
+                />
+                <span className="text-xs text-slate-400 group-hover:text-slate-200 transition-colors">
+                  Se souvenir de moi
+                </span>
+              </label>
+            </div>
+
+            {/* Bouton de soumission */}
+            <button 
+              type="submit" 
+              disabled={isLoading}
+              className="w-full mt-4 py-3.5 bg-[var(--accent-1)] hover:bg-[#ff5722] disabled:bg-slate-700 disabled:cursor-not-allowed text-white rounded-xl font-bold text-sm shadow-xl hover:shadow-[0_0_20px_rgba(var(--accent-1-rgb),0.3)] transition-all flex items-center justify-center gap-2 group"
+            >
+              {isLoading ? (
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <>
+                  Se connecter 
+                  <FaArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Lien d'inscription pour les nouveaux fournisseurs */}
+          <p className="text-center text-xs text-slate-400 mt-8">
+            Nouveau fournisseur ?{' '}
+            <a href="/register" className="font-bold text-white hover:text-[var(--accent-1)] transition-colors underline">
+              Créer un compte
+            </a>
+          </p>
+
+        </div>
       </div>
     </div>
   );
-};
-
-export default SecureLogin;
+}

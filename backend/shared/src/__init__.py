@@ -1,0 +1,78 @@
+"""Shared library - Modules réutilisables"""
+
+from .config import settings, get_settings
+from .exceptions import (
+    YaBisoException,
+    ValidationException,
+    AuthenticationException,
+    AuthorizationException,
+    NotFoundException,
+    ConflictException,
+    RateLimitException,
+    PaymentException,
+    DatabaseException,
+    ExternalServiceException,
+    DuplicateException,
+)
+from .auth import (
+    JWTHandler,
+    get_current_user,
+    get_optional_user,
+    AuditLogger,
+    RateLimiter,
+    require_auth,
+    require_role,
+    audit_log,
+    generate_request_id,
+)
+from .schemas import (
+    ResponseModel,
+    ErrorResponse,
+    UserResponse,
+    TokenResponse,
+    ProductResponse,
+    OrderResponse,
+    PaymentResponse,
+)
+from .models_sqlserver import User, RefreshToken, AuditLog
+from .models_mysql import Supplier, Product, Order, OrderItem, Payment
+
+__all__ = [
+    "settings",
+    "get_settings",
+    "YaBisoException",
+    "ValidationException",
+    "AuthenticationException",
+    "AuthorizationException",
+    "NotFoundException",
+    "ConflictException",
+    "RateLimitException",
+    "PaymentException",
+    "DatabaseException",
+    "ExternalServiceException",
+    "DuplicateException",
+    "JWTHandler",
+    "get_current_user",
+    "get_optional_user",
+    "AuditLogger",
+    "RateLimiter",
+    "require_auth",
+    "require_role",
+    "audit_log",
+    "generate_request_id",
+    "ResponseModel",
+    "ErrorResponse",
+    "UserResponse",
+    "TokenResponse",
+    "ProductResponse",
+    "OrderResponse",
+    "PaymentResponse",
+    "User",
+    "RefreshToken",
+    "AuditLog",
+    "Supplier",
+    "Product",
+    "Order",
+    "OrderItem",
+    "Payment",
+]

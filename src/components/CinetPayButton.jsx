@@ -15,55 +15,54 @@ export default function CinetPayButton({ montant, nomClient, infoCommande, onSuc
     return () => clearInterval(interval);
   }, []);
 
- const executerPaiement = () => {
-  if (!montant || montant <= 0) {
-    alert("Le montant de la commande est invalide.");
-    return;
-  }
-
-  // Clés officielles de test fournies par la documentation de CinetPay
-  const CONFIG_CINETPAY = {
-    apikey: "12913952795b87192667104.99281729", // Clé sandbox officielle CinetPay
-    site_id: "444141",                          // ID de test officiel CinetPay
-    notify_url: "https://votre-site.com"
-  };
-
-  const idTransaction = "MD-" + Math.floor(Math.random() * 10000000);
-
-  window.CinetPay.setConfig({
-    apikey: CONFIG_CINETPAY.apikey,
-    site_id: CONFIG_CINETPAY.site_id,
-    notify_url: CONFIG_CINETPAY.notify_url,
-    mode: 'TEST' // <-- ON PASSE EN MODE TEST ICI POUR LE LOCALHOST
-  });
-
-  window.CinetPay.getCheckout({
-    transaction_id: idTransaction,
-    amount: montant,
-    currency: 'XOF',
-    channels: 'MOBILE_MONEY,WALLET', 
-    description: `Commande M-Délice : ${infoCommande}`,
-    customer_name: nomClient || "Client M-Délice",
-    customer_surname: " ",
-    customer_email: "client@m-delice.ci",
-    customer_phone_number: "0700000000",
-    customer_address: "Abidjan",
-    customer_city: "Abidjan",
-    customer_country: "CI",
-    customer_state: "CI",
-    customer_zip_code: "00225"
-  });
-
-  window.CinetPay.waitResponse(function(data) {
-    if (data.status === "REFUSED") {
-      alert("Le paiement de test a été annulé.");
-    } else if (data.status === "ACCEPTED") {
-      alert("🎉 Super ! Le paiement de test M-Délice a fonctionné !");
-      if (onSucces) onSucces(idTransaction);
+  const executerPaiement = () => {
+    if (!montant || montant <= 0) {
+      alert("Le montant de la commande est invalide.");
+      return;
     }
-  });
-};
 
+    // Clés officielles de test fournies par la documentation de CinetPay
+    const CONFIG_CINETPAY = {
+      apikey: "12913952795b87192667104.99281729", // Clé sandbox officielle CinetPay
+      site_id: "444141",                          // ID de test officiel CinetPay
+      notify_url: "https://votre-site.com"
+    };
+
+    const idTransaction = "MD-" + Math.floor(Math.random() * 10000000);
+
+    window.CinetPay.setConfig({
+      apikey: CONFIG_CINETPAY.apikey,
+      site_id: CONFIG_CINETPAY.site_id,
+      notify_url: CONFIG_CINETPAY.notify_url,
+      mode: 'TEST' // <-- ON PASSE EN MODE TEST ICI POUR LE LOCALHOST
+    });
+
+    window.CinetPay.getCheckout({
+      transaction_id: idTransaction,
+      amount: montant,
+      currency: 'XOF',
+      channels: 'MOBILE_MONEY,WALLET', 
+      description: `Commande : ${infoCommande}`,
+      customer_name: nomClient || "Client Externe",
+      customer_surname: " ",
+      customer_email: "client@Ya_Biso.ci",
+      customer_phone_number: "0700000000",
+      customer_address: "Abidjan",
+      customer_city: "Abidjan",
+      customer_country: "CI",
+      customer_state: "CI",
+      customer_zip_code: "00225"
+    });
+
+    window.CinetPay.waitResponse(function(data) {
+      if (data.status === "REFUSED") {
+        alert("Le paiement de test a été annulé.");
+      } else if (data.status === "ACCEPTED") {
+        alert("🎉 Super ! Le paiement de test a fonctionné !");
+        if (onSucces) onSucces(idTransaction);
+      }
+    });
+  };
 
   return (
     <div className="block clear-both mt-4 p-4 bg-amber-50/60 rounded-xl border border-amber-100 text-center">
