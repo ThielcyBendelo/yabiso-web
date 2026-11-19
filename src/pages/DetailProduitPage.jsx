@@ -1,22 +1,35 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { PRODUCTS_DB } from '../data/productsData';
+import { PRODUCTS_DB, getProductImage } from '../data/productsData';
+import prod1 from '../assets/prod1.jpeg';
+
 import {
   FaArrowLeft, FaCheckCircle, FaMapMarkerAlt, FaShieldAlt,
   FaWhatsapp, FaMobileAlt, FaTruck, FaStore, FaFileInvoice,
   FaShoppingCart, FaStar, FaInfoCircle, FaLock
 } from 'react-icons/fa';
 
-
 export default function ProductDetail({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF' }) {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // Recherche du produit correspondant à l'ID dans l'URL
-  const product = PRODUCTS_DB.find((p) => String(p.id) === String(id)) || PRODUCTS_DB[0];
+    // Recherche du produit correspondant à l'ID dans l'URL (avec sur le fallback)
+  const foundProduct = PRODUCTS_DB.find((p) => String(p.id) === String(id)) || PRODUCTS_DB;
 
-  const [selectedImage, setSelectedImage] = useState(product.images[0]);
+  // Garantit un tableau d'images valide avec prod1.jpeg en secours
+  const productImages =
+    Array.isArray(foundProduct.images) && foundProduct.images.length > 0 && foundProduct.images
+      ? foundProduct.images
+      : [getProductImage(foundProduct.id) || prod1];
+
+  const product = {
+    ...foundProduct,
+    images: productImages,
+  };
+
+  // Ajout de pour sélectionner la première image (chaîne de caractères, pas un tableau)
+  const [selectedImage, setSelectedImage] = useState(product.images || prod1);
   const [quantity, setQuantity] = useState(buyerMode === 'B2B' ? product.minQtyB2B : product.minQtyB2C);
   const [deliveryMethod, setDeliveryMethod] = useState('domicile');
   const [mobileOperator, setMobileOperator] = useState('mpesa');
@@ -28,10 +41,11 @@ export default function ProductDetail({ buyerMode = 'B2C', setBuyerMode, currenc
   const EXCHANGE_RATE = 2850;
 
   useEffect(() => {
-    setSelectedImage(product.images[0]);
+    setSelectedImage(product.images || prod1);
     setQuantity(buyerMode === 'B2B' ? product.minQtyB2B : product.minQtyB2C);
     setOrderSubmitted(false);
-  }, [product, buyerMode]);
+  }, [id, buyerMode]);
+
 
   const formatPrice = (usdAmount) => {
     if (currency === 'USD') return usdAmount.toFixed(2) + ' $';
@@ -62,8 +76,9 @@ export default function ProductDetail({ buyerMode = 'B2C', setBuyerMode, currenc
     setOrderSubmitted(true);
   };
 
+
   return (
-    <div className="min-h-screen bg-white dark:bg-[#070a1d] text-gray-900 dark:text-gray-100 pt-28 pb-20 px-4">
+    <div className="min-h-screen bg-white dark:bg-[#070a1d] text-gray-900 dark:text-gray-100 pb-20 px-4">
       <div className="max-w-7xl mx-auto">
         
         {/* FIL D'ARIANE & RETOUR */}

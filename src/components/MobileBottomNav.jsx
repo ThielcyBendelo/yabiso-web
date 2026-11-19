@@ -37,7 +37,7 @@ export default function MobileBottomNav({ isAuthenticated = false }) {
       label: 'Vendre',
       path: '/devenir-fournisseur',
       icon: FaStore,
-      isHighlight: true, // Bouton central accentué
+      isHighlight: true,
     },
     {
       label: 'B2B',
@@ -51,7 +51,6 @@ export default function MobileBottomNav({ isAuthenticated = false }) {
     },
   ];
 
-  // Vérifie si l'onglet est actif
   const isActive = (path) => {
     if (path === '/') return location.pathname === '/';
     return location.pathname.startsWith(path);
@@ -60,29 +59,28 @@ export default function MobileBottomNav({ isAuthenticated = false }) {
   return (
     <nav
       aria-label="Navigation mobile inférieure"
-      className="lg:hidden fixed bottom-3.5 left-3.5 right-3.5 z-50 pointer-events-none"
+      className="lg:hidden fixed bottom-0 left-0 right-0 z-50"
     >
-      {/* Conteneur flottant Liquid Glass */}
+      {/* Barre Liquid Glass collée tout en bas de l'écran */}
       <div
         className="
-          pointer-events-auto max-w-md mx-auto
-          rounded-[28px] px-2 py-2
-          bg-white/70 dark:bg-[#0b102b]/65
+          w-full px-2 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))]
+          rounded-t-3xl
+          bg-white/80 dark:bg-[#0b102b]/80
           backdrop-blur-2xl backdrop-saturate-150
-          border border-white/60 dark:border-white/15
-          shadow-[0_12px_40px_rgba(2,6,23,0.28),inset_0_1px_1px_rgba(255,255,255,0.75)]
-          dark:shadow-[0_14px_40px_rgba(0,0,0,0.65),inset_0_1px_1px_rgba(255,255,255,0.18)]
+          border-t border-white/60 dark:border-white/15
+          shadow-[0_-8px_30px_rgba(2,6,23,0.18),inset_0_1px_1px_rgba(255,255,255,0.75)]
+          dark:shadow-[0_-10px_30px_rgba(0,0,0,0.6),inset_0_1px_1px_rgba(255,255,255,0.15)]
           flex items-center justify-around relative
         "
       >
-        {/* Reflet spéculaire subtil en haut de la pilule */}
-        <div className="pointer-events-none absolute inset-x-6 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/90 dark:via-sky-300/40 to-transparent" />
+        {/* Reflet lumineux sur le bord supérieur */}
+        <div className="pointer-events-none absolute inset-x-8 top-0 h-[1px] bg-gradient-to-r from-transparent via-white dark:via-sky-300/40 to-transparent" />
 
         {navItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.path);
 
-          // Bouton central spécial (Vendre / Devenir Fournisseur)
           if (item.isHighlight) {
             return (
               <button
@@ -118,7 +116,6 @@ export default function MobileBottomNav({ isAuthenticated = false }) {
               onClick={() => navigate(item.path)}
               className="relative flex-1 py-1.5 px-1 flex flex-col items-center justify-center rounded-2xl transition-colors focus:outline-none group"
             >
-              {/* Bulle liquide animée derrière l'onglet actif */}
               {active && (
                 <motion.div
                   layoutId="liquidGlassActivePill"

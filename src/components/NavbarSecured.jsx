@@ -471,7 +471,7 @@ export default function Navbar({ buyerMode = 'B2C', setBuyerMode, currency = 'CD
       className="lg:hidden fixed right-0 top-16 z-50 w-72 max-w-[82vw] max-h-[calc(100vh-4rem)] overflow-y-auto bg-white dark:bg-[#0a0e27] border-l border-b border-gray-200 dark:border-gray-800 rounded-bl-2xl px-4 py-4 space-y-3 shadow-2xl"
     >
       {/* Lien Accueil avec Submit */}
-      <form
+      {/* <form
         onSubmit={(e) => {
           e.preventDefault();
           handleNavClick('/', e);
@@ -484,7 +484,7 @@ export default function Navbar({ buyerMode = 'B2C', setBuyerMode, currency = 'CD
           <FaHome className="text-sky-500 shrink-0" />
           <span>Accueil</span>
         </button>
-      </form>
+      </form> */}
 
       {/* Catégories et Sous-catégories avec Icônes & Submit */}
       {categories.map((cat) => (
@@ -515,7 +515,7 @@ export default function Navbar({ buyerMode = 'B2C', setBuyerMode, currency = 'CD
       ))}
 
       {/* Lien Appels d'Offres avec Submit */}
-      <form
+      {/* <form
         onSubmit={(e) => {
           e.preventDefault();
           handleNavClick('/appels-offres', e);
@@ -529,12 +529,12 @@ export default function Navbar({ buyerMode = 'B2C', setBuyerMode, currency = 'CD
           <FaHandshake className="shrink-0" />
           <span>Appels d'Offres (B2B)</span>
         </button>
-      </form>
+      </form> */}
 
       {/* BOUTONS D'ACTION PRINCIPAUX EN BAS DU MENU */}
-      <div className="pt-3 border-t border-gray-200 dark:border-gray-800 space-y-2.5">
+      {/* <div className="pt-3 border-t border-gray-200 dark:border-gray-800 space-y-2.5"> */}
         {/* Bouton 1 : Explorer le catalogue */}
-        <form
+        {/* <form
           onSubmit={(e) => {
             e.preventDefault();
             if (typeof setIsOpen === 'function') setIsOpen(false);
@@ -548,10 +548,10 @@ export default function Navbar({ buyerMode = 'B2C', setBuyerMode, currency = 'CD
             <span>Explorer le catalogue</span>
             <FaArrowRight />
           </button>
-        </form>
+        </form> */}
 
         {/* Bouton 2 : Devenir Fournisseur */}
-        <form
+        {/* <form
           onSubmit={(e) => {
             e.preventDefault();
             if (typeof setIsOpen === 'function') setIsOpen(false);
@@ -565,10 +565,10 @@ export default function Navbar({ buyerMode = 'B2C', setBuyerMode, currency = 'CD
             <FaStore />
             <span>Devenir Fournisseur (Gratuit)</span>
           </button>
-        </form>
+        </form> */}
 
         {/* Bouton 3 : Connexion / Tableau de Bord */}
-        <form
+        {/* <form
           onSubmit={(e) => {
             e.preventDefault();
             handleNavClick(isAuthenticated ? '/dashboard' : '/connexion', e);
@@ -580,8 +580,8 @@ export default function Navbar({ buyerMode = 'B2C', setBuyerMode, currency = 'CD
           >
             {isAuthenticated ? 'Mon Tableau de Bord' : 'Connexion / Inscription'}
           </button>
-        </form>
-      </div>
+        </form> */}
+      {/* </div> */}
     </motion.div>
   )}
 </AnimatePresence>

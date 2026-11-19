@@ -159,15 +159,25 @@ export default function Footer({ isAuthenticated = false }) {
                 )}
               </div>
 
-              {/* Pied de la modale */}
-              <div className="px-6 py-4 bg-gray-50 dark:bg-[#070a1d] border-t border-gray-200 dark:border-gray-800 flex items-center justify-between gap-3">
-                <Link
-                  to="/securite"
-                  onClick={() => setLegalModal(null)}
-                  className="text-xs font-bold text-sky-600 dark:text-sky-400 hover:underline"
-                >
-                  Consulter le centre de sécurité →
-                </Link>
+                            {/* Pied de la modale */}
+              <div className="px-6 py-4 bg-gray-50 dark:bg-[#070a1d] border-t border-gray-200 dark:border-gray-800 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center gap-4">
+                  <Link
+                    to="/securite"
+                    onClick={() => setLegalModal(null)}
+                    className="text-xs font-bold text-sky-600 dark:text-sky-400 hover:underline"
+                  >
+                    Centre de sécurité →
+                  </Link>
+                  <Link
+                    to="/logistique"
+                    onClick={() => setLegalModal(null)}
+                    className="text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline"
+                  >
+                    Logistique & Livraison →
+                  </Link>
+                </div>
+
                 <button
                   type="button"
                   onClick={() => setLegalModal(null)}
@@ -183,3 +193,6 @@ export default function Footer({ isAuthenticated = false }) {
     </>
   );
 }
+
+
+              

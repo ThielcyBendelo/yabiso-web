@@ -1124,18 +1124,18 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
 </section>
 
            {/* 5. BANNIÈRE APPELS D'OFFRES B2B (Compacte & Moderne) */}
-<section className="max-w-7xl mx-auto px-4 py-6">
+{/* <section className="max-w-7xl mx-auto px-4 py-6">
   <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-sky-600 via-blue-600 to-indigo-700 text-white p-5 sm:p-7 shadow-lg border border-sky-400/20">
-    
+     */}
     {/* Effet lumineux subtil en arrière-plan */}
-    <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+    {/* <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none" />
 
-    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5"> */}
       
       {/* Partie Gauche : Ruban défilant des cibles + Titre court */}
-      <div className="max-w-2xl">
+      {/* <div className="max-w-2xl"> */}
         {/* Mini-carrousel / Ruban défilant sur 1 ligne */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-1.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        {/* <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-1.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           <span className="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-900 text-[10px] font-black uppercase tracking-wider">
             <FaHandshake size={11} /> Espace Pro B2B
           </span>
@@ -1155,10 +1155,10 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
         <p className="text-sky-100 text-xs sm:text-sm mt-1 line-clamp-2 sm:line-clamp-1">
           Publiez gratuitement votre demande et comparez les offres de nos coopératives vérifiées.
         </p>
-      </div>
+      </div> */}
 
       {/* Partie Droite : Bouton d'action compact */}
-      <div className="shrink-0">
+      {/* <div className="shrink-0">
         <button
           type="button"
           onClick={() => navigate('/appels-offres')}
@@ -1171,7 +1171,7 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
 
     </div>
   </div>
-</section>
+</section> */}
 
 {/* SECTION : FONCTIONNALITÉS AVANCÉES (ONGLETS INTERACTIFS) */}
 <section className="max-w-7xl mx-auto px-4 py-12">
