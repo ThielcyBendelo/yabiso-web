@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>404 - Douceur introuvable | Ya_Biso</title>
+  <title>404 - Page introuvable | YaBiso RDC</title>
   
-  <!-- Chargement des polices de la marque Ya_Biso -->
-  <link rel="preconnect" href="https://googleapis.com">
-  <link rel="preconnect" href="https://gstatic.com" crossorigin>
-  <link href="https://googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet" />
+  <!-- Chargement des polices -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://googleapis.com" rel="stylesheet" />
 
   <style>
     * {
@@ -18,87 +18,131 @@
     }
 
     body {
-      background: #fafaf9; /* Fond crème doux assorti à la vitrine */
-      color: #44403c;
+      background: radial-gradient(circle at top, #0f173d 0%, #070a1d 70%);
+      color: #f8fafc;
       font-family: 'Inter', sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      min-height: 100vh;
       padding: 1.5rem;
       text-align: center;
+      overflow: hidden;
     }
 
     .error-container {
-      max-w: 500px;
+      max-width: 520px;
       width: 100%;
+      background: rgba(19, 25, 54, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 1.75rem;
+      padding: 3rem 2rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.4rem 1rem;
+      border-radius: 9999px;
+      background: rgba(251, 191, 36, 0.15);
+      border: 1px solid rgba(251, 191, 36, 0.35);
+      color: #fbbf24;
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1.25rem;
     }
 
     h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: 7rem;
+      font-size: 6.5rem;
       font-weight: 900;
       line-height: 1;
-      background: linear-gradient(to right, #78350f, #ea580c); /* Dégradé Chocolat/Orange */
+      background: linear-gradient(135deg, #38bdf8 0%, #fbbf24 55%, #ef4444 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       margin-bottom: 1rem;
     }
 
     h2 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.75rem;
-      color: #451a03; /* Couleur chocolat intense */
-      margin-bottom: 1rem;
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 0.85rem;
     }
 
     p {
-      font-size: 1rem;
-      color: #78716c;
+      font-size: 0.95rem;
+      color: #94a3b8;
       line-height: 1.6;
-      margin-bottom: 2.5rem;
+      margin-bottom: 2.25rem;
     }
 
-    .btn-home {
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.85rem;
+    }
+
+    .btn-primary {
       display: inline-block;
-      background-color: #78350f; /* Couleur de la marque Ya_Biso */
-      color: #ffffff;
+      background-color: #fbbf24;
+      color: #0f172a;
       text-decoration: none;
-      font-weight: 600;
-      font-size: 0.875rem;
+      font-weight: 800;
+      font-size: 0.825rem;
       text-transform: uppercase;
-      tracking-widest: 0.1em;
-      padding: 1rem 2.25rem;
-      border-radius: 9999px; /* Bouton arrondi style pilule */
-      box-shadow: 0 10px 15px -3px rgba(120, 53, 15, 0.2);
-      transition: all 0.3s ease;
+      letter-spacing: 0.06em;
+      padding: 0.95rem 1.85rem;
+      border-radius: 0.875rem;
+      box-shadow: 0 10px 20px -5px rgba(251, 191, 36, 0.35);
+      transition: all 0.25s ease;
     }
 
-    .btn-home:hover {
-      background-color: #ea580c; /* Changement vers l'orange au survol */
+    .btn-primary:hover {
+      background-color: #f59e0b;
       transform: translateY(-2px);
-      box-shadow: 0 20px 25px -5px rgba(234, 88, 12, 0.3);
     }
 
-    .btn-home:active {
-      transform: translateY(0);
+    .btn-secondary {
+      display: inline-block;
+      background: rgba(14, 165, 233, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: #38bdf8;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.825rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.95rem 1.65rem;
+      border-radius: 0.875rem;
+      transition: all 0.25s ease;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(14, 165, 233, 0.25);
+      transform: translateY(-2px);
     }
   </style>
 </head>
 <body>
 
   <div class="error-container">
-    <!-- Code erreur stylisé -->
+    <span class="badge">Made in RDC 🇨🇩</span>
     <h1>404</h1>
+    <h2>Oups, produit ou page introuvable !</h2>
+    <p>
+      Le produit local ou la vitrine que vous recherchez n'est plus disponible ou a été déplacé vers un autre bassin de production.
+    </p>
     
-    <!-- Message contextuel pâtisserie -->
-    <h2>Oups, la recette a échoué !</h2>
-    
-    <p>Le gâteau ou la page que vous recherchez n'est pas encore sorti du four ou a été déplacé vers une autre vitrine.</p>
-    
-    <!-- Redirection vers la page d'accueil de la vitrine -->
-    <a href="/" class="btn-home">Retourner à l'accueil</a>
+    <div class="actions">
+      <a href="/" class="btn-primary">Retour à l'accueil</a>
+      <a href="/catalogue" class="btn-secondary">Voir le catalogue</a>
+    </div>
   </div>
 
 </body>
