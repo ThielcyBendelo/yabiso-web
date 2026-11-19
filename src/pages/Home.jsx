@@ -2,7 +2,6 @@ import React from 'react';
 import NavbarSecured from '../components/NavbarSecured';
 import Hero from '../components/Hero';
 // import FeatureShowcase from '../components/FeatureShowcase'; 
-import Footer from '../components/Footer';
 
 export default function Home() {
   return (
@@ -13,7 +12,6 @@ export default function Home() {
         {/* Section vitrine animée pour les producteurs et produits de RDC */}
         {/* <FeatureShowcase /> */}
       </main>
-      <Footer />
     </>
   );
 }

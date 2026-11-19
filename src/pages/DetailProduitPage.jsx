@@ -1,133 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { PRODUCTS_DB } from '../data/productsData';
 import {
   FaArrowLeft, FaCheckCircle, FaMapMarkerAlt, FaShieldAlt,
   FaWhatsapp, FaMobileAlt, FaTruck, FaStore, FaFileInvoice,
   FaShoppingCart, FaStar, FaInfoCircle, FaLock
 } from 'react-icons/fa';
 
-// Base de données simulée (à relier ensuite à votre API Supabase / Node.js)
-const PRODUCTS_DB = [
-  {
-    id: 1,
-    name: 'Café Arabica du Kivu (Torréfié)',
-    categoryLabel: 'Agro-alimentaire transformé',
-    province: 'Sud-Kivu',
-    city: 'Kalehe / Bukavu',
-    supplier: 'Coopérative Sopacdi',
-    supplierRating: 4.9,
-    supplierSales: 320,
-    verified: true,
-    priceB2C: 12,
-    unitB2C: 'Sachet 500g',
-    minQtyB2C: 1,
-    priceB2B: 9.5,
-    unitB2B: 'Sac 10kg',
-    minQtyB2B: 5,
-    stock: '2 000 kg disponibles',
-    deliveryDelay: '24h à 48h (Kinshasa / Goma / Bukavu)',
-    description:
-      'Cultivé sur les hauts plateaux volcaniques bordant le lac Kivu à plus de 1 600 mètres d’altitude. Ce café 100% Arabica est récolté à la main, lavé à l’eau de source et torréfié localement pour préserver ses arômes fruités et chocolatés.',
-    specs: [
-      { label: 'Variété', value: '100% Arabica Bourbon' },
-      { label: 'Origine', value: 'Territoire de Kalehe, Sud-Kivu' },
-      { label: 'Certification', value: 'Agriculture Biologique & Commerce Équitable' },
-      { label: 'Conditionnement', value: 'Sachet hermétique avec valve fraîcheur' }
-    ],
-    images: [
-      'https://unsplash.com',
-      'https://unsplash.com'
-    ]
-  },
-  {
-    id: 2,
-    name: 'Miel Pur de Forêt Équatoriale',
-    categoryLabel: 'Agriculture & Vivres',
-    province: 'Équateur',
-    city: 'Mbandaka',
-    supplier: 'Rucher Mbandaka Bio',
-    supplierRating: 4.8,
-    supplierSales: 185,
-    verified: true,
-    priceB2C: 8,
-    unitB2C: 'Pot 1 Litre',
-    minQtyB2C: 1,
-    priceB2B: 6,
-    unitB2B: 'Bidon 20 Litres',
-    minQtyB2B: 2,
-    stock: '500 Litres disponibles',
-    deliveryDelay: '48h à 72h via fret aérien / fluvial',
-    description:
-      'Miel sauvage récolté durablement dans la forêt primaire de l’Équateur. Non chauffé, non filtré industriellement et garanti 100% pur sans ajout de sucre.',
-    specs: [
-      { label: 'Type', value: 'Miel polyfloral de forêt' },
-      { label: 'Origine', value: 'Province de l’Équateur, RDC' },
-      { label: 'Conservation', value: '24 mois à température ambiante' }
-    ],
-    images: [
-      'https://unsplash.com'
-    ]
-  },
-  {
-    id: 3,
-    name: 'Panier Artisanal Tressé Raphia',
-    categoryLabel: 'Artisanat & Déco',
-    province: 'Kasaï',
-    city: 'Tshikapa',
-    supplier: 'Atelier Mains d’Or',
-    supplierRating: 4.9,
-    supplierSales: 94,
-    verified: true,
-    priceB2C: 25,
-    unitB2C: 'Pièce unique',
-    minQtyB2C: 1,
-    priceB2B: 18,
-    unitB2B: 'Lot de 10 pièces',
-    minQtyB2B: 1,
-    stock: 'Sur commande (Délai 5 jours)',
-    deliveryDelay: '3 à 5 jours ouvrés',
-    description:
-      'Panier décoratif et utilitaire tressé à la main par des artisanes du Kasaï à partir de fibres naturelles de raphia teintées avec des pigments végétaux locaux.',
-    specs: [
-      { label: 'Matière', value: '100% Raphia naturel' },
-      { label: 'Dimensions', value: 'Diamètre 35 cm x Hauteur 28 cm' },
-      { label: 'Fabrication', value: 'Fait main en RDC' }
-    ],
-    images: [
-      'https://unsplash.com'
-    ]
-  },
-  {
-    id: 4,
-    name: 'Farine de Manioc Panifiable (Fufu)',
-    categoryLabel: 'Agriculture & Vivres',
-    province: 'Kongo-Central',
-    city: 'Mbanza-Ngungu',
-    supplier: 'Ferme Nsioni',
-    supplierRating: 4.7,
-    supplierSales: 510,
-    verified: true,
-    priceB2C: 15,
-    unitB2C: 'Sac 25kg',
-    minQtyB2C: 1,
-    priceB2B: 12,
-    unitB2B: 'Sac 50kg',
-    minQtyB2B: 20,
-    stock: '15 Tonnes disponibles',
-    deliveryDelay: '24h (Kinshasa & Kongo-Central)',
-    description:
-      'Farine de manioc blanche, fine et sans odeur, issue d’un séchage contrôlé garantissant une qualité sanitaire optimale pour les ménages, boulangeries et restaurants.',
-    specs: [
-      { label: 'Taux d’humidité', value: 'Inférieur à 12%' },
-      { label: 'Origine', value: 'Mbanza-Ngungu, Kongo-Central' },
-      { label: 'Usage', value: 'Fufu traditionnel & pâtisserie' }
-    ],
-    images: [
-      'https://unsplash.com'
-    ]
-  }
-];
 
 export default function ProductDetail({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF' }) {
   const { id } = useParams();

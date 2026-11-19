@@ -1,107 +1,185 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaLinkedin, FaEnvelope, FaInstagram, FaFacebook, FaWhatsapp, FaMapMarkerAlt } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  FaHome,
+  FaThLarge,
+  FaStore,
+  FaHandshake,
+  FaUserCircle,
+  FaTimes,
+  FaShieldAlt,
+  FaBalanceScale
+} from 'react-icons/fa';
 
-export default function Footer() {
+export default function Footer({ isAuthenticated = false }) {
   const currentYear = new Date().getFullYear();
+  const [legalModal, setLegalModal] = useState(null); // 'mentions' | 'confidentialite' | null
 
-  // Liste fixe pour le rendu dynamique des icônes de contact
-  const socialLinks = [
-    { label: 'Email', link: 'mailto:support@likufi.cd', icon: <FaEnvelope size={18} /> },
-    { label: 'Facebook', link: 'https://facebook.com', icon: <FaFacebook size={18} /> },
-    { label: 'Instagram', link: 'https://instagram.com', icon: <FaInstagram size={18} /> },
-    { label: 'LinkedIn', link: 'https://linkedin.com', icon: <FaLinkedin size={18} /> },
-    { label: 'WhatsApp', link: 'https://wa.me', icon: <FaWhatsapp size={18} /> }
+  const navLinks = [
+    { label: 'Accueil', path: '/', icon: FaHome },
+    { label: 'Catalogue', path: '/catalogue', icon: FaThLarge },
+    { label: 'Devenir Fournisseur', path: '/devenir-fournisseur', icon: FaStore },
+    { label: "Appels d'Offres (B2B)", path: '/appels-offres', icon: FaHandshake },
+    {
+      label: isAuthenticated ? 'Mon Compte' : 'Connexion',
+      path: isAuthenticated ? '/dashboard' : '/login',
+      icon: FaUserCircle,
+    },
   ];
 
   return (
-    <footer className="bg-[var(--surface)] text-gray-300 py-16 mt-auto border-t border-[var(--border-color)] transition-colors duration-500">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+    <>
+      <footer className="hidden lg:block bg-[var(--surface)] text-gray-300 py-6 mt-auto border-t border-[var(--border-color)] transition-colors duration-500">
+        <div className="max-w-7xl mx-auto px-6 space-y-5">
           
-          {/* Bloc 1: Identité & Slogan National */}
-          <div className="col-span-1">
-            <h3 className="text-2xl font-black mb-4">
-              <span className="bg-gradient-to-r from-emerald-500 via-yellow-400 to-[var(--accent-1)] text-transparent bg-clip-text tracking-wide uppercase">
-                YaBiso
-              </span>
-            </h3>
-            <p className="text-sm text-gray-400 leading-relaxed font-light">
-              "Le hub commercial de confiance dédié à la promotion et à la distribution de gros des produits locaux du terroir congolais."
-            </p>
-            <div className="mt-6 flex gap-3">
-              <div className="h-1 w-8 bg-[var(--accent-1)] rounded-full"></div>
-              <div className="h-1 w-2 bg-yellow-400 rounded-full"></div>
-              <div className="h-1 w-2 bg-sky-400 rounded-full"></div>
-            </div>
-          </div>
-
-          {/* Bloc 2: Navigation Acheteurs & Fournisseurs */}
-          <div className="text-left">
-            <h4 className="text-white font-black mb-6 uppercase text-xs tracking-widest">Navigation</h4>
-            <ul className="space-y-3 text-sm font-medium">
-              <li><Link to="/" className="hover:text-[var(--accent-1)] transition-colors">Accueil</Link></li>
-              <li><Link to="/catalogue" className="hover:text-[var(--accent-1)] transition-colors">Catalogue Produits</Link></li>
-              <li><Link to="/fournisseurs" className="hover:text-[var(--accent-1)] transition-colors">Annuaire National</Link></li>
-              <li><Link to="/login" className="hover:text-[var(--accent-1)] transition-colors">Espace Fournisseur</Link></li>
-              <li><Link to="/contact" className="hover:text-[var(--accent-1)] transition-colors">Support & Aide</Link></li>
-            </ul>
-          </div>
-
-          {/* Bloc 3: Siège & Contact Technique */}
-          <div className="text-left">
-            <h4 className="text-white font-black mb-6 uppercase text-xs tracking-widest">Contact Pro</h4>
-            <ul className="space-y-3 text-sm font-medium">
-              <li className="flex items-center gap-3">
-                <div className="text-[var(--accent-1)]"><FaEnvelope /></div>
-                <span className="text-gray-300 break-all">support@yabiso.cd</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <div className="text-emerald-500"><FaWhatsapp /></div>
-                <span className="text-gray-300">Kinshasa, RD Congo</span>
-              </li>
-              <li className="mt-4">
-                <Link to="/register" className="inline-block px-5 py-2.5 bg-[var(--accent-1)] hover:bg-[#ff5722] text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-md transform active:scale-95">
-                  Devenir Fournisseur →
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Bloc 4: Réseaux Sociaux & Rayonnement */}
-          <div className="text-left md:text-right">
-            <h4 className="text-white font-black mb-6 uppercase text-xs tracking-widest">Suivre l'impact</h4>
-            <div className="flex justify-start md:justify-end gap-2.5">
-              {socialLinks.map((item) => (
-                <a 
-                  key={item.label} 
-                  href={item.link} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="w-10 h-10 rounded-xl bg-[var(--bg)] border border-[var(--border-color)] flex items-center justify-center text-white shadow-md hover:bg-[var(--accent-1)] hover:border-[var(--accent-1)] transition-all duration-300" 
-                  title={item.label} 
+          {/* Ligne unique des liens de navigation */}
+          <nav
+            aria-label="Navigation pied de page"
+            className="flex flex-nowrap items-center justify-center gap-8 text-xs font-bold uppercase tracking-wider"
+          >
+            {navLinks.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className="flex items-center gap-2 text-gray-300 hover:text-[var(--accent-1)] transition-colors whitespace-nowrap"
                 >
-                  {item.icon}
-                </a>
-              ))}
-            </div>
-            <p className="mt-6 text-[10px] text-gray-400 uppercase font-bold tracking-widest flex items-center justify-start md:justify-end gap-1">
-              <FaMapMarkerAlt className="text-emerald-500" /> Connecté aux 26 provinces de la RDC.
-            </p>
-          </div>
-        </div>
+                  <Icon className="text-sky-400 text-sm" />
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
 
-        {/* Barre de Copyright Finale */}
-        <div className="pt-8 border-t border-[var(--border-color)] flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-[10px] text-gray-400 font-medium tracking-wider uppercase text-center md:text-left leading-relaxed">
-            © {currentYear} YaBiso <span className="mx-2 hidden md:inline">|</span> <br className="md:hidden" /> Valorisation & Distribution de gros du Made in DRC
-          </p>
-          <div className="flex gap-6 text-[10px] uppercase tracking-widest font-black text-gray-400">
-            <button className="hover:text-[var(--accent-1)] transition-colors">Mentions Légales</button>
-            <button className="hover:text-[var(--accent-1)] transition-colors">Confidentialité</button>
+          {/* Barre de Copyright Finale */}
+          <div className="pt-4 border-t border-[var(--border-color)] flex justify-between items-center gap-4">
+            <p className="text-[10px] text-gray-400 font-medium tracking-wider uppercase">
+              © {currentYear} YaBiso <span className="mx-2">|</span> Valorisation & Distribution de gros du Made in DRC
+            </p>
+            <div className="flex gap-6 text-[10px] uppercase tracking-widest font-black text-gray-400">
+              <button
+                type="button"
+                onClick={() => setLegalModal('mentions')}
+                className="hover:text-[var(--accent-1)] transition-colors cursor-pointer"
+              >
+                Mentions Légales
+              </button>
+              <button
+                type="button"
+                onClick={() => setLegalModal('confidentialite')}
+                className="hover:text-[var(--accent-1)] transition-colors cursor-pointer"
+              >
+                Confidentialité
+              </button>
+            </div>
           </div>
+
         </div>
-      </div>
-    </footer>
+      </footer>
+
+      {/* MODALE MENTIONS LÉGALES & CONFIDENTIALITÉ */}
+      <AnimatePresence>
+        {legalModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setLegalModal(null)}
+            className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 12 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-xl bg-white dark:bg-[#0d1330] border border-gray-200 dark:border-white/15 rounded-3xl shadow-2xl overflow-hidden text-left"
+            >
+              {/* En-tête de la modale */}
+              <div className="px-6 py-4 bg-gray-50 dark:bg-[#070a1d] border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  {legalModal === 'mentions' ? (
+                    <FaBalanceScale className="text-amber-500 text-lg" />
+                  ) : (
+                    <FaShieldAlt className="text-sky-500 text-lg" />
+                  )}
+                  <h3 className="font-black text-base text-gray-900 dark:text-white">
+                    {legalModal === 'mentions'
+                      ? 'Mentions Légales — YaBiso RDC'
+                      : 'Politique de Confidentialité & Sécurité'}
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setLegalModal(null)}
+                  aria-label="Fermer"
+                  className="p-2 rounded-xl text-gray-500 hover:bg-gray-200 dark:hover:bg-slate-800 transition"
+                >
+                  <FaTimes />
+                </button>
+              </div>
+
+              {/* Contenu dynamique */}
+              <div className="p-6 space-y-4 text-sm text-gray-600 dark:text-gray-300 leading-relaxed max-h-[65vh] overflow-y-auto">
+                {legalModal === 'mentions' ? (
+                  <>
+                    <p>
+                      <strong className="text-gray-900 dark:text-white">Éditeur de la plateforme :</strong>{' '}
+                      YaBiso RDC, hub numérique B2B & B2C dédié à la valorisation et la distribution des produits locaux de la République Démocratique du Congo.
+                    </p>
+                    <p>
+                      <strong className="text-gray-900 dark:text-white">Siège opérationnel :</strong>{' '}
+                      Kinshasa, République Démocratique du Congo.
+                    </p>
+                    <p>
+                      <strong className="text-gray-900 dark:text-white">Vérification des fournisseurs (KYC) :</strong>{' '}
+                      Les producteurs, coopératives et grossistes affichant le badge « Vérifié » ont soumis leurs documents légaux congolais (RCCM, Identification Nationale, Numéro Impôt).
+                    </p>
+                    <p>
+                      <strong className="text-gray-900 dark:text-white">Contact officiel :</strong>{' '}
+                      support@yabiso.cd
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p>
+                      <strong className="text-gray-900 dark:text-white">Protection des données personnelles :</strong>{' '}
+                      Conformément au Code du Numérique en vigueur en RDC, vos informations (nom, numéro WhatsApp, adresse de livraison et documents d'entreprise) sont strictement utilisées pour le traitement de vos commandes et demandes de devis.
+                    </p>
+                    <p>
+                      <strong className="text-gray-900 dark:text-white">Sécurité des transactions :</strong>{' '}
+                      YaBiso ne stocke aucun code PIN Mobile Money (M-Pesa, Airtel Money, Orange Money) ni numéro de carte bancaire. Tous les paiements transitent via des passerelles agréées et chiffrées.
+                    </p>
+                    <p>
+                      <strong className="text-gray-900 dark:text-white">Vos droits :</strong>{' '}
+                      Vous pouvez demander la modification ou la suppression de votre compte fournisseur ou acheteur à tout moment depuis votre espace personnel ou par e-mail.
+                    </p>
+                  </>
+                )}
+              </div>
+
+              {/* Pied de la modale */}
+              <div className="px-6 py-4 bg-gray-50 dark:bg-[#070a1d] border-t border-gray-200 dark:border-gray-800 flex items-center justify-between gap-3">
+                <Link
+                  to="/securite"
+                  onClick={() => setLegalModal(null)}
+                  className="text-xs font-bold text-sky-600 dark:text-sky-400 hover:underline"
+                >
+                  Consulter le centre de sécurité →
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setLegalModal(null)}
+                  className="px-5 py-2 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-bold text-xs transition"
+                >
+                  J'ai compris
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

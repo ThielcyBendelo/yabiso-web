@@ -1,6 +1,8 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { PRODUCTS_DB, getProductImage } from '../data/productsData';
+import background4 from '../assets/background4.jpeg';
 import {
   FaSearch, FaMapMarkerAlt, FaStore, FaHandshake, FaLeaf,
   FaCheckCircle, FaArrowRight, FaMobileAlt, FaShieldAlt, FaTruck, FaWhatsapp, 
@@ -11,8 +13,6 @@ export default function Hero({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF'
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProvince, setSelectedProvince] = useState('');
-
-  const EXCHANGE_RATE = 23000; // 1 USD = 2300 CDF
 
   const provinces = [
   'Équateur',
@@ -48,7 +48,7 @@ export default function Hero({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF'
     unitB2C: 'Sachet 500g',
     priceB2B: 9.5,
     unitB2B: 'Sac 10kg (Min. 5 sacs)',
-    image: 'https://unsplash.com'
+    image: getProductImage(1)
   },
   {
     id: 2,
@@ -61,7 +61,7 @@ export default function Hero({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF'
     unitB2C: 'Pot 1 Litre',
     priceB2B: 6,
     unitB2B: 'Bidon 20L (Min. 2 bidons)',
-    image: 'https://unsplash.com'
+    image: getProductImage(1)
   },
   {
     id: 3,
@@ -74,7 +74,7 @@ export default function Hero({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF'
     unitB2C: 'Pièce unique',
     priceB2B: 18,
     unitB2B: 'Lot de 10 pièces',
-    image: 'https://unsplash.com'
+    image: getProductImage(1)
   },
   {
     id: 4,
@@ -87,7 +87,7 @@ export default function Hero({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF'
     unitB2C: 'Sac 25kg',
     priceB2B: 12,
     unitB2B: 'Sac 50kg (Min. 20 sacs)',
-    image: 'https://unsplash.com'
+    image: getProductImage(1)
   },
 
   // --- Nouveaux produits ajoutés (18 produits supplémentaires) ---
@@ -102,7 +102,7 @@ export default function Hero({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF'
     unitB2C: 'Bidon 5 Litres',
     priceB2B: 22,
     unitB2B: 'Fût 25 Litres (Min. 10 fûts)',
-    image: 'https://unsplash.com'
+    image: getProductImage(1)
   },
   {
     id: 6,
@@ -115,7 +115,7 @@ export default function Hero({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF'
     unitB2C: 'Sac 25kg',
     priceB2B: 14.5,
     unitB2B: 'Sac 25kg (Min. 50 sacs)',
-    image: 'https://unsplash.com'
+    image: getProductImage(1)
   },
   {
     id: 7,
@@ -128,7 +128,7 @@ export default function Hero({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF'
     unitB2C: 'Sachet 1kg',
     priceB2B: 320,
     unitB2B: 'Sac Jute 65kg (Min. 5 sacs)',
-    image: 'https://unsplash.com'
+    image: getProductImage(1)
   },
   {
     id: 8,
@@ -141,7 +141,7 @@ export default function Hero({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF'
     unitB2C: 'Pot 500g',
     priceB2B: 110,
     unitB2B: 'Carton 15kg (Min. 2 cartons)',
-    image: 'https://unsplash.com'
+    image: getProductImage(1)
   },
   {
     id: 9,
@@ -154,7 +154,7 @@ export default function Hero({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF'
     unitB2C: 'Sachet 1kg',
     priceB2B: 160,
     unitB2B: 'Sac 20kg (Min. 5 sacs)',
-    image: 'https://unsplash.com'
+    image: getProductImage(1)
   },
   {
     id: 10,
@@ -167,7 +167,7 @@ export default function Hero({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF'
     unitB2C: 'Lot de 5 pièces',
     priceB2B: 35,
     unitB2B: 'Carton 50 pièces',
-    image: 'https://unsplash.com'
+    image: getProductImage(1)
   },
   {
     id: 11,
@@ -180,7 +180,7 @@ export default function Hero({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF'
     unitB2C: 'Meule 1kg',
     priceB2B: 11,
     unitB2B: 'Meule 1kg (Min. 10 meules)',
-    image: 'https://unsplash.com'
+    image: getProductImage(1)
   },
   {
     id: 12,
@@ -193,7 +193,7 @@ export default function Hero({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF'
     unitB2C: 'Sac 25kg',
     priceB2B: 38,
     unitB2B: 'Sac 50kg (Min. 20 sacs)',
-    image: 'https://unsplash.com'
+    image: getProductImage(1)
   },
   {
     id: 13,
@@ -206,7 +206,7 @@ export default function Hero({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF'
     unitB2C: 'Bocal 250g',
     priceB2B: 45,
     unitB2B: 'Sac 10kg (Min. 3 sacs)',
-    image: 'https://unsplash.com'
+    image: getProductImage(1)
   },
   {
     id: 14,
@@ -219,7 +219,7 @@ export default function Hero({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF'
     unitB2C: 'Panneau 1m x 0.6m',
     priceB2B: 32,
     unitB2B: 'Lot de 10 panneaux',
-    image: 'https://unsplash.com'
+    image: getProductImage(1)
   },
   {
     id: 15,
@@ -232,7 +232,7 @@ export default function Hero({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF'
     unitB2C: 'Boîte 250g',
     priceB2B: 85,
     unitB2B: 'Sac 15kg (Min. 2 sacs)',
-    image: 'https://unsplash.com'
+    image: getProductImage(1)
   },
   {
     id: 16,
@@ -245,7 +245,7 @@ export default function Hero({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF'
     unitB2C: 'Sachet 1kg',
     priceB2B: 75,
     unitB2B: 'Sac 25kg (Min. 10 sacs)',
-    image: 'https://unsplash.com'
+    image: getProductImage(1)
   },
   {
     id: 17,
@@ -258,7 +258,7 @@ export default function Hero({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF'
     unitB2C: 'Flacon 500ml',
     priceB2B: 48,
     unitB2B: 'Carton 12 flacons',
-    image: 'https://unsplash.com'
+    image: getProductImage(1)
   },
   {
     id: 18,
@@ -271,7 +271,7 @@ export default function Hero({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF'
     unitB2C: 'Sac 10kg',
     priceB2B: 65,
     unitB2B: 'Sac 50kg (Min. 10 sacs)',
-    image: 'https://unsplash.com'
+    image: getProductImage(1)
   },
   {
     id: 19,
@@ -284,7 +284,7 @@ export default function Hero({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF'
     unitB2C: 'À l’unité',
     priceB2B: 380,
     unitB2B: 'Palette de 1000 briques',
-    image: 'https://unsplash.com'
+    image: getProductImage(1)
   },
   {
     id: 20,
@@ -297,7 +297,7 @@ export default function Hero({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF'
     unitB2C: 'Bouteille 1 Litre',
     priceB2B: 28,
     unitB2B: 'Casier 12 bouteilles',
-    image: 'https://unsplash.com'
+    image: getProductImage(1)
   },
   {
     id: 21,
@@ -310,7 +310,7 @@ export default function Hero({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF'
     unitB2C: 'Planche 4m x 30cm',
     priceB2B: 650,
     unitB2B: 'Mètre cube (Min. 5 m³)',
-    image: 'https://unsplash.com'
+    image: getProductImage(1)
   },
   {
     id: 22,
@@ -323,7 +323,7 @@ export default function Hero({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF'
     unitB2C: 'Tube 50g (env. 15 gousses)',
     priceB2B: 240,
     unitB2B: 'Lot sous vide 1kg',
-    image: 'https://unsplash.com'
+    image: getProductImage(1)
   }
 ];
 
@@ -500,10 +500,47 @@ const platformFeatures = [
   }
 ];
 
-  const formatPrice = (usdAmount) => {
-    if (currency === 'USD') return usdAmount.toFixed(2) + ' $';
-    return Math.round(usdAmount * EXCHANGE_RATE).toLocaleString('fr-FR') + ' FC';
-  };
+// Liste des produits locaux RDC par défaut (si vous avez déjà un tableau `products` en props/state, il sera automatiquement fusionné)
+const PRODUITS_LOCAUX_RDC = [
+  'Farine de manioc (Fufu)',
+  'Farine de maïs jaune',
+  'Miel pur du Mayombe',
+  'Miel de forêt (Équateur)',
+  'Café Arabica du Kivu',
+  'Café Robusta',
+  'Cacao en fèves',
+  'Huile de palme rouge',
+  'Huile de palmiste',
+  'Haricots rouges du Kivu',
+  'Arachides décortiquées',
+  'Pagne Wax & Raphia',
+  'Piment pili-pili séché',
+  'Poissons salés (Makayabu)',
+  'Bananes plantains',
+  'Soja en grains',
+  'Thé noir du Kivu',
+  'Jus naturels locaux',
+  'Savon artisanal au beurre de karité',
+  'Meubles en bois massif'
+];
+
+const [showSuggestions, setShowSuggestions] = useState(false);
+
+const formatPrice = (usdAmount) => {
+  if (!usdAmount) return '';
+  if (currency === 'USD') return usdAmount.toFixed(2) + ' $';
+  return Math.round(usdAmount * 2850).toLocaleString('fr-FR') + ' FC';
+};
+
+// Filtre uniquement dans PRODUCTS_DB les produits commençant par les lettres saisies
+const filteredSuggestions = useMemo(() => {
+  const query = (searchQuery || '').trim().toLowerCase();
+  if (!query) return [];
+
+  return PRODUCTS_DB.filter((product) =>
+    product.name.toLowerCase().startsWith(query)
+  ).slice(0, 8);
+}, [searchQuery]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -565,150 +602,222 @@ const scrollBasins = (direction) => {
 const [activeTab, setActiveTab] = useState(platformFeatures[0]);
 
   return (
-    <div className="bg-white dark:bg-[#070a1d] text-slate-900 dark:text-gray-100">
-      
-      {/* 1. SECTION HERO PRINCIPALE */}
-      <section className="relative bg-gradient-to-b from-sky-50/90 via-white to-white dark:from-[#0b102b] dark:via-[#070a1d] dark:to-[#070a1d] pt-32 pb-16 px-4 sm:px-6 border-b border-slate-100 dark:border-gray-800">
-        <div className="max-w-5xl mx-auto text-center">
-          
-          {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300 text-xs font-bold uppercase tracking-wider mb-6"
-          >
-            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-            <span>
-              {buyerMode === 'B2B'
-                ? 'Espace Pro : Approvisionnement en gros pour Hôtels & Supermarchés'
-                : 'Le Hub B2C & B2B du Made in RDC 🇨🇩'}
-            </span>
-          </motion.div>
+    <div className="bg-white dark:bg-[#070a1d] text-slate-900 dark:text-gray-100 ">
 
-          {/* Titre Principal */}
-          <motion.h1
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-4xl sm:text-6xl font-black tracking-tight text-slate-900 dark:text-white leading-tight"
-          >
-            Valorisons nos{' '}
-            <span className="text-sky-600 dark:text-sky-400">Produits</span>{' '}
-            <span className="relative inline-block">
-              <span className="relative z-10">Locaux</span>
-              <span className="absolute bottom-1 left-0 w-full h-3 bg-amber-300/80 dark:bg-amber-400/30 -z-0 rounded"></span>
-            </span>
-          </motion.h1>
-
-          <p className="mt-5 text-base sm:text-xl text-slate-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
-            Achetez en direct auprès des coopératives agricoles, grossistes et artisans de la{' '}
-            <strong className="text-sky-600 dark:text-sky-400">République Démocratique du Congo</strong> avec paiement Mobile Money sécurisé.
-          </p>
-
-          {/* BARRE DE RECHERCHE RAPIDE */}
-          <form
-            onSubmit={handleSearch}
-            className="mt-8 max-w-4xl mx-auto bg-white dark:bg-[#131936] p-2.5 rounded-2xl shadow-xl shadow-sky-900/5 border border-slate-200 dark:border-gray-700 flex flex-col md:flex-row gap-2 items-center"
-          >
-            <div className="w-full flex-1 flex items-center px-3 border-b md:border-b-0 md:border-r border-slate-200 dark:border-gray-700 pb-2.5 md:pb-0">
-              <FaSearch className="text-sky-500 mr-3 shrink-0" />
-              <input
-                type="text"
-                placeholder={
-                  buyerMode === 'B2B'
-                    ? 'Ex: 50 sacs de maïs, café vert du Kivu...'
-                    : 'Que cherchez-vous ? (ex: Miel pur, Farine de manioc, Pagne...)'
-                }
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-transparent text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none text-sm"
-              />
-            </div>
-
-            <div className="w-full md:w-60 flex items-center px-3 pb-2.5 md:pb-0">
-              <FaMapMarkerAlt className="text-amber-500 mr-2.5 shrink-0" />
-              <select
-                value={selectedProvince}
-                onChange={(e) => setSelectedProvince(e.target.value)}
-                className="w-full bg-transparent text-slate-700 dark:text-gray-200 focus:outline-none cursor-pointer text-sm font-semibold"
-              >
-                <option value="" className="text-slate-900">Toutes les provinces</option>
-                {provinces.map((prov) => (
-                  <option key={prov} value={prov} className="text-slate-900">
-                    {prov}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <button
-              type="submit"
-              className="w-full md:w-auto px-7 py-3.5 bg-sky-500 hover:bg-sky-600 text-white rounded-xl font-bold text-sm shadow-md shadow-sky-500/20 transition shrink-0"
-            >
-              Rechercher
-            </button>
-          </form>
-
-         {/* FILTRAGE RAPIDE PAR PROVINCE */}
-<div className="mt-8">
-  <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-3 px-4 md:px-0 md:text-center">
-    Filtrer par bassin de production :
-  </p>
-
-  {/* 
-    - flex-nowrap + overflow-x-auto : force une seule ligne défilante sur mobile
-    - md:flex-wrap + md:justify-center : revient à l'affichage groupé sur tablette/PC
-    - [scrollbar-width:none] + [&::-webkit-scrollbar]:hidden : masque la barre de défilement disgracieuse
-  */}
-  <div className="flex flex-nowrap md:flex-wrap items-center justify-start md:justify-center gap-2 overflow-x-auto px-4 md:px-0 pb-2 max-w-3xl mx-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-    
-    {/* Bouton "Toutes les provinces" (Recommandé pour réinitialiser le filtre facilement) */}
-    <button
-      type="button"
-      onClick={() => handleProvinceClick('ALL')}
-      className="shrink-0 whitespace-nowrap px-3.5 py-1.5 text-xs font-semibold rounded-full bg-amber-400 text-slate-900 shadow-sm transition"
-    >
-      Toutes
-    </button>
-
-    {provinces.map((province) => (
-      <button
-        key={province}
-        type="button"
-        onClick={() => handleProvinceClick(province)}
-        className="shrink-0 whitespace-nowrap px-3.5 py-1.5 text-xs font-semibold rounded-full bg-slate-100 dark:bg-[#131936] hover:bg-amber-400 dark:hover:bg-amber-400 text-slate-700 dark:text-gray-300 hover:text-slate-900 transition"
-      >
-        {province}
-      </button>
-    ))}
+      {/* 1. SECTION HERO PRINCIPALE : IMAGE ENTIÈRE SANS ZOOM */}
+{/* 1. SECTION HERO PRINCIPALE : PLEIN ÉCRAN DESKTOP & IMAGE ENTIÈRE MOBILE */}
+<section className="relative w-full bg-[#070a1d] md:min-h-[92vh] flex flex-col justify-between pt-[104px] md:pt-28 pb-10 md:pb-12 overflow-hidden">
+  
+  {/* Image d'arrière-plan : ratio naturel sans bande noire sur mobile, plein écran sur desktop */}
+  <div className="relative md:absolute md:inset-0 w-full aspect-[16/9] sm:aspect-[21/9] md:aspect-auto pointer-events-none">
+    <img
+     src={background4}
+    alt="Valorisons nos produits locaux en RDC"
+    className="w-full h-full object-cover object-center opacity-95 select-none"
+    />
+    {/* Dégradé de transition fluide vers le bleu nuit #070a1d */}
+    <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-transparent to-[#070a1d]" />
   </div>
-</div>
 
+  {/* HAUT DE LA SECTION : Badge discret (desktop) */}
+  <div className="hidden md:block relative z-10 max-w-5xl mx-auto text-center px-6">
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900/45 backdrop-blur-md border border-white/25 text-white text-xs font-bold uppercase tracking-wider shadow-sm"
+    >
+      <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+      <span>
+        {buyerMode === 'B2B'
+          ? 'Espace Pro : Approvisionnement en gros (Hôtels & Supermarchés)'
+          : 'Le Hub B2C & B2B du Made in RDC 🇨🇩'}
+      </span>
+    </motion.div>
+  </div>
 
-          {/* BOUTONS D'ACTION PRINCIPAUX */}
-          <div className="mt-10 flex flex-wrap justify-center gap-4">
-            <button
-              type="button"
-              onClick={() => navigate('/catalogue')}
-              className="px-6 py-3.5 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold text-sm flex items-center gap-2 shadow-sm transition"
-            >
-              <span>Explorer le catalogue</span>
-              <FaArrowRight />
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate('/devenir-fournisseur')}
-              className="px-6 py-3.5 rounded-xl bg-white dark:bg-[#131936] hover:bg-sky-50 border-2 border-sky-500 text-sky-600 dark:text-sky-400 font-bold text-sm flex items-center gap-2 transition"
-            >
-              <FaStore />
-              <span>Devenir Fournisseur (Gratuit)</span>
-            </button>
-          </div>
+  {/* BAS DE LA SECTION : Recherche + Bassins Blur + Boutons */}
+  <div className="relative z-10 w-full max-w-5xl mx-auto text-center px-4 sm:px-6 -mt-5 sm:-mt-8 md:mt-auto md:pt-64 lg:pt-72">
+    
+    {/* BARRE DE RECHERCHE RAPIDE TRANSPARENTE & BLUR + AUTOCOMPLÉTION PRODUCTS_DB */}
+    <div className="relative max-w-2xl mx-auto">
+      <form
+        onSubmit={(e) => {
+          setShowSuggestions(false);
+          handleSearch(e);
+        }}
+        className="bg-slate-900/70 md:bg-white/15 backdrop-blur-md p-1.5 rounded-2xl shadow-2xl border border-white/25 flex flex-col sm:flex-row gap-1.5 items-center"
+      >
+        {/* Champ texte (text-[16px] empêche le zoom sur mobile) */}
+        <div className="w-full flex-1 flex items-center px-3 py-1.5 sm:py-0 border-b sm:border-b-0 sm:border-r border-white/20">
+          <input
+            type="text"
+            autoComplete="off"
+            placeholder={
+              buyerMode === 'B2B'
+                ? 'Ex: Maïs, café du Kivu...'
+                : 'Tapez une lettre (ex: M, C, H...)'
+            }
+            value={searchQuery}
+            onFocus={() => setShowSuggestions(true)}
+            onBlur={() => setTimeout(() => setShowSuggestions(false), 180)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setShowSuggestions(true);
+            }}
+            className="w-full bg-transparent text-white placeholder-white/85 focus:outline-none text-[16px] md:text-sm leading-normal drop-shadow-sm"
+          />
         </div>
-      </section>
+
+        {/* Province + Bouton Icône */}
+        <div className="w-full sm:w-auto flex items-center justify-between gap-2 pl-3 pr-1 py-1 sm:py-0">
+          <div className="flex items-center flex-1 sm:w-44">
+            <FaMapMarkerAlt className="text-amber-400 mr-2 shrink-0 text-sm" />
+            <select
+              value={selectedProvince}
+              onChange={(e) => setSelectedProvince(e.target.value)}
+              className="w-full bg-transparent text-white focus:outline-none cursor-pointer text-[16px] md:text-sm font-semibold truncate drop-shadow-sm"
+            >
+              <option value="" className="text-slate-900 bg-white">
+                Toutes provinces
+              </option>
+              {provinces.map((prov) => (
+                <option key={prov} value={prov} className="text-slate-900 bg-white">
+                  {prov}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Bouton Icône de recherche */}
+          <button
+            type="submit"
+            aria-label="Rechercher"
+            title="Rechercher"
+            className="p-3 bg-sky-500 hover:bg-sky-600 active:scale-95 text-white rounded-xl shadow-md shadow-sky-500/30 transition shrink-0 flex items-center justify-center"
+          >
+            <FaSearch className="text-sm" />
+          </button>
+        </div>
+      </form>
+
+      {/* MENU DÉROULANT CONNECTÉ À PRODUCTS_DB */}
+      {showSuggestions && filteredSuggestions.length > 0 && (
+        <ul className="absolute left-0 right-0 mt-2 bg-slate-950/90 backdrop-blur-xl border border-white/25 rounded-2xl shadow-2xl overflow-hidden z-30 text-left divide-y divide-white/10 max-h-80 overflow-y-auto">
+          {filteredSuggestions.map((item) => {
+            const displayPrice = buyerMode === 'B2B' ? item.priceB2B : item.priceB2C;
+            const displayUnit = buyerMode === 'B2B' ? item.unitB2B : item.unitB2C;
+
+            return (
+              <li key={item.id}>
+                <button
+                  type="button"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    setSearchQuery(item.name);
+                    setShowSuggestions(false);
+                    navigate(`/produit/${item.id}`);
+                  }}
+                  className="w-full px-3.5 py-2.5 text-sm text-white hover:bg-white/15 flex items-center justify-between gap-3 transition"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    {item.images?.[0] ? (
+                      <img
+                        src={item.images[0]}
+                        alt={item.name}
+                        className="w-10 h-10 rounded-lg object-cover border border-white/20 shrink-0"
+                      />
+                    ) : (
+                      <FaSearch className="text-amber-400 text-xs shrink-0" />
+                    )}
+                    <div className="truncate">
+                      <p className="truncate font-medium">
+                        <strong className="text-amber-300 font-bold">
+                          {item.name.slice(0, searchQuery.trim().length)}
+                        </strong>
+                        {item.name.slice(searchQuery.trim().length)}
+                      </p>
+                      {item.province && (
+                        <p className="text-[11px] text-slate-300 truncate">
+                          {item.province} {item.supplier ? `• ${item.supplier}` : ''}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {displayPrice && (
+                    <div className="text-right shrink-0">
+                      <span className="block text-xs font-bold text-emerald-400 whitespace-nowrap">
+                        {formatPrice(displayPrice)}
+                      </span>
+                      {displayUnit && (
+                        <span className="block text-[10px] text-slate-400 whitespace-nowrap">
+                          {displayUnit}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+
+    {/* FILTRAGE RAPIDE PAR PROVINCE EN BLUR TRANSPARENT */}
+    <div className="mt-6">
+      <p className="text-xs text-white/90 uppercase tracking-widest font-bold mb-2.5 px-4 md:px-0 md:text-center drop-shadow">
+        Filtrer par bassin de production :
+      </p>
+
+      <div className="flex flex-nowrap items-center justify-start gap-2 overflow-x-auto px-2 pb-2 max-w-3xl md:max-w-5xl mx-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <button
+          type="button"
+          onClick={() => handleProvinceClick('ALL')}
+          className="shrink-0 whitespace-nowrap px-3.5 py-1.5 text-xs font-bold rounded-full bg-amber-400/90 backdrop-blur-md border border-amber-300/60 text-slate-900 shadow-sm transition"
+        >
+          Toutes
+        </button>
+
+        {provinces.map((province) => (
+          <button
+            key={province}
+            type="button"
+            onClick={() => handleProvinceClick(province)}
+            className="shrink-0 whitespace-nowrap px-3.5 py-1.5 text-xs font-semibold rounded-full bg-white/15 hover:bg-amber-400/90 backdrop-blur-md border border-white/25 hover:border-amber-300 text-white hover:text-slate-900 shadow-sm transition"
+          >
+            {province}
+          </button>
+        ))}
+      </div>
+    </div>
+
+    {/* BOUTONS D'ACTION PRINCIPAUX ALIGNÉS EN UNE SEULE LIGNE */}
+    <div className="mt-6 grid grid-cols-2 sm:flex sm:flex-nowrap justify-center items-center gap-2.5 sm:gap-4 max-w-xl mx-auto">
+      <button
+        type="button"
+        onClick={() => navigate('/catalogue')}
+        className="w-full sm:w-auto px-3 sm:px-6 py-3 sm:py-3.5 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 shadow-lg transition whitespace-nowrap"
+      >
+        <span className="truncate">Explorer le catalogue</span>
+        <FaArrowRight className="shrink-0" />
+      </button>
+
+      <button
+        type="button"
+        onClick={() => navigate('/devenir-fournisseur')}
+        className="w-full sm:w-auto px-3 sm:px-6 py-3 sm:py-3.5 rounded-xl bg-white/15 hover:bg-white/25 backdrop-blur-md border-2 border-sky-400 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 shadow-lg transition whitespace-nowrap"
+      >
+        <FaStore className="text-sky-300 shrink-0" />
+        <span className="truncate">Devenir Fournisseur</span>
+      </button>
+    </div>
+
+  </div>
+</section>
 
             {/* 2. GARANTIES POUR LA RDC */}
-      <section className="max-w-7xl mx-auto px-4 py-12">
+      {/* <section className="max-w-7xl mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white dark:bg-[#131936] p-6 rounded-2xl border border-slate-200 dark:border-gray-800 shadow-sm flex items-start gap-4">
             <div className="p-3 rounded-xl bg-sky-100 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400">
@@ -746,7 +855,7 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
      {/* 3. PRODUITS LOCAUX VEDETTES */}
 <section className="max-w-7xl mx-auto px-4 py-10">

@@ -11,7 +11,16 @@ import authService from '../services/authService';
 import { 
   FaTachometerAlt, FaHome, FaBars, FaTimes, FaMoon, FaSun, 
   FaVolumeUp, FaVolumeMute, FaStore, FaBoxes, FaHandshake,
-  FaSearch, FaShareAlt, FaChevronDown, FaUserCircle, FaBuilding, FaUser
+  FaSearch, FaShareAlt, FaChevronDown, FaUserCircle, FaBuilding, FaUser, FaArrowRight,
+  FaSeedling,
+  FaIndustry,
+  FaPalette,
+  FaTshirt,
+  FaThLarge,
+  FaCheckCircle,
+  FaWarehouse,
+  FaTractor,
+  FaHammer
 } from 'react-icons/fa';
 
 export default function Navbar({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF', setCurrency }) {
@@ -44,28 +53,64 @@ export default function Navbar({ buyerMode = 'B2C', setBuyerMode, currency = 'CD
 
   // Catégories enrichies selon nos priorités RDC
   const categories = [
-    {
-      name: 'Produits',
-      icon: <FaBoxes />,
-      subcategories: [
-        { name: 'Agriculture & Vivres', href: '/catalogue?category=agriculture' },
-        { name: 'Agro-alimentaire transformé', href: '/catalogue?category=transformation' },
-        { name: 'Artisanat & Déco', href: '/catalogue?category=artisanat' },
-        { name: 'Textiles & Mode', href: '/catalogue?category=textiles' },
-        { name: 'Tout le catalogue', href: '/catalogue' },
-      ]
-    },
-    {
-      name: 'Fournisseurs',
-      icon: <FaStore />,
-      subcategories: [
-        { name: 'Annuaire Vérifié 🇨🇩', href: '/fournisseurs' },
-        { name: 'Grossistes (B2B)', href: '/fournisseurs?type=wholesaler' },
-        { name: 'Coopératives Agricoles', href: '/fournisseurs?type=cooperative' },
-        { name: 'Artisans Locaux', href: '/fournisseurs?type=artisan' },
-      ]
-    }
-  ];
+  {
+    name: 'Produits',
+    icon: <FaBoxes className="text-sky-500" />,
+    subcategories: [
+      { 
+        name: 'Agriculture & Vivres', 
+        href: '/catalogue?category=agriculture',
+        icon: <FaSeedling className="text-emerald-500" />
+      },
+      { 
+        name: 'Agro-alimentaire transformé', 
+        href: '/catalogue?category=transformation',
+        icon: <FaIndustry className="text-amber-500" />
+      },
+      { 
+        name: 'Artisanat & Déco', 
+        href: '/catalogue?category=artisanat',
+        icon: <FaPalette className="text-purple-500" />
+      },
+      { 
+        name: 'Textiles & Mode', 
+        href: '/catalogue?category=textiles',
+        icon: <FaTshirt className="text-pink-500" />
+      },
+      { 
+        name: 'Tout le catalogue', 
+        href: '/catalogue',
+        icon: <FaThLarge className="text-sky-500" />
+      },
+    ]
+  },
+  {
+    name: 'Fournisseurs',
+    icon: <FaStore className="text-sky-500" />,
+    subcategories: [
+      { 
+        name: 'Annuaire Vérifié 🇨🇩', 
+        href: '/fournisseurs',
+        icon: <FaCheckCircle className="text-emerald-500" />
+      },
+      { 
+        name: 'Grossistes (B2B)', 
+        href: '/fournisseurs?type=wholesaler',
+        icon: <FaWarehouse className="text-indigo-500" />
+      },
+      { 
+        name: 'Coopératives Agricoles', 
+        href: '/fournisseurs?type=cooperative',
+        icon: <FaTractor className="text-amber-600" />
+      },
+      { 
+        name: 'Artisans Locaux', 
+        href: '/fournisseurs?type=artisan',
+        icon: <FaHammer className="text-orange-500" />
+      },
+    ]
+  }
+];
 
   useEffect(() => {
     const handleScroll = () => setIsSticky(window.scrollY > 35);
@@ -415,63 +460,131 @@ export default function Navbar({ buyerMode = 'B2C', setBuyerMode, currency = 'CD
           </AnimatePresence>
         </div>
 
-        {/* MENU MOBILE */}
-        <AnimatePresence>
-          {isOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="lg:hidden bg-white dark:bg-[#0a0e27] border-t border-gray-200 dark:border-gray-800 px-4 py-4 space-y-3 shadow-2xl"
+       {/* MENU MOBILE */}
+<AnimatePresence>
+  {isOpen && (
+    <motion.div
+      initial={{ opacity: 0, x: 40 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 40 }}
+      transition={{ duration: 0.25, ease: 'easeOut' }}
+      className="lg:hidden fixed right-0 top-16 z-50 w-72 max-w-[82vw] max-h-[calc(100vh-4rem)] overflow-y-auto bg-white dark:bg-[#0a0e27] border-l border-b border-gray-200 dark:border-gray-800 rounded-bl-2xl px-4 py-4 space-y-3 shadow-2xl"
+    >
+      {/* Lien Accueil avec Submit */}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleNavClick('/', e);
+        }}
+      >
+        <button
+          type="submit"
+          className="w-full text-left py-2 px-2 rounded-lg font-semibold text-gray-800 dark:text-gray-200 hover:bg-sky-50 dark:hover:bg-slate-800/60 flex items-center gap-2.5 transition"
+        >
+          <FaHome className="text-sky-500 shrink-0" />
+          <span>Accueil</span>
+        </button>
+      </form>
+
+      {/* Catégories et Sous-catégories avec Icônes & Submit */}
+      {categories.map((cat) => (
+        <div key={cat.name} className="space-y-1 pt-2 border-t border-gray-100 dark:border-gray-800/70">
+          <div className="text-xs font-bold uppercase tracking-wider text-gray-400 px-2 py-1 flex items-center gap-2">
+            {cat.icon}
+            <span>{cat.name}</span>
+          </div>
+
+          {cat.subcategories.map((sub) => (
+            <form
+              key={sub.name}
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleNavClick(sub.href, e);
+              }}
             >
               <button
-                type="button"
-                onClick={(e) => handleNavClick('/', e)}
-                className="w-full text-left py-2 font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2"
+                type="submit"
+                className="w-full text-left pl-4 pr-2 py-1.5 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:text-sky-500 hover:bg-sky-50/70 dark:hover:bg-slate-800/50 flex items-center gap-2.5 transition"
               >
-                <FaHome className="text-sky-500" />
-                <span>Accueil</span>
+                <span className="text-xs shrink-0">{sub.icon}</span>
+                <span className="truncate">{sub.name}</span>
               </button>
+            </form>
+          ))}
+        </div>
+      ))}
 
-              {categories.map((cat) => (
-                <div key={cat.name} className="space-y-1">
-                  <div className="text-xs font-bold uppercase text-gray-400 pt-2">
-                    {cat.name}
-                  </div>
-                  {cat.subcategories.map((sub) => (
-                    <button
-                      type="button"
-                      key={sub.name}
-                      onClick={(e) => handleNavClick(sub.href, e)}
-                      className="block w-full text-left pl-4 py-1.5 text-sm text-gray-700 dark:text-gray-300 hover:text-sky-500"
-                    >
-                      {sub.name}
-                    </button>
-                  ))}
-                </div>
-              ))}
+      {/* Lien Appels d'Offres avec Submit */}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleNavClick('/appels-offres', e);
+        }}
+        className="pt-2 border-t border-gray-100 dark:border-gray-800/70"
+      >
+        <button
+          type="submit"
+          className="w-full text-left py-2 px-2 rounded-lg font-semibold text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/30 flex items-center gap-2.5 transition"
+        >
+          <FaHandshake className="shrink-0" />
+          <span>Appels d'Offres (B2B)</span>
+        </button>
+      </form>
 
-              <button
-                type="button"
-                onClick={(e) => handleNavClick('/appels-offres', e)}
-                className="w-full text-left py-2 font-semibold text-amber-500 flex items-center gap-2"
-              >
-                <FaHandshake />
-                <span>Appels d'Offres (B2B)</span>
-              </button>
+      {/* BOUTONS D'ACTION PRINCIPAUX EN BAS DU MENU */}
+      <div className="pt-3 border-t border-gray-200 dark:border-gray-800 space-y-2.5">
+        {/* Bouton 1 : Explorer le catalogue */}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (typeof setIsOpen === 'function') setIsOpen(false);
+            navigate('/catalogue');
+          }}
+        >
+          <button
+            type="submit"
+            className="w-full px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition"
+          >
+            <span>Explorer le catalogue</span>
+            <FaArrowRight />
+          </button>
+        </form>
 
-              <div className="pt-3 border-t border-gray-200 dark:border-gray-800">
-                <button
-                  type="button"
-                  onClick={(e) => handleNavClick(isAuthenticated ? '/dashboard' : '/connexion', e)}
-                  className="w-full py-2.5 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-bold text-center text-sm transition"
-                >
-                  {isAuthenticated ? 'Mon Tableau de Bord' : 'Connexion / Inscription'}
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Bouton 2 : Devenir Fournisseur */}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (typeof setIsOpen === 'function') setIsOpen(false);
+            navigate('/devenir-fournisseur');
+          }}
+        >
+          <button
+            type="submit"
+            className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-[#131936] hover:bg-sky-50 dark:hover:bg-slate-800 border-2 border-sky-500 text-sky-600 dark:text-sky-400 font-bold text-xs flex items-center justify-center gap-2 transition"
+          >
+            <FaStore />
+            <span>Devenir Fournisseur (Gratuit)</span>
+          </button>
+        </form>
+
+        {/* Bouton 3 : Connexion / Tableau de Bord */}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleNavClick(isAuthenticated ? '/dashboard' : '/connexion', e);
+          }}
+        >
+          <button
+            type="submit"
+            className="w-full py-2.5 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-bold text-center text-xs transition shadow-sm"
+          >
+            {isAuthenticated ? 'Mon Tableau de Bord' : 'Connexion / Inscription'}
+          </button>
+        </form>
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
       </nav>
     </header>
   );
