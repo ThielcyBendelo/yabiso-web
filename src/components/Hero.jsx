@@ -872,19 +872,19 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
       </section> */}
 
      {/* 3. PRODUITS LOCAUX VEDETTES */}
-<section className="max-w-7xl mx-auto px-4 py-10">
+<section className="max-w-7xl mx-auto px-4 py-10 pt-5">
   {/* En-tête + Sélecteur B2C / B2B */}
   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-5 gap-4">
     <div>
       <span className="text-xs font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400">
         Sélection Vérifiée
       </span>
-      <h2 className="text-2xl sm:text-3xl font-black mt-0.5">
-        {buyerMode === 'B2B' ? 'Offres en Gros & Approvisionnement' : 'Produits Locaux Populaires'}
-      </h2>
+<h2 className="hidden sm:block text-2xl sm:text-3xl font-black mt-0.5">
+  {buyerMode === 'B2B' ? 'Offres en Gros & Approvisionnement' : 'Produits Locaux Populaires'}
+</h2>
     </div>
 
-    <div className="flex items-center gap-3 self-end sm:self-auto">
+    <div className="flex items-center gap-6 self-end sm:self-auto">
       {setBuyerMode && (
         <div className="flex items-center gap-1 bg-slate-100 dark:bg-[#131936] p-1 rounded-xl border border-slate-200 dark:border-gray-800">
           <button
@@ -1056,9 +1056,9 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
       <span className="text-xs font-bold uppercase tracking-wider text-amber-500">
         Carte Économique RDC
       </span>
-      <h2 className="text-2xl sm:text-3xl font-black mt-0.5">
-        Explorer par Bassin de Production
-      </h2>
+      <h2 className="hidden sm:block text-2xl sm:text-3xl font-black mt-0.5">
+  Explorer par Bassin de Production
+</h2>
     </div>
 
     {/* Flèches de défilement (Desktop uniquement) */}
@@ -1194,10 +1194,10 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
     <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400">
       Fonctionnalités Avancées
     </span>
-    <h2 className="text-xl sm:text-2xl lg:text-3xl font-black mt-0.5 text-slate-900 dark:text-white">
+    <h2 className="hidden sm:block sm:text-2xl lg:text-3xl font-black mt-0.5 text-slate-900 dark:text-white">
       Explorez Nos Services Innovants
     </h2>
-    <p className="text-xs sm:text-sm text-slate-500 dark:text-gray-400 mt-1">
+    <p className="hidden sm:block sm:text-sm text-slate-500 dark:text-gray-400 mt-1">
       Des outils pensés pour sécuriser vos achats, fluidifier la logistique et développer votre activité en RDC.
     </p>
   </div>
