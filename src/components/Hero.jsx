@@ -778,7 +778,7 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
     </div>
 
     {/* FILTRAGE RAPIDE PAR PROVINCE EN BLUR TRANSPARENT */}
-    <div className="mt-6">
+    {/* <div className="mt-6">
       <p className="text-xs text-white/90 uppercase tracking-widest font-bold mb-2.5 px-4 md:px-0 md:text-center drop-shadow">
         Filtrer par bassin de production :
       </p>
@@ -803,7 +803,7 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
           </button>
         ))}
       </div>
-    </div>
+    </div> */}
 
     {/* BOUTONS D'ACTION PRINCIPAUX ALIGNÉS EN UNE SEULE LIGNE */}
         {/* BOUTONS D'ACTION PRINCIPAUX ALIGNÉS EN UNE SEULE LIGNE (MASQUÉS SUR MOBILE) */}

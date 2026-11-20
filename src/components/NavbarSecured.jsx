@@ -79,6 +79,15 @@ const handleSelectSuggestion = (product) => {
     }
   });
 
+  // À exécuter chaque fois que l'état du menu change (ex: dans un useEffect)
+  // À exécuter chaque fois que l'état du menu change
+  useEffect(() => {
+    document.body.dataset.mobileMenuOpen = String(isOpen);
+    const event = new CustomEvent('mobileMenuToggle', { detail: isOpen });
+    window.dispatchEvent(event);
+  }, [isOpen]);
+
+
 
   // Catégories enrichies selon nos priorités RDC
   const categories = [
@@ -209,6 +218,7 @@ const handleSelectSuggestion = (product) => {
     audioService.playNavigate();
     navigate(href);
   };
+
 
   const handleShareClick = async () => {
     audioService.playClick();

@@ -11,16 +11,20 @@ import {
 } from 'react-icons/fa';
 
 export default function MobileBottomNav({ isAuthenticated = false }) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(
+    () => document.body.dataset.mobileMenuOpen === 'true'
+  );
 
   useEffect(() => {
-    const handleMenuToggle = (e) => setIsMenuOpen(e.detail);
+    const handleMenuToggle = (e) => setIsMenuOpen(Boolean(e.detail));
     window.addEventListener('mobileMenuToggle', handleMenuToggle);
     return () => window.removeEventListener('mobileMenuToggle', handleMenuToggle);
   }, []);
 
-  // Masque complètement la barre du bas quand le menu mobile est ouvert
   if (isMenuOpen) return null;
+  
+  // ... reste de votre composant
+
 
   // Masquer la barre inférieure dans l'espace fournisseur ou sur les écrans d'authentification
   if (
