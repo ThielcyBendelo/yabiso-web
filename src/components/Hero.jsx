@@ -872,7 +872,7 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
       </section> */}
 
      {/* 3. PRODUITS LOCAUX VEDETTES */}
-<section className="max-w-7xl mx-auto px-4 py-10 pt-5">
+<section className="max-w-7xl mx-auto px-4 py-8 pt-5 border-b border-gray-200 dark:border-gray-800">
   {/* En-tête + Sélecteur B2C / B2B */}
   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-5 gap-4">
     <div>
@@ -1049,7 +1049,7 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
 
 
       {/* SECTION : EXPLORATION PAR BASSIN DE PRODUCTION */}
-<section className="max-w-7xl mx-auto px-4 py-10">
+<section className="max-w-7xl mx-auto px-4 py-8 border-b border-gray-200 dark:border-gray-800">
   {/* En-tête avec boutons de navigation Desktop */}
   <div className="flex justify-between items-end mb-5">
     <div>
@@ -1188,7 +1188,7 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
 </section> */}
 
 {/* SECTION : FONCTIONNALITÉS AVANCÉES (ONGLETS INTERACTIFS) */}
-<section className="max-w-7xl mx-auto px-4 py-8 lg:py-10">
+<section className="max-w-7xl mx-auto px-4 py-8 lg:py-10 border-b border-gray-200 dark:border-gray-800">
   {/* En-tête de section */}
   <div className="max-w-2xl mb-5 lg:mb-6">
     <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400">
