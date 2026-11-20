@@ -1,5 +1,6 @@
 import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom'; // (gardez uniquement vos imports router ici)
 import { motion } from 'framer-motion';
 import {
   FaHome,
@@ -10,8 +11,16 @@ import {
 } from 'react-icons/fa';
 
 export default function MobileBottomNav({ isAuthenticated = false }) {
-  const location = useLocation();
-  const navigate = useNavigate();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleMenuToggle = (e) => setIsMenuOpen(e.detail);
+    window.addEventListener('mobileMenuToggle', handleMenuToggle);
+    return () => window.removeEventListener('mobileMenuToggle', handleMenuToggle);
+  }, []);
+
+  // Masque complètement la barre du bas quand le menu mobile est ouvert
+  if (isMenuOpen) return null;
 
   // Masquer la barre inférieure dans l'espace fournisseur ou sur les écrans d'authentification
   if (

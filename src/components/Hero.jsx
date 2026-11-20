@@ -6,13 +6,14 @@ import background4 from '../assets/background4.jpeg';
 import {
   FaSearch, FaMapMarkerAlt, FaStore, FaHandshake, FaLeaf,
   FaCheckCircle, FaArrowRight, FaMobileAlt, FaShieldAlt, FaTruck, FaWhatsapp, 
- FaChevronLeft, FaChevronRight, FaMapPin, FaFileInvoiceDollar, FaLock 
+  FaChevronLeft, FaChevronRight, FaMapPin, FaFileInvoiceDollar, FaLock 
 } from 'react-icons/fa';
 
 export default function Hero({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF' }) {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProvince, setSelectedProvince] = useState('');
+
 
   const provinces = [
   'Équateur',
@@ -542,8 +543,9 @@ const filteredSuggestions = useMemo(() => {
   ).slice(0, 8);
 }, [searchQuery]);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
+    const handleSearch = (e) => {
+    if (e) e.preventDefault();
+    setShowSuggestions(false);
     navigate(
       '/catalogue?search=' +
         encodeURIComponent(searchQuery) +
@@ -551,6 +553,7 @@ const filteredSuggestions = useMemo(() => {
         encodeURIComponent(selectedProvince)
     );
   };
+
 
   const handleProvinceClick = (province) => {
     setSelectedProvince(province);
@@ -602,11 +605,11 @@ const scrollBasins = (direction) => {
 const [activeTab, setActiveTab] = useState(platformFeatures[0]);
 
   return (
-    <div className="bg-white dark:bg-[#070a1d] text-slate-900 dark:text-gray-100 ">
+<div className="bg-white dark:bg-[#070a1d] text-slate-900 dark:text-gray-100 ">
 
       {/* 1. SECTION HERO PRINCIPALE : IMAGE ENTIÈRE SANS ZOOM */}
 {/* 1. SECTION HERO PRINCIPALE : PLEIN ÉCRAN DESKTOP & IMAGE ENTIÈRE MOBILE */}
-<section className="relative w-full bg-[#070a1d] md:min-h-[92vh] flex flex-col justify-between pt-[104px] md:pt-28 pb-10 md:pb-12 overflow-hidden">
+<section className="relative w-full bg-[#070a1d] md:min-h-[92vh] flex flex-col justify-between pt-[90px] md:pt-28 pb-10 md:pb-12 overflow-hidden">
   
   {/* Image d'arrière-plan : ratio naturel sans bande noire sur mobile, plein écran sur desktop */}
   <div className="relative md:absolute md:inset-0 w-full aspect-[16/9] sm:aspect-[21/9] md:aspect-auto pointer-events-none">
@@ -635,12 +638,12 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
     </motion.div>
   </div>
 
-  {/* BAS DE LA SECTION : Recherche + Bassins Blur + Boutons */}
-  <div className="relative z-10 w-full max-w-5xl mx-auto text-center px-4 sm:px-6 -mt-5 sm:-mt-8 md:mt-auto md:pt-64 lg:pt-72">
+    {/* BAS DE LA SECTION : Recherche au centre + Bassins Blur en bas */}
+  <div className="relative z-10 w-full max-w-5xl mx-auto text-center px-4 sm:px-6 -mt-5 sm:-mt-8 md:mt-auto md:pt-24 lg:pt-32">
     
     {/* BARRE DE RECHERCHE RAPIDE TRANSPARENTE & BLUR + AUTOCOMPLÉTION PRODUCTS_DB */}
-    <div className="relative max-w-2xl mx-auto">
-      <form
+    <div className="hidden lg:block relative max-w-2xl mx-auto lg:my-16">
+            <form
         onSubmit={(e) => {
           setShowSuggestions(false);
           handleSearch(e);
@@ -650,7 +653,8 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
         {/* Champ texte (text-[16px] empêche le zoom sur mobile) */}
         <div className="w-full flex-1 flex items-center px-3 py-1.5 sm:py-0 border-b sm:border-b-0 sm:border-r border-white/20">
           <input
-            type="text"
+            type="search"
+            enterKeyHint="search"
             autoComplete="off"
             placeholder={
               buyerMode === 'B2B'
@@ -664,7 +668,15 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
               setSearchQuery(e.target.value);
               setShowSuggestions(true);
             }}
-            className="w-full bg-transparent text-white placeholder-white/85 focus:outline-none text-[16px] md:text-sm leading-normal drop-shadow-sm"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                setShowSuggestions(false);
+                e.currentTarget.blur();
+                handleSearch(e);
+              }
+            }}
+            className="w-full bg-transparent text-white placeholder-white/85 focus:outline-none text-[16px] md:text-sm leading-normal drop-shadow-sm [&::-webkit-search-cancel-button]:hidden"
           />
         </div>
 
@@ -699,6 +711,7 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
           </button>
         </div>
       </form>
+
 
       {/* MENU DÉROULANT CONNECTÉ À PRODUCTS_DB */}
       {showSuggestions && filteredSuggestions.length > 0 && (
@@ -793,7 +806,8 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
     </div>
 
     {/* BOUTONS D'ACTION PRINCIPAUX ALIGNÉS EN UNE SEULE LIGNE */}
-    <div className="mt-6 grid grid-cols-2 sm:flex sm:flex-nowrap justify-center items-center gap-2.5 sm:gap-4 max-w-xl mx-auto">
+        {/* BOUTONS D'ACTION PRINCIPAUX ALIGNÉS EN UNE SEULE LIGNE (MASQUÉS SUR MOBILE) */}
+    <div className="hidden lg:flex lg:flex-nowrap mt-6 justify-center items-center gap-4 max-w-xl mx-auto">
       <button
         type="button"
         onClick={() => navigate('/catalogue')}
@@ -1174,25 +1188,25 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
 </section> */}
 
 {/* SECTION : FONCTIONNALITÉS AVANCÉES (ONGLETS INTERACTIFS) */}
-<section className="max-w-7xl mx-auto px-4 py-12">
+<section className="max-w-7xl mx-auto px-4 py-8 lg:py-10">
   {/* En-tête de section */}
-  <div className="max-w-2xl mb-8">
-    <span className="text-xs font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400">
+  <div className="max-w-2xl mb-5 lg:mb-6">
+    <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400">
       Fonctionnalités Avancées
     </span>
-    <h2 className="text-2xl sm:text-3xl font-black mt-1 text-slate-900 dark:text-white">
+    <h2 className="text-xl sm:text-2xl lg:text-3xl font-black mt-0.5 text-slate-900 dark:text-white">
       Explorez Nos Services Innovants
     </h2>
-    <p className="text-xs sm:text-sm text-slate-500 dark:text-gray-400 mt-1.5">
+    <p className="text-xs sm:text-sm text-slate-500 dark:text-gray-400 mt-1">
       Des outils pensés pour sécuriser vos achats, fluidifier la logistique et développer votre activité en RDC.
     </p>
   </div>
 
   {/* Grille Principale : Onglets à Gauche (5 col) | Aperçu à Droite (7 col) */}
-  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+  <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-stretch">
     
-    {/* COLONNE GAUCHE : Navigation par onglets (1 ligne défilante sur mobile, verticale sur desktop) */}
-    <div className="lg:col-span-5 flex flex-nowrap lg:flex-col gap-2.5 overflow-x-auto pb-2 lg:pb-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+    {/* COLONNE GAUCHE : 3 onglets en 1 seule ligne sur mobile (grid-cols-3), empilés sur desktop */}
+    <div className="lg:col-span-5 grid grid-cols-3 lg:flex lg:flex-col gap-2 lg:gap-3">
       {platformFeatures.map((feat) => {
         const Icon = feat.icon;
         const isSelected = activeTab.id === feat.id;
@@ -1203,7 +1217,7 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
             type="button"
             onClick={() => setActiveTab(feat)}
             className={
-              'shrink-0 lg:shrink text-left p-3.5 sm:p-4 rounded-2xl border transition-all duration-200 flex items-center gap-3.5 cursor-pointer ' +
+              'p-2.5 sm:p-3 lg:p-3.5 rounded-xl lg:rounded-2xl border transition-all duration-200 flex flex-col lg:flex-row items-center lg:items-center text-center lg:text-left gap-1.5 lg:gap-3.5 cursor-pointer ' +
               (isSelected
                 ? 'bg-sky-500 text-white border-sky-500 shadow-md shadow-sky-500/20'
                 : 'bg-white dark:bg-[#131936] text-slate-700 dark:text-gray-300 border-slate-200 dark:border-gray-800 hover:border-sky-400')
@@ -1211,25 +1225,25 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
           >
             <div
               className={
-                'w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition ' +
+                'w-8 h-8 lg:w-10 lg:h-10 rounded-lg lg:rounded-xl flex items-center justify-center shrink-0 transition ' +
                 (isSelected
                   ? 'bg-white/20 text-white'
                   : 'bg-sky-50 dark:bg-[#0a0e27] text-sky-500')
               }
             >
-              <Icon size={18} />
+              <Icon className="text-sm lg:text-lg" />
             </div>
 
-            <div className="min-w-0">
+            <div className="min-w-0 w-full">
               <span
                 className={
-                  'text-[10px] font-bold uppercase tracking-wider block ' +
+                  'hidden lg:block text-[10px] font-bold uppercase tracking-wider ' +
                   (isSelected ? 'text-sky-100' : 'text-amber-500')
                 }
               >
                 {feat.badge}
               </span>
-              <span className="font-bold text-xs sm:text-sm whitespace-nowrap lg:whitespace-normal block mt-0.5">
+              <span className="font-bold text-[11px] sm:text-xs lg:text-sm leading-tight line-clamp-2 lg:line-clamp-none block">
                 {feat.tabTitle}
               </span>
             </div>
@@ -1238,36 +1252,39 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
       })}
     </div>
 
-    {/* COLONNE DROITE : Panneau de visualisation dynamique */}
-    <div className="lg:col-span-7 bg-white dark:bg-[#131936] rounded-3xl border border-slate-200 dark:border-gray-800 p-5 sm:p-8 shadow-sm flex flex-col justify-between">
+    {/* COLONNE DROITE : Panneau de visualisation dynamique (compact sur mobile, complet à l'écran sur desktop) */}
+    <div className="lg:col-span-7 bg-white dark:bg-[#131936] rounded-2xl lg:rounded-3xl border border-slate-200 dark:border-gray-800 p-4 sm:p-5 lg:p-6 shadow-sm flex flex-col justify-between">
       <AnimatePresence mode="wait">
         <motion.div
           key={activeTab.id}
-          initial={{ opacity: 0, y: 8 }}
+          initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.2 }}
-          className="flex flex-col justify-between h-full gap-6"
+          exit={{ opacity: 0, y: -6 }}
+          transition={{ duration: 0.18 }}
+          className="flex flex-col justify-between h-full gap-3.5 lg:gap-4"
         >
           {/* Détails du service */}
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 text-xs font-bold mb-3">
-              <activeTab.icon size={12} /> {activeTab.badge}
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 text-[11px] font-bold mb-2">
+              <activeTab.icon size={11} /> {activeTab.badge}
             </div>
 
-            <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white leading-snug">
+            <h3 className="text-base sm:text-lg lg:text-xl font-black text-slate-900 dark:text-white leading-snug">
               {activeTab.title}
             </h3>
 
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-gray-300 mt-2.5 leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-gray-300 mt-1.5 leading-relaxed">
               {activeTab.description}
             </p>
 
             {/* Liste des avantages */}
-            <ul className="mt-4 space-y-2">
+            <ul className="mt-2.5 lg:mt-3 space-y-1.5">
               {activeTab.highlights.map((item, idx) => (
-                <li key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700 dark:text-gray-200 font-medium">
-                  <FaCheckCircle className="text-emerald-500 mt-0.5 shrink-0" size={14} />
+                <li
+                  key={idx}
+                  className="flex items-start gap-2 text-xs sm:text-sm text-slate-700 dark:text-gray-200 font-medium"
+                >
+                  <FaCheckCircle className="text-emerald-500 mt-0.5 shrink-0" size={13} />
                   <span>{item}</span>
                 </li>
               ))}
@@ -1275,26 +1292,27 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
           </div>
 
           {/* Mini-aperçu visuel (Simule l'interface réelle de l'application) */}
-          <div className="rounded-2xl bg-slate-50 dark:bg-[#0a0e27] border border-slate-200/80 dark:border-gray-800 p-4">
-            <div className="flex items-center justify-between border-b border-slate-200 dark:border-gray-800 pb-2.5 mb-3">
-              <span className="text-[11px] font-bold text-slate-500 dark:text-gray-400 flex items-center gap-1.5">
-                <FaMobileAlt className="text-sky-500" /> {activeTab.preview.header}
+          <div className="rounded-xl lg:rounded-2xl bg-slate-50 dark:bg-[#0a0e27] border border-slate-200/80 dark:border-gray-800 p-3 lg:p-3.5">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-gray-800 pb-2 mb-2">
+              <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-gray-400 flex items-center gap-1.5 truncate">
+                <FaMobileAlt className="text-sky-500 shrink-0" />
+                <span className="truncate">{activeTab.preview.header}</span>
               </span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                <FaLock size={9} /> {activeTab.preview.status}
+              <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center gap-1 shrink-0">
+                <FaLock size={8} /> {activeTab.preview.status}
               </span>
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2">
               <div>
-                <div className="text-sm sm:text-base font-black text-slate-900 dark:text-white">
+                <div className="text-xs sm:text-sm lg:text-base font-black text-slate-900 dark:text-white">
                   {activeTab.preview.amount}
                 </div>
-                <div className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">
+                <div className="text-[11px] sm:text-xs text-slate-500 dark:text-gray-400 mt-0.5">
                   {activeTab.preview.supplier}
                 </div>
               </div>
-              <div className="text-[11px] font-semibold px-3 py-1.5 rounded-xl bg-white dark:bg-[#131936] text-slate-700 dark:text-gray-300 border border-slate-200 dark:border-gray-800 self-start sm:self-center">
+              <div className="text-[10px] sm:text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-white dark:bg-[#131936] text-slate-700 dark:text-gray-300 border border-slate-200 dark:border-gray-800 self-start sm:self-center">
                 {activeTab.preview.method}
               </div>
             </div>
@@ -1308,7 +1326,7 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
               className="inline-flex items-center gap-2 text-xs sm:text-sm font-black text-sky-600 dark:text-sky-400 hover:text-amber-500 transition cursor-pointer"
             >
               <span>{activeTab.ctaText}</span>
-              <FaArrowRight size={12} />
+              <FaArrowRight size={11} />
             </button>
           </div>
         </motion.div>
