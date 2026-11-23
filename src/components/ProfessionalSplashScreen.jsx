@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaShieldAlt, FaCheckCircle, FaArrowRight } from 'react-icons/fa';
+import logoM from '../assets/logoM.png'; // ⚠️ Vérifiez que le chemin et l'extension (.png, .svg, .webp) correspondent à votre fichier
 
 export default function ProfessionalSplashScreen({ onComplete }) {
   const [progress, setProgress] = useState(0);
@@ -54,7 +55,7 @@ export default function ProfessionalSplashScreen({ onComplete }) {
           <button
             type="button"
             onClick={() => onComplete && onComplete()}
-            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold text-slate-500 hover:text-sky-600 dark:text-gray-400 dark:hover:text-sky-400 hover:bg-slate-100 dark:hover:bg-[#131936] transition"
+            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold text-slate-500 hover:text-sky-600 dark:text-gray-400 dark:hover:text-sky-400 hover:bg-slate-100 dark:hover:bg-[#131936] transition cursor-pointer"
           >
             <span>Passer</span>
             <FaArrowRight size={10} />
@@ -62,7 +63,7 @@ export default function ProfessionalSplashScreen({ onComplete }) {
         </div>
 
         {/* Centre : Logo animé, Slogan & Barre de progression */}
-        <div className="flex flex-col items-center text-center max-w-md w-full">
+        <div className="flex flex-col items-center text-center max-w-md w-full my-auto">
           {/* Emblème animé */}
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
@@ -109,7 +110,7 @@ export default function ProfessionalSplashScreen({ onComplete }) {
           </motion.div>
 
           {/* Barre de progression moderne */}
-          <div className="w-full mt-10 space-y-2.5">
+          <div className="w-full mt-8 sm:mt-10 space-y-2.5">
             <div className="w-full h-2 bg-slate-100 dark:bg-[#131936] rounded-full overflow-hidden p-0.5 border border-slate-200/70 dark:border-gray-800">
               <motion.div
                 className="h-full rounded-full bg-gradient-to-r from-sky-500 via-amber-400 to-sky-600"
@@ -125,10 +126,37 @@ export default function ProfessionalSplashScreen({ onComplete }) {
           </div>
         </div>
 
-        {/* Pied de page : Mention sécurité */}
-        <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 dark:text-gray-500">
-          <FaShieldAlt className="text-sky-500" />
-          <span>Transactions protégées • M-Pesa • Airtel • Orange • Afrimoney</span>
+        {/* Bas de page : Mention sécurité + Signature de marque "from Muamokel" */}
+        <div className="flex flex-col items-center gap-4 w-full">
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 dark:text-gray-500 text-center">
+            <FaShieldAlt className="text-sky-500 shrink-0" />
+            <span>Transactions protégées • M-Pesa • Airtel • Orange • Afrimoney</span>
+          </div>
+
+          {/* 3. SIGNATURE DE MARQUE (FOOTER "FROM MUAMOKEL") */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2, ease: 'easeOut' }}
+            className="flex flex-col items-center gap-2 relative z-10"
+          >
+            {/* Mention "from" discrète et corporative */}
+            <span className="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.3em] text-slate-500/80 dark:text-slate-400/80">
+              from
+            </span>
+
+            {/* Bloc Logo + Nom de la société */}
+            <div className="flex items-center gap-3 bg-slate-100/80 dark:bg-white/[0.03] border border-slate-200/80 dark:border-slate-800 rounded-xl px-5 py-2 shadow-[inset_0_1px_1px_rgba(255,255,255,0.03)] backdrop-blur-md">
+              <img
+                src={logoM}
+                alt="Logo Muamokel"
+                className="w-6 h-6 sm:w-7 sm:h-7 object-contain opacity-95"
+              />
+              <span className="text-slate-900 dark:text-white font-black tracking-wider text-base sm:text-lg uppercase">
+                Muamokel
+              </span>
+            </div>
+          </motion.div>
         </div>
       </motion.div>
     </AnimatePresence>
