@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PRODUCTS_DB, getProductImage } from '../data/productsData';
@@ -13,6 +13,45 @@ export default function Hero({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF'
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProvince, setSelectedProvince] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('Toutes');
+
+  // Déclarés UNE SEULE FOIS ici (supprimez les doublons vers la ligne 631)
+  const rowRefs = useRef({});
+  const categorySectionRefs = useRef({});
+
+  const displayCategories = useMemo(() => {
+  const uniqueCats = [
+    ...new Set((PRODUCTS_DB || []).map((p) => p.categoryLabel).filter(Boolean))
+  ];
+  return uniqueCats.slice(0, 9);
+}, []);
+
+const productsSectionRef = useRef(null); // Repère toute la section des produits locaux
+const categoryBarRef = useRef(null);     // Repère la position exacte de la barre
+const [isCategoryBarFixed, setIsCategoryBarFixed] = useState(false);
+
+useEffect(() => {
+  const handleScroll = () => {
+    if (!productsSectionRef.current || !categoryBarRef.current) return;
+
+    // Hauteur de votre Navbar principale en haut de l'écran (ex: 64px pour h-16, ou 56px pour h-14)
+    const navbarHeight = 80; 
+
+    const sectionRect = productsSectionRef.current.getBoundingClientRect();
+    const barRect = categoryBarRef.current.getBoundingClientRect();
+
+    // 1. L'utilisateur a atteint la barre de catégories
+    const hasReachedBar = barRect.top <= navbarHeight;
+    // 2. L'utilisateur n'a pas encore dépassé la fin de la section (avec une marge de 140px)
+    const isStillInSection = sectionRect.bottom > navbarHeight + 140;
+
+    setIsCategoryBarFixed(hasReachedBar && isStillInSection);
+  };
+
+  window.addEventListener('scroll', handleScroll, { passive: true });
+  handleScroll(); // Vérification initiale
+  return () => window.removeEventListener('scroll', handleScroll);
+}, []);
 
 
   const provinces = [
@@ -36,297 +75,296 @@ export default function Hero({ buyerMode = 'B2C', setBuyerMode, currency = 'CDF'
   'Tshopo'
 ];
 
-  const featuredProducts = [
-  // --- Vos 4 produits initiaux ---
-  {
-    id: 1,
-    name: 'Café Arabica du Kivu (Torréfié)',
-    category: 'Agro-alimentaire',
-    province: 'Sud-Kivu',
-    supplier: 'Coopérative Sopacdi',
-    verified: true,
-    priceB2C: 12,
-    unitB2C: 'Sachet 500g',
-    priceB2B: 9.5,
-    unitB2B: 'Sac 10kg (Min. 5 sacs)',
-    image: getProductImage(1)
-  },
-  {
-    id: 2,
-    name: 'Miel Pur de Forêt Équatoriale',
-    category: 'Agriculture',
-    province: 'Équateur',
-    supplier: 'Rucher Mbandaka Bio',
-    verified: true,
-    priceB2C: 8,
-    unitB2C: 'Pot 1 Litre',
-    priceB2B: 6,
-    unitB2B: 'Bidon 20L (Min. 2 bidons)',
-    image: getProductImage(1)
-  },
-  {
-    id: 3,
-    name: 'Panier Artisanal Tressé Raphia',
-    category: 'Artisanat',
-    province: 'Kasaï-Central',
-    supplier: 'Atelier Mains d’Or',
-    verified: true,
-    priceB2C: 25,
-    unitB2C: 'Pièce unique',
-    priceB2B: 18,
-    unitB2B: 'Lot de 10 pièces',
-    image: getProductImage(1)
-  },
-  {
-    id: 4,
-    name: 'Farine de Manioc Panifiable (Fufu)',
-    category: 'Agriculture',
-    province: 'Kongo-Central',
-    supplier: 'Ferme Nsioni',
-    verified: true,
-    priceB2C: 15,
-    unitB2C: 'Sac 25kg',
-    priceB2B: 12,
-    unitB2B: 'Sac 50kg (Min. 20 sacs)',
-    image: getProductImage(1)
-  },
+  // const featuredProducts = [
+  // {
+  //   id: 1,
+  //   name: 'Café Arabica du Kivu (Torréfié)',
+  //   category: 'Agro-alimentaire',
+  //   province: 'Sud-Kivu',
+  //   supplier: 'Coopérative Sopacdi',
+  //   verified: true,
+  //   priceB2C: 12,
+  //   unitB2C: 'Sachet 500g',
+  //   priceB2B: 9.5,
+  //   unitB2B: 'Sac 10kg (Min. 5 sacs)',
+  //   image: getProductImage(1)
+  // },
+  // {
+  //   id: 2,
+  //   name: 'Miel Pur de Forêt Équatoriale',
+  //   category: 'Agriculture',
+  //   province: 'Équateur',
+  //   supplier: 'Rucher Mbandaka Bio',
+  //   verified: true,
+  //   priceB2C: 8,
+  //   unitB2C: 'Pot 1 Litre',
+  //   priceB2B: 6,
+  //   unitB2B: 'Bidon 20L (Min. 2 bidons)',
+  //   image: getProductImage(1)
+  // },
+  // {
+  //   id: 3,
+  //   name: 'Panier Artisanal Tressé Raphia',
+  //   category: 'Artisanat',
+  //   province: 'Kasaï-Central',
+  //   supplier: 'Atelier Mains d’Or',
+  //   verified: true,
+  //   priceB2C: 25,
+  //   unitB2C: 'Pièce unique',
+  //   priceB2B: 18,
+  //   unitB2B: 'Lot de 10 pièces',
+  //   image: getProductImage(1)
+  // },
+  // {
+  //   id: 4,
+  //   name: 'Farine de Manioc Panifiable (Fufu)',
+  //   category: 'Agriculture',
+  //   province: 'Kongo-Central',
+  //   supplier: 'Ferme Nsioni',
+  //   verified: true,
+  //   priceB2C: 15,
+  //   unitB2C: 'Sac 25kg',
+  //   priceB2B: 12,
+  //   unitB2B: 'Sac 50kg (Min. 20 sacs)',
+  //   image: getProductImage(1)
+  // },
 
   // --- Nouveaux produits ajoutés (18 produits supplémentaires) ---
-  {
-    id: 5,
-    name: 'Huile de Palme Rouge Raffinée',
-    category: 'Agro-alimentaire',
-    province: 'Kwilu',
-    supplier: 'Huilerie du Kwilu',
-    verified: true,
-    priceB2C: 6,
-    unitB2C: 'Bidon 5 Litres',
-    priceB2B: 22,
-    unitB2B: 'Fût 25 Litres (Min. 10 fûts)',
-    image: getProductImage(1)
-  },
-  {
-    id: 6,
-    name: 'Farine de Maïs Blanc (Semoule)',
-    category: 'Agriculture',
-    province: 'Haut-Katanga',
-    supplier: 'Minoterie de Lubumbashi',
-    verified: true,
-    priceB2C: 18,
-    unitB2C: 'Sac 25kg',
-    priceB2B: 14.5,
-    unitB2B: 'Sac 25kg (Min. 50 sacs)',
-    image: getProductImage(1)
-  },
-  {
-    id: 7,
-    name: 'Fèves de Cacao Séchées (Grade A)',
-    category: 'Agriculture',
-    province: 'Nord-Kivu',
-    supplier: 'Coopérative Virunga Cacao',
-    verified: true,
-    priceB2C: 7,
-    unitB2C: 'Sachet 1kg',
-    priceB2B: 320,
-    unitB2B: 'Sac Jute 65kg (Min. 5 sacs)',
-    image: getProductImage(1)
-  },
-  {
-    id: 8,
-    name: 'Beurre de Karité Brut Non Raffiné',
-    category: 'Cosmétique',
-    province: 'Haut-Uele',
-    supplier: 'Association Femmes d’Isiro',
-    verified: true,
-    priceB2C: 9,
-    unitB2C: 'Pot 500g',
-    priceB2B: 110,
-    unitB2B: 'Carton 15kg (Min. 2 cartons)',
-    image: getProductImage(1)
-  },
-  {
-    id: 9,
-    name: 'Poissons Séchés Ndakala du Lac',
-    category: 'Agro-alimentaire',
-    province: 'Tanganyika',
-    supplier: 'Pêcherie Kalemie Nord',
-    verified: true,
-    priceB2C: 10,
-    unitB2C: 'Sachet 1kg',
-    priceB2B: 160,
-    unitB2B: 'Sac 20kg (Min. 5 sacs)',
-    image: getProductImage(1)
-  },
-  {
-    id: 10,
-    name: 'Chikwangue Emballée Sous Vide',
-    category: 'Agro-alimentaire',
-    province: 'Kinshasa',
-    supplier: 'Délice du Fleuve SARL',
-    verified: true,
-    priceB2C: 5,
-    unitB2C: 'Lot de 5 pièces',
-    priceB2B: 35,
-    unitB2B: 'Carton 50 pièces',
-    image: getProductImage(1)
-  },
-  {
-    id: 11,
-    name: 'Fromage Gouda Artisanal de Masisi',
-    category: 'Agro-alimentaire',
-    province: 'Nord-Kivu',
-    supplier: 'Laiterie des Volcans',
-    verified: true,
-    priceB2C: 14,
-    unitB2C: 'Meule 1kg',
-    priceB2B: 11,
-    unitB2B: 'Meule 1kg (Min. 10 meules)',
-    image: getProductImage(1)
-  },
-  {
-    id: 12,
-    name: 'Riz Blanc Local Décortiqué (Bumba)',
-    category: 'Agriculture',
-    province: 'Mongala',
-    supplier: 'Rizerie de la Mongala',
-    verified: false,
-    priceB2C: 22,
-    unitB2C: 'Sac 25kg',
-    priceB2B: 38,
-    unitB2B: 'Sac 50kg (Min. 20 sacs)',
-    image: getProductImage(1)
-  },
-  {
-    id: 13,
-    name: 'Piment Rouge Séché (Pilipili)',
-    category: 'Épices',
-    province: 'Kongo-Central',
-    supplier: 'Jardins de Mbanza-Ngungu',
-    verified: true,
-    priceB2C: 4,
-    unitB2C: 'Bocal 250g',
-    priceB2B: 45,
-    unitB2B: 'Sac 10kg (Min. 3 sacs)',
-    image: getProductImage(1)
-  },
-  {
-    id: 14,
-    name: 'Tissu Kuba Traditionnel Brodé',
-    category: 'Mode & Textile',
-    province: 'Kasaï-Central',
-    supplier: 'Artisans Royaux de Mushenge',
-    verified: true,
-    priceB2C: 45,
-    unitB2C: 'Panneau 1m x 0.6m',
-    priceB2B: 32,
-    unitB2B: 'Lot de 10 panneaux',
-    image: getProductImage(1)
-  },
-  {
-    id: 15,
-    name: 'Thé Noir des Hauts Plateaux',
-    category: 'Agro-alimentaire',
-    province: 'Sud-Kivu',
-    supplier: 'Plantations de Kalehe',
-    verified: true,
-    priceB2C: 6.5,
-    unitB2C: 'Boîte 250g',
-    priceB2B: 85,
-    unitB2B: 'Sac 15kg (Min. 2 sacs)',
-    image: getProductImage(1)
-  },
-  {
-    id: 16,
-    name: 'Arachides Décortiquées Grillées',
-    category: 'Agriculture',
-    province: 'Kwilu',
-    supplier: 'Coopérative Agro-Kikwit',
-    verified: false,
-    priceB2C: 5,
-    unitB2C: 'Sachet 1kg',
-    priceB2B: 75,
-    unitB2B: 'Sac 25kg (Min. 10 sacs)',
-    image: getProductImage(1)
-  },
-  {
-    id: 17,
-    name: 'Savon Noir Africain Liquide',
-    category: 'Cosmétique',
-    province: 'Kinshasa',
-    supplier: 'Kongo Botanica',
-    verified: true,
-    priceB2C: 7,
-    unitB2C: 'Flacon 500ml',
-    priceB2B: 48,
-    unitB2B: 'Carton 12 flacons',
-    image: getProductImage(1)
-  },
-  {
-    id: 18,
-    name: 'Haricots Rouges Secs Sélectionnés',
-    category: 'Agriculture',
-    province: 'Nord-Kivu',
-    supplier: 'Grenier de Lubero',
-    verified: true,
-    priceB2C: 16,
-    unitB2C: 'Sac 10kg',
-    priceB2B: 65,
-    unitB2B: 'Sac 50kg (Min. 10 sacs)',
-    image: getProductImage(1)
-  },
-  {
-    id: 19,
-    name: 'Briques Cuites Stabilisées (BTC)',
-    category: 'Construction',
-    province: 'Kinshasa',
-    supplier: 'Briqueterie Moderne de Maluku',
-    verified: true,
-    priceB2C: 0.45,
-    unitB2C: 'À l’unité',
-    priceB2B: 380,
-    unitB2B: 'Palette de 1000 briques',
-    image: getProductImage(1)
-  },
-  {
-    id: 20,
-    name: 'Jus d’Ananas Naturel Pressé',
-    category: 'Boissons',
-    province: 'Kongo-Central',
-    supplier: 'Vergers de Lukula',
-    verified: true,
-    priceB2C: 3.5,
-    unitB2C: 'Bouteille 1 Litre',
-    priceB2B: 28,
-    unitB2B: 'Casier 12 bouteilles',
-    image: getProductImage(1)
-  },
-  {
-    id: 21,
-    name: 'Planche de Bois Rouge (Afrormosia)',
-    category: 'Bois & Forêt',
-    province: 'Tshopo',
-    supplier: 'Scierie de Kisangani',
-    verified: true,
-    priceB2C: 28,
-    unitB2C: 'Planche 4m x 30cm',
-    priceB2B: 650,
-    unitB2B: 'Mètre cube (Min. 5 m³)',
-    image: getProductImage(1)
-  },
-  {
-    id: 22,
-    name: 'Gousses de Vanille Bourbon',
-    category: 'Épices',
-    province: 'Nord-Kivu',
-    supplier: 'Arômes de Beni',
-    verified: true,
-    priceB2C: 18,
-    unitB2C: 'Tube 50g (env. 15 gousses)',
-    priceB2B: 240,
-    unitB2B: 'Lot sous vide 1kg',
-    image: getProductImage(1)
-  }
-];
+//   {
+//     id: 5,
+//     name: 'Huile de Palme Rouge Raffinée',
+//     category: 'Agro-alimentaire',
+//     province: 'Kwilu',
+//     supplier: 'Huilerie du Kwilu',
+//     verified: true,
+//     priceB2C: 6,
+//     unitB2C: 'Bidon 5 Litres',
+//     priceB2B: 22,
+//     unitB2B: 'Fût 25 Litres (Min. 10 fûts)',
+//     image: getProductImage(1)
+//   },
+//   {
+//     id: 6,
+//     name: 'Farine de Maïs Blanc (Semoule)',
+//     category: 'Agriculture',
+//     province: 'Haut-Katanga',
+//     supplier: 'Minoterie de Lubumbashi',
+//     verified: true,
+//     priceB2C: 18,
+//     unitB2C: 'Sac 25kg',
+//     priceB2B: 14.5,
+//     unitB2B: 'Sac 25kg (Min. 50 sacs)',
+//     image: getProductImage(1)
+//   },
+//   {
+//     id: 7,
+//     name: 'Fèves de Cacao Séchées (Grade A)',
+//     category: 'Agriculture',
+//     province: 'Nord-Kivu',
+//     supplier: 'Coopérative Virunga Cacao',
+//     verified: true,
+//     priceB2C: 7,
+//     unitB2C: 'Sachet 1kg',
+//     priceB2B: 320,
+//     unitB2B: 'Sac Jute 65kg (Min. 5 sacs)',
+//     image: getProductImage(1)
+//   },
+//   {
+//     id: 8,
+//     name: 'Beurre de Karité Brut Non Raffiné',
+//     category: 'Cosmétique',
+//     province: 'Haut-Uele',
+//     supplier: 'Association Femmes d’Isiro',
+//     verified: true,
+//     priceB2C: 9,
+//     unitB2C: 'Pot 500g',
+//     priceB2B: 110,
+//     unitB2B: 'Carton 15kg (Min. 2 cartons)',
+//     image: getProductImage(1)
+//   },
+//   {
+//     id: 9,
+//     name: 'Poissons Séchés Ndakala du Lac',
+//     category: 'Agro-alimentaire',
+//     province: 'Tanganyika',
+//     supplier: 'Pêcherie Kalemie Nord',
+//     verified: true,
+//     priceB2C: 10,
+//     unitB2C: 'Sachet 1kg',
+//     priceB2B: 160,
+//     unitB2B: 'Sac 20kg (Min. 5 sacs)',
+//     image: getProductImage(1)
+//   },
+//   {
+//     id: 10,
+//     name: 'Chikwangue Emballée Sous Vide',
+//     category: 'Agro-alimentaire',
+//     province: 'Kinshasa',
+//     supplier: 'Délice du Fleuve SARL',
+//     verified: true,
+//     priceB2C: 5,
+//     unitB2C: 'Lot de 5 pièces',
+//     priceB2B: 35,
+//     unitB2B: 'Carton 50 pièces',
+//     image: getProductImage(1)
+//   },
+//   {
+//     id: 11,
+//     name: 'Fromage Gouda Artisanal de Masisi',
+//     category: 'Agro-alimentaire',
+//     province: 'Nord-Kivu',
+//     supplier: 'Laiterie des Volcans',
+//     verified: true,
+//     priceB2C: 14,
+//     unitB2C: 'Meule 1kg',
+//     priceB2B: 11,
+//     unitB2B: 'Meule 1kg (Min. 10 meules)',
+//     image: getProductImage(1)
+//   },
+//   {
+//     id: 12,
+//     name: 'Riz Blanc Local Décortiqué (Bumba)',
+//     category: 'Agriculture',
+//     province: 'Mongala',
+//     supplier: 'Rizerie de la Mongala',
+//     verified: false,
+//     priceB2C: 22,
+//     unitB2C: 'Sac 25kg',
+//     priceB2B: 38,
+//     unitB2B: 'Sac 50kg (Min. 20 sacs)',
+//     image: getProductImage(1)
+//   },
+//   {
+//     id: 13,
+//     name: 'Piment Rouge Séché (Pilipili)',
+//     category: 'Épices',
+//     province: 'Kongo-Central',
+//     supplier: 'Jardins de Mbanza-Ngungu',
+//     verified: true,
+//     priceB2C: 4,
+//     unitB2C: 'Bocal 250g',
+//     priceB2B: 45,
+//     unitB2B: 'Sac 10kg (Min. 3 sacs)',
+//     image: getProductImage(1)
+//   },
+//   {
+//     id: 14,
+//     name: 'Tissu Kuba Traditionnel Brodé',
+//     category: 'Mode & Textile',
+//     province: 'Kasaï-Central',
+//     supplier: 'Artisans Royaux de Mushenge',
+//     verified: true,
+//     priceB2C: 45,
+//     unitB2C: 'Panneau 1m x 0.6m',
+//     priceB2B: 32,
+//     unitB2B: 'Lot de 10 panneaux',
+//     image: getProductImage(1)
+//   },
+//   {
+//     id: 15,
+//     name: 'Thé Noir des Hauts Plateaux',
+//     category: 'Agro-alimentaire',
+//     province: 'Sud-Kivu',
+//     supplier: 'Plantations de Kalehe',
+//     verified: true,
+//     priceB2C: 6.5,
+//     unitB2C: 'Boîte 250g',
+//     priceB2B: 85,
+//     unitB2B: 'Sac 15kg (Min. 2 sacs)',
+//     image: getProductImage(1)
+//   },
+//   {
+//     id: 16,
+//     name: 'Arachides Décortiquées Grillées',
+//     category: 'Agriculture',
+//     province: 'Kwilu',
+//     supplier: 'Coopérative Agro-Kikwit',
+//     verified: false,
+//     priceB2C: 5,
+//     unitB2C: 'Sachet 1kg',
+//     priceB2B: 75,
+//     unitB2B: 'Sac 25kg (Min. 10 sacs)',
+//     image: getProductImage(1)
+//   },
+//   {
+//     id: 17,
+//     name: 'Savon Noir Africain Liquide',
+//     category: 'Cosmétique',
+//     province: 'Kinshasa',
+//     supplier: 'Kongo Botanica',
+//     verified: true,
+//     priceB2C: 7,
+//     unitB2C: 'Flacon 500ml',
+//     priceB2B: 48,
+//     unitB2B: 'Carton 12 flacons',
+//     image: getProductImage(1)
+//   },
+//   {
+//     id: 18,
+//     name: 'Haricots Rouges Secs Sélectionnés',
+//     category: 'Agriculture',
+//     province: 'Nord-Kivu',
+//     supplier: 'Grenier de Lubero',
+//     verified: true,
+//     priceB2C: 16,
+//     unitB2C: 'Sac 10kg',
+//     priceB2B: 65,
+//     unitB2B: 'Sac 50kg (Min. 10 sacs)',
+//     image: getProductImage(1)
+//   },
+//   {
+//     id: 19,
+//     name: 'Briques Cuites Stabilisées (BTC)',
+//     category: 'Construction',
+//     province: 'Kinshasa',
+//     supplier: 'Briqueterie Moderne de Maluku',
+//     verified: true,
+//     priceB2C: 0.45,
+//     unitB2C: 'À l’unité',
+//     priceB2B: 380,
+//     unitB2B: 'Palette de 1000 briques',
+//     image: getProductImage(1)
+//   },
+//   {
+//     id: 20,
+//     name: 'Jus d’Ananas Naturel Pressé',
+//     category: 'Boissons',
+//     province: 'Kongo-Central',
+//     supplier: 'Vergers de Lukula',
+//     verified: true,
+//     priceB2C: 3.5,
+//     unitB2C: 'Bouteille 1 Litre',
+//     priceB2B: 28,
+//     unitB2B: 'Casier 12 bouteilles',
+//     image: getProductImage(1)
+//   },
+//   {
+//     id: 21,
+//     name: 'Planche de Bois Rouge (Afrormosia)',
+//     category: 'Bois & Forêt',
+//     province: 'Tshopo',
+//     supplier: 'Scierie de Kisangani',
+//     verified: true,
+//     priceB2C: 28,
+//     unitB2C: 'Planche 4m x 30cm',
+//     priceB2B: 650,
+//     unitB2B: 'Mètre cube (Min. 5 m³)',
+//     image: getProductImage(1)
+//   },
+//   {
+//     id: 22,
+//     name: 'Gousses de Vanille Bourbon',
+//     category: 'Épices',
+//     province: 'Nord-Kivu',
+//     supplier: 'Arômes de Beni',
+//     verified: true,
+//     priceB2C: 18,
+//     unitB2C: 'Tube 50g (env. 15 gousses)',
+//     priceB2B: 240,
+//     unitB2B: 'Lot sous vide 1kg',
+//     image: getProductImage(1)
+//   }
+// ];
 
   const basins = [
   { 
@@ -572,37 +610,34 @@ const filteredSuggestions = useMemo(() => {
     window.open('https://wa.me' + encodeURIComponent(msg), '_blank', 'noopener,noreferrer');
   };
 
-  // À placer à l'intérieur de votre composant :
-const [selectedCategory, setSelectedCategory] = useState('Toutes');
-const sliderRef = useRef(null);
+const [activeTab, setActiveTab] = useState(platformFeatures[0]);
 
-// Extraction automatique des catégories uniques depuis featuredProducts
-const categories = ['Toutes', ...new Set(featuredProducts.map((p) => p.category))];
-
-// Filtrage des produits selon la catégorie sélectionnée
-const filteredProducts = selectedCategory === 'Toutes'
-  ? featuredProducts
-  : featuredProducts.filter((product) => product.category === selectedCategory);
-
-// Fonction pour défiler horizontalement avec les boutons sur Desktop
-const scrollSlider = (direction) => {
-  if (sliderRef.current) {
-    const scrollAmount = direction === 'left' ? -320 : 320;
-    sliderRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+const scrollCategoryRow = (category, direction) => {
+  const container = rowRefs.current[category];
+  if (container) {
+    const scrollAmount = direction === 'left' ? -520 : 520;
+    container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
   }
 };
 
-{/* À placer dans la logique de votre composant */}
+// Navigation fluide vers la ligne de la catégorie cliquée
+const handleCategoryClick = (category) => {
+  setSelectedCategory(category);
+  if (category === 'Tout' || category === 'Toutes') {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+  const targetElement = categorySectionRefs.current[category];
+  if (targetElement) {
+    // Décalage de 130px pour ne pas masquer le titre sous la barre sticky
+    const yOffset = -130;
+    const y = targetElement.getBoundingClientRect().top + window.pageYOffset + yOffset;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+  }
+};
+
 const basinsSliderRef = useRef(null);
 
-const scrollBasins = (direction) => {
-  if (basinsSliderRef.current) {
-    const scrollAmount = direction === 'left' ? -300 : 300;
-    basinsSliderRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-  }
-};
-
-const [activeTab, setActiveTab] = useState(platformFeatures[0]);
 
   return (
 <div className="bg-white dark:bg-[#070a1d] text-slate-900 dark:text-gray-100 ">
@@ -871,187 +906,228 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
         </div>
       </section> */}
 
-     {/* 3. PRODUITS LOCAUX VEDETTES */}
-<section className="max-w-7xl mx-auto px-4 py-8 pt-5 border-b border-gray-200 dark:border-gray-800">
-  {/* En-tête + Sélecteur B2C / B2B */}
-  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-5 gap-4">
-    <div>
-      <span className="text-xs font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400">
-        Sélection Vérifiée
-      </span>
-<h2 className="hidden sm:block text-2xl sm:text-3xl font-black mt-0.5">
-  {buyerMode === 'B2B' ? 'Offres en Gros & Approvisionnement' : 'Produits Locaux Populaires'}
-</h2>
-    </div>
-
-    <div className="flex items-center gap-6 self-end sm:self-auto">
-      {setBuyerMode && (
-        <div className="flex items-center gap-1 bg-slate-100 dark:bg-[#131936] p-1 rounded-xl border border-slate-200 dark:border-gray-800">
-          <button
-            type="button"
-            onClick={() => setBuyerMode('B2C')}
-            className={
-              'px-3 py-1.5 rounded-lg text-xs font-bold transition ' +
-              (buyerMode === 'B2C'
-                ? 'bg-sky-500 text-white shadow'
-                : 'text-slate-600 dark:text-gray-400')
-            }
-          >
-            Détail (B2C)
-          </button>
-          <button
-            type="button"
-            onClick={() => setBuyerMode('B2B')}
-            className={
-              'px-3 py-1.5 rounded-lg text-xs font-bold transition ' +
-              (buyerMode === 'B2B'
-                ? 'bg-amber-400 text-slate-900 shadow'
-                : 'text-slate-600 dark:text-gray-400')
-            }
-          >
-            Gros (B2B)
-          </button>
-        </div>
-      )}
-
-      {/* Boutons de défilement gauche/droite (visibles sur Desktop) */}
-      <div className="hidden md:flex items-center gap-1.5">
-        <button
-          type="button"
-          onClick={() => scrollSlider('left')}
-          className="p-2 rounded-xl bg-slate-100 dark:bg-[#131936] hover:bg-sky-500 hover:text-white text-slate-700 dark:text-gray-300 border border-slate-200 dark:border-gray-800 transition"
-          aria-label="Précédent"
-        >
-          <FaChevronLeft size={12} />
-        </button>
-        <button
-          type="button"
-          onClick={() => scrollSlider('right')}
-          className="p-2 rounded-xl bg-slate-100 dark:bg-[#131936] hover:bg-sky-500 hover:text-white text-slate-700 dark:text-gray-300 border border-slate-200 dark:border-gray-800 transition"
-          aria-label="Suivant"
-        >
-          <FaChevronRight size={12} />
-        </button>
-      </div>
-    </div>
-  </div>
-
-  {/* FILTRE PAR CATÉGORIE (Une seule ligne défilante Mobile & Desktop) */}
-  <div className="flex flex-nowrap items-center gap-2 overflow-x-auto pb-3 mb-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-    {categories.map((category) => {
-      const isActive = selectedCategory === category;
-      return (
-        <button
-          key={category}
-          type="button"
-          onClick={() => setSelectedCategory(category)}
-          className={
-            'shrink-0 whitespace-nowrap px-3.5 py-1.5 text-xs font-bold rounded-full transition border ' +
-            (isActive
-              ? 'bg-sky-500 text-white border-sky-500 shadow-sm'
-              : 'bg-slate-100 dark:bg-[#131936] text-slate-700 dark:text-gray-300 border-transparent hover:border-sky-400')
-          }
-        >
-          {category}
-        </button>
-      );
-    })}
-  </div>
-
-  {/* CARROUSEL DE PRODUITS SUR UNE SEULE LIGNE (Mobile & Desktop) */}
-  <div
-    ref={sliderRef}
-    className="flex flex-nowrap gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+     
+       {/* 3. PRODUITS LOCAUX VEDETTES */}
+  <section
+    ref={productsSectionRef}
+    className="relative max-w-7xl mx-auto px-4 py-8 pt-5 border-b border-gray-200 dark:border-gray-800"
   >
-    {filteredProducts.map((product) => (
-      <motion.div
-        key={product.id}
-        whileHover={{ y: -3 }}
-        className="w-[230px] sm:w-[255px] shrink-0 snap-start bg-white dark:bg-[#131936] rounded-2xl overflow-hidden shadow-sm hover:shadow-lg border border-slate-200 dark:border-gray-800 flex flex-col justify-between transition"
+    {/* En-tête principal */}
+    <div className="mb-4">
+      <span className="text-xs font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400">
+        Sélection Vérifiée • {displayCategories.length} Filières Locales
+      </span>
+      <h2 className="text-2xl sm:text-3xl font-black mt-0.5 text-slate-900 dark:text-white">
+        {buyerMode === 'B2B' ? 'Offres en Gros & Approvisionnement' : 'Produits Locaux Populaires'}
+      </h2>
+    </div>
+
+    {/* 🧭 CONTENEUR REPÈRE + BARRE DE NAVIGATION FIXED CONTEXTUELLE */}
+    <div ref={categoryBarRef} className="min-h-[58px] mb-6">
+      <div
+        className={
+          'py-3 bg-white/95 dark:bg-[#0a0e27]/95 backdrop-blur-md border-b border-slate-200 dark:border-gray-800 transition-colors ' +
+          (isCategoryBarFixed
+            ? 'fixed top-20 left-0 right-0 z-40 px-4 sm:px-8 shadow-md'
+            : 'relative -mx-4 px-4 shadow-sm')
+        }
       >
-        <div>
-          {/* Image plus compacte (h-36 au lieu de h-48) */}
-          <div
-            onClick={() => navigate('/produit/' + product.id)}
-            className="relative h-36 overflow-hidden bg-slate-100 cursor-pointer"
-          >
-            <img
-              src={product.image}
-              alt={product.name}
-              className="w-full h-full object-cover hover:scale-105 transition duration-300"
-              loading="lazy"
-            />
-            <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-white/95 dark:bg-[#0a0e27]/90 text-slate-900 dark:text-white text-[10px] font-bold flex items-center gap-1 shadow">
-              <FaMapMarkerAlt className="text-amber-500" /> {product.province}
-            </span>
-            {product.verified && (
-              <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-sky-500 text-white text-[10px] font-bold flex items-center gap-1 shadow">
-                <FaCheckCircle />
-              </span>
+        <div className={isCategoryBarFixed ? 'max-w-7xl mx-auto' : ''}>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+            
+            {/* FILTRES CATÉGORIES */}
+            <div className="flex flex-nowrap items-center gap-2 overflow-x-auto pb-1 md:pb-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+              {displayCategories.map((category) => {
+                const isActive = selectedCategory === category;
+                return (
+                  <button
+                    key={category}
+                    type="button"
+                    onClick={() => handleCategoryClick(category)}
+                    className={
+                      'shrink-0 whitespace-nowrap px-3.5 py-1.5 text-xs font-bold rounded-full transition border ' +
+                      (isActive
+                        ? 'bg-sky-500 text-white border-sky-500 shadow-sm'
+                        : 'bg-slate-100 dark:bg-[#131936] text-slate-700 dark:text-gray-300 border-slate-200/60 dark:border-gray-800 hover:border-sky-400')
+                    }
+                  >
+                    {category}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* SÉLECTEUR B2C / B2B */}
+            {setBuyerMode && (
+              <div className="flex items-center self-start md:self-auto shrink-0 gap-1 bg-slate-100 dark:bg-[#131936] p-1 rounded-xl border border-slate-200 dark:border-gray-800">
+                <button
+                  type="button"
+                  onClick={() => setBuyerMode('B2C')}
+                  className={
+                    'px-3 py-1 rounded-lg text-xs font-bold transition ' +
+                    (buyerMode === 'B2C'
+                      ? 'bg-sky-500 text-white shadow'
+                      : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white')
+                  }
+                >
+                  Détail (B2C)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setBuyerMode('B2B')}
+                  className={
+                    'px-3 py-1 rounded-lg text-xs font-bold transition ' +
+                    (buyerMode === 'B2B'
+                      ? 'bg-amber-400 text-slate-900 shadow'
+                      : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white')
+                  }
+                >
+                  Gros (B2B)
+                </button>
+              </div>
             )}
           </div>
+        </div>
+      </div>
+    </div>
 
-          {/* Contenu resserré (p-3) */}
-          <div className="p-3">
-            <span className="text-[10px] font-bold text-sky-600 dark:text-sky-400 uppercase tracking-wide">
-              {product.category}
-            </span>
-            <h3
-              onClick={() => navigate('/produit/' + product.id)}
-              className="font-bold text-sm mt-0.5 line-clamp-1 cursor-pointer hover:text-sky-500"
-              title={product.name}
+    {/* 📚 LES LIGNES PAR CATÉGORIE */}
+    <div className="space-y-8">
+      {displayCategories.map((category, index) => {
+        const categoryProducts = (PRODUCTS_DB || []).filter(
+          (p) => p.categoryLabel === category
+        );
+
+        if (categoryProducts.length === 0) return null;
+
+        return (
+          <div
+            key={category}
+            ref={(el) => (categorySectionRefs.current[category] = el)}
+            className="scroll-mt-36"
+          >
+            {/* En-tête de la ligne catégorie */}
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2.5">
+                <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 text-xs font-black">
+                  {index + 1}
+                </span>
+                <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white">
+                  {category}
+                </h3>
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-[#131936] text-slate-500 dark:text-gray-400">
+                  {categoryProducts.length}
+                </span>
+              </div>
+
+              {/* Boutons de défilement gauche/droite */}
+              <div className="hidden md:flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => scrollCategoryRow(category, 'left')}
+                  className="p-2 rounded-xl bg-slate-100 dark:bg-[#131936] hover:bg-sky-500 hover:text-white text-slate-700 dark:text-gray-300 border border-slate-200 dark:border-gray-800 transition"
+                  aria-label={`Précédent ${category}`}
+                >
+                  <FaChevronLeft size={12} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => scrollCategoryRow(category, 'right')}
+                  className="p-2 rounded-xl bg-slate-100 dark:bg-[#131936] hover:bg-sky-500 hover:text-white text-slate-700 dark:text-gray-300 border border-slate-200 dark:border-gray-800 transition"
+                  aria-label={`Suivant ${category}`}
+                >
+                  <FaChevronRight size={12} />
+                </button>
+              </div>
+            </div>
+
+            {/* CARROUSEL DE PRODUITS */}
+            <div
+              ref={(el) => (rowRefs.current[category] = el)}
+              className="flex flex-nowrap gap-4 overflow-x-auto pb-2 snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
             >
-              {product.name}
-            </h3>
-            <p className="text-[11px] text-slate-500 dark:text-gray-400 line-clamp-1">
-              Par {product.supplier}
-            </p>
+              {categoryProducts.map((product) => {
+                const activePrice = buyerMode === 'B2B' ? product.priceB2B : product.priceB2C;
+                const activeUnit = buyerMode === 'B2B' ? product.unitB2B : product.unitB2C;
 
-            {/* Prix compact */}
-            <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-gray-800 flex items-baseline justify-between gap-1">
-              <span className="text-base font-black text-sky-600 dark:text-sky-400">
-                {formatPrice(buyerMode === 'B2B' ? product.priceB2B : product.priceB2C)}
-              </span>
-              <span className="text-[10px] text-slate-500 dark:text-gray-400 truncate">
-                {buyerMode === 'B2B' ? product.unitB2B : product.unitB2C}
-              </span>
+                return (
+                  <motion.div
+                    key={product.id}
+                    whileHover={{ y: -3 }}
+                    className="w-[230px] sm:w-[255px] shrink-0 snap-start bg-white dark:bg-[#131936] rounded-2xl overflow-hidden shadow-sm hover:shadow-lg border border-slate-200 dark:border-gray-800 flex flex-col justify-between transition"
+                  >
+                    <div>
+                      {/* Image compacte */}
+                      <div
+                        onClick={() => navigate('/produit/' + product.id)}
+                        className="relative h-36 overflow-hidden bg-slate-100 dark:bg-slate-800 cursor-pointer"
+                      >
+                        <img
+                          src={getProductImage(product.id)}
+                          alt={product.name}
+                          className="w-full h-full object-cover hover:scale-105 transition duration-300"
+                          loading="lazy"
+                        />
+                        <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-white/95 dark:bg-[#0a0e27]/90 text-slate-900 dark:text-white text-[10px] font-bold flex items-center gap-1 shadow">
+                          <FaMapMarkerAlt className="text-amber-500" /> {product.province}
+                        </span>
+                        {product.verified && (
+                          <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-sky-500 text-white text-[10px] font-bold flex items-center gap-1 shadow">
+                            <FaCheckCircle />
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Contenu */}
+                      <div className="p-3">
+                        <span className="text-[10px] font-bold text-sky-600 dark:text-sky-400 uppercase tracking-wide">
+                          {product.categoryLabel}
+                        </span>
+                        <h4
+                          onClick={() => navigate('/produit/' + product.id)}
+                          className="font-bold text-sm text-slate-900 dark:text-white line-clamp-1 mt-0.5 cursor-pointer hover:text-sky-500 transition"
+                        >
+                          {product.name}
+                        </h4>
+                        <p className="text-[11px] text-slate-500 dark:text-gray-400 mt-1 line-clamp-1">
+                          {product.supplier}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Pied de carte : Prix dynamique */}
+                    <div className="px-3 pb-3 pt-2 border-t border-slate-100 dark:border-gray-800/80 flex items-center justify-between">
+                      <div>
+                        <span className="text-sm font-black text-slate-900 dark:text-white">
+                          {activePrice} $
+                        </span>
+                        <span className="text-[10px] text-slate-500 dark:text-gray-400 block">
+                          / {activeUnit}
+                        </span>
+                      </div>
+                                            <button
+                        type="button"
+                        onClick={() => navigate('/produit/' + product.id)}
+                        className="px-2.5 py-1.5 rounded-lg bg-sky-500/10 hover:bg-sky-500 text-sky-600 hover:text-white dark:text-sky-400 dark:hover:text-white text-xs font-bold transition"
+                      >
+                        Voir
+                      </button>
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
-        </div>
-
-        {/* Boutons d'action compacts */}
-        <div className="px-3 pb-3 flex gap-1.5">
-          <button
-            type="button"
-            onClick={() => navigate('/produit/' + product.id)}
-            className={
-              'flex-1 py-2 rounded-xl font-bold text-xs transition ' +
-              (buyerMode === 'B2B'
-                ? 'bg-amber-400 hover:bg-amber-500 text-slate-900'
-                : 'bg-sky-500 hover:bg-sky-600 text-white')
-            }
-          >
-            {buyerMode === 'B2B' ? 'Devis' : 'Commander'}
-          </button>
-          <button
-            type="button"
-            onClick={() => handleWhatsAppProduct(product)}
-            className="px-2.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white transition flex items-center justify-center"
-            title="Discuter sur WhatsApp"
-          >
-            <FaWhatsapp size={15} />
-          </button>
-        </div>
-      </motion.div>
-    ))}
-  </div>
-</section>
+        );
+      })}
+    </div>
+  </section>
 
 
       {/* SECTION : EXPLORATION PAR BASSIN DE PRODUCTION */}
-<section className="max-w-7xl mx-auto px-4 py-8 border-b border-gray-200 dark:border-gray-800">
+{/* <section className="max-w-7xl mx-auto px-4 py-8 border-b border-gray-200 dark:border-gray-800"> */}
   {/* En-tête avec boutons de navigation Desktop */}
-  <div className="flex justify-between items-end mb-5">
+  {/* <div className="flex justify-between items-end mb-5">
     <div>
       <span className="text-xs font-bold uppercase tracking-wider text-amber-500">
         Carte Économique RDC
@@ -1059,10 +1135,10 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
       <h2 className="hidden sm:block text-2xl sm:text-3xl font-black mt-0.5">
   Explorer par Bassin de Production
 </h2>
-    </div>
+    </div> */}
 
     {/* Flèches de défilement (Desktop uniquement) */}
-    <div className="hidden md:flex items-center gap-1.5">
+    {/* <div className="hidden md:flex items-center gap-1.5">
       <button
         type="button"
         onClick={() => scrollBasins('left')}
@@ -1080,10 +1156,10 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
         <FaChevronRight size={12} />
       </button>
     </div>
-  </div>
+  </div> */}
 
   {/* CARROUSEL SUR UNE SEULE LIGNE (Mobile & Desktop) */}
-  <div
+  {/* <div
     ref={basinsSliderRef}
     className="flex flex-nowrap gap-3.5 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
   >
@@ -1093,31 +1169,31 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
         onClick={() => handleProvinceClick(prov.name)}
         className="w-[245px] sm:w-[270px] shrink-0 snap-start cursor-pointer bg-white dark:bg-[#131936] p-4 rounded-2xl border border-slate-200 dark:border-gray-800 hover:border-sky-500 dark:hover:border-sky-400 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between group"
       >
-        <div>
+        <div> */}
           {/* Ligne du haut : Icône + Badge Fournisseurs */}
-          <div className="flex justify-between items-center mb-3">
+          {/* <div className="flex justify-between items-center mb-3">
             <div className="w-8 h-8 rounded-xl bg-sky-50 dark:bg-sky-900/30 flex items-center justify-center text-sky-500 group-hover:bg-sky-500 group-hover:text-white transition">
               <FaLeaf className="text-sm" />
             </div>
             <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-400/15 text-amber-600 dark:text-amber-400 border border-amber-400/20">
               {prov.count}
             </span>
-          </div>
+          </div> */}
 
           {/* Nom de la province + Catégorie dominante */}
-          <h3 className="font-black text-base text-slate-900 dark:text-white group-hover:text-sky-500 transition flex items-center justify-between">
+          {/* <h3 className="font-black text-base text-slate-900 dark:text-white group-hover:text-sky-500 transition flex items-center justify-between">
             {prov.name}
             <FaArrowRight className="text-xs opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-sky-500" />
-          </h3>
+          </h3> */}
 
           {/* Spécialités (limité à 2 lignes max pour garder une hauteur uniforme) */}
-          <p className="text-xs text-slate-500 dark:text-gray-400 mt-1 line-clamp-2 leading-relaxed">
+          {/* <p className="text-xs text-slate-500 dark:text-gray-400 mt-1 line-clamp-2 leading-relaxed">
             {prov.specialty}
           </p>
-        </div>
+        </div> */}
 
         {/* Pied de carte : Villes clés (Hubs) */}
-        {prov.hubs && (
+        {/* {prov.hubs && (
           <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-gray-800/80 flex items-center gap-1 overflow-hidden">
             <FaMapPin className="text-[10px] text-slate-400 shrink-0" />
             <div className="flex gap-1 overflow-hidden">
@@ -1135,7 +1211,7 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
       </div>
     ))}
   </div>
-</section>
+</section> */}
 
            {/* 5. BANNIÈRE APPELS D'OFFRES B2B (Compacte & Moderne) */}
 {/* <section className="max-w-7xl mx-auto px-4 py-6">
@@ -1188,9 +1264,9 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
 </section> */}
 
 {/* SECTION : FONCTIONNALITÉS AVANCÉES (ONGLETS INTERACTIFS) */}
-<section className="max-w-7xl mx-auto px-4 py-8 lg:py-10 border-b border-gray-200 dark:border-gray-800">
+{/* <section className="max-w-7xl mx-auto px-4 py-8 lg:py-10 border-b border-gray-200 dark:border-gray-800"> */}
   {/* En-tête de section */}
-  <div className="max-w-2xl mb-5 lg:mb-6">
+  {/* <div className="max-w-2xl mb-5 lg:mb-6">
     <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400">
       Fonctionnalités Avancées
     </span>
@@ -1200,13 +1276,13 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
     <p className="hidden sm:block sm:text-sm text-slate-500 dark:text-gray-400 mt-1">
       Des outils pensés pour sécuriser vos achats, fluidifier la logistique et développer votre activité en RDC.
     </p>
-  </div>
+  </div> */}
 
   {/* Grille Principale : Onglets à Gauche (5 col) | Aperçu à Droite (7 col) */}
-  <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-stretch">
-    
+  {/* <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-stretch">
+     */}
     {/* COLONNE GAUCHE : 3 onglets en 1 seule ligne sur mobile (grid-cols-3), empilés sur desktop */}
-    <div className="lg:col-span-5 grid grid-cols-3 lg:flex lg:flex-col gap-2 lg:gap-3">
+    {/* <div className="lg:col-span-5 grid grid-cols-3 lg:flex lg:flex-col gap-2 lg:gap-3">
       {platformFeatures.map((feat) => {
         const Icon = feat.icon;
         const isSelected = activeTab.id === feat.id;
@@ -1250,10 +1326,10 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
           </button>
         );
       })}
-    </div>
+    </div> */}
 
     {/* COLONNE DROITE : Panneau de visualisation dynamique (compact sur mobile, complet à l'écran sur desktop) */}
-    <div className="lg:col-span-7 bg-white dark:bg-[#131936] rounded-2xl lg:rounded-3xl border border-slate-200 dark:border-gray-800 p-4 sm:p-5 lg:p-6 shadow-sm flex flex-col justify-between">
+    {/* <div className="lg:col-span-7 bg-white dark:bg-[#131936] rounded-2xl lg:rounded-3xl border border-slate-200 dark:border-gray-800 p-4 sm:p-5 lg:p-6 shadow-sm flex flex-col justify-between">
       <AnimatePresence mode="wait">
         <motion.div
           key={activeTab.id}
@@ -1262,9 +1338,9 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
           exit={{ opacity: 0, y: -6 }}
           transition={{ duration: 0.18 }}
           className="flex flex-col justify-between h-full gap-3.5 lg:gap-4"
-        >
+        > */}
           {/* Détails du service */}
-          <div>
+          {/* <div>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 text-[11px] font-bold mb-2">
               <activeTab.icon size={11} /> {activeTab.badge}
             </div>
@@ -1275,10 +1351,10 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
 
             <p className="text-xs sm:text-sm text-slate-600 dark:text-gray-300 mt-1.5 leading-relaxed">
               {activeTab.description}
-            </p>
+            </p> */}
 
             {/* Liste des avantages */}
-            <ul className="mt-2.5 lg:mt-3 space-y-1.5">
+            {/* <ul className="mt-2.5 lg:mt-3 space-y-1.5">
               {activeTab.highlights.map((item, idx) => (
                 <li
                   key={idx}
@@ -1289,10 +1365,10 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
                 </li>
               ))}
             </ul>
-          </div>
+          </div> */}
 
           {/* Mini-aperçu visuel (Simule l'interface réelle de l'application) */}
-          <div className="rounded-xl lg:rounded-2xl bg-slate-50 dark:bg-[#0a0e27] border border-slate-200/80 dark:border-gray-800 p-3 lg:p-3.5">
+          {/* <div className="rounded-xl lg:rounded-2xl bg-slate-50 dark:bg-[#0a0e27] border border-slate-200/80 dark:border-gray-800 p-3 lg:p-3.5">
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-gray-800 pb-2 mb-2">
               <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-gray-400 flex items-center gap-1.5 truncate">
                 <FaMobileAlt className="text-sky-500 shrink-0" />
@@ -1316,10 +1392,10 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
                 {activeTab.preview.method}
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Bouton d'action */}
-          <div>
+          {/* <div>
             <button
               type="button"
               onClick={() => navigate(activeTab.ctaLink)}
@@ -1334,7 +1410,7 @@ const [activeTab, setActiveTab] = useState(platformFeatures[0]);
     </div>
 
   </div>
-</section>
+</section> */}
     </div>
   );
 }

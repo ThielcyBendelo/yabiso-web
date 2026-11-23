@@ -1,6 +1,5 @@
-import React from 'react';
-import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom'; // (gardez uniquement vos imports router ici)
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   FaHome,
@@ -11,6 +10,10 @@ import {
 } from 'react-icons/fa';
 
 export default function MobileBottomNav({ isAuthenticated = false }) {
+  // 1. Déclaration obligatoire des hooks de routage
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [isMenuOpen, setIsMenuOpen] = useState(
     () => document.body.dataset.mobileMenuOpen === 'true'
   );
@@ -21,13 +24,9 @@ export default function MobileBottomNav({ isAuthenticated = false }) {
     return () => window.removeEventListener('mobileMenuToggle', handleMenuToggle);
   }, []);
 
-  if (isMenuOpen) return null;
-  
-  // ... reste de votre composant
-
-
-  // Masquer la barre inférieure dans l'espace fournisseur ou sur les écrans d'authentification
+  // Masquer si le menu mobile est ouvert, ou sur le dashboard / pages d'authentification
   if (
+    isMenuOpen ||
     location.pathname.startsWith('/dashboard') ||
     location.pathname === '/login' ||
     location.pathname === '/register'
@@ -69,26 +68,31 @@ export default function MobileBottomNav({ isAuthenticated = false }) {
     return location.pathname.startsWith(path);
   };
 
+  const handleNavigation = (path) => {
+    navigate(path);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <nav
       aria-label="Navigation mobile inférieure"
       className="lg:hidden fixed bottom-0 left-0 right-0 z-50"
     >
-      {/* Barre Liquid Glass collée tout en bas de l'écran */}
+      {/* Barre rectangulaire (rounded-none) collée tout en bas de l'écran */}
       <div
         className="
           w-full px-2 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))]
-          rounded-t-3xl
-          bg-white/80 dark:bg-[#0b102b]/80
+          rounded-none
+          bg-white/90 dark:bg-[#0b102b]/90
           backdrop-blur-2xl backdrop-saturate-150
-          border-t border-white/60 dark:border-white/15
-          shadow-[0_-8px_30px_rgba(2,6,23,0.18),inset_0_1px_1px_rgba(255,255,255,0.75)]
-          dark:shadow-[0_-10px_30px_rgba(0,0,0,0.6),inset_0_1px_1px_rgba(255,255,255,0.15)]
+          border-t border-slate-200/80 dark:border-white/15
+          shadow-[0_-6px_25px_rgba(2,6,23,0.12)]
+          dark:shadow-[0_-8px_25px_rgba(0,0,0,0.55)]
           flex items-center justify-around relative
         "
       >
-        {/* Reflet lumineux sur le bord supérieur */}
-        <div className="pointer-events-none absolute inset-x-8 top-0 h-[1px] bg-gradient-to-r from-transparent via-white dark:via-sky-300/40 to-transparent" />
+        {/* Reflet lumineux sur toute la largeur du bord supérieur rectangulaire */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-sky-400/50 to-transparent" />
 
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -99,15 +103,15 @@ export default function MobileBottomNav({ isAuthenticated = false }) {
               <button
                 key={item.path}
                 type="button"
-                onClick={() => navigate(item.path)}
-                className="relative -mt-6 flex flex-col items-center justify-center group focus:outline-none"
+                onClick={() => handleNavigation(item.path)}
+                className="relative -mt-5 flex flex-col items-center justify-center group focus:outline-none cursor-pointer"
               >
                 <div
                   className="
-                    w-13 h-13 p-3.5 rounded-2xl
+                    w-12 h-12 p-3 rounded-xl
                     bg-gradient-to-tr from-amber-400 via-amber-300 to-yellow-200
                     text-slate-950
-                    shadow-[0_8px_20px_rgba(251,191,36,0.45),inset_0_1px_1px_rgba(255,255,255,0.9)]
+                    shadow-[0_6px_16px_rgba(251,191,36,0.45)]
                     border border-white/70
                     group-active:scale-90 transition-transform duration-200
                     flex items-center justify-center
@@ -126,18 +130,17 @@ export default function MobileBottomNav({ isAuthenticated = false }) {
             <button
               key={item.path}
               type="button"
-              onClick={() => navigate(item.path)}
-              className="relative flex-1 py-1.5 px-1 flex flex-col items-center justify-center rounded-2xl transition-colors focus:outline-none group"
+              onClick={() => handleNavigation(item.path)}
+              className="relative flex-1 py-1.5 px-1 flex flex-col items-center justify-center rounded-xl transition-colors focus:outline-none group cursor-pointer"
             >
               {active && (
                 <motion.div
                   layoutId="liquidGlassActivePill"
                   transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                   className="
-                    absolute inset-0 mx-1 rounded-2xl
+                    absolute inset-0 mx-1 rounded-xl
                     bg-sky-500/15 dark:bg-sky-400/20
                     border border-sky-400/30 dark:border-sky-300/25
-                    shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)]
                   "
                 />
               )}

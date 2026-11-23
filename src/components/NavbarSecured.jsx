@@ -87,8 +87,6 @@ const handleSelectSuggestion = (product) => {
     window.dispatchEvent(event);
   }, [isOpen]);
 
-
-
   // Catégories enrichies selon nos priorités RDC
   const categories = [
   {
@@ -250,19 +248,21 @@ const handleSelectSuggestion = (product) => {
 
     return (
     <header className="fixed top-0 left-0 right-0 z-50 w-full">
-      {/* BANDEAU SUPÉRIEUR : SÉLECTEUR B2C / B2B & DEVISE */}
-      <div className="bg-sky-600 dark:bg-[#060919] text-white text-xs py-1.5 px-4 border-b border-sky-500/30">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <span className="hidden sm:inline text-sky-100">Espace :</span>
-            <div className="inline-flex rounded-full bg-sky-800/70 dark:bg-gray-800 p-0.5">
-              <button
-                type="button"
-                onClick={() => handleModeSwitch('B2C')}
-                className={`flex items-center gap-1 px-2.5 py-0.5 rounded-full font-semibold transition-all ${
-                  activeMode === 'B2C' ? 'bg-amber-400 text-gray-900 shadow-sm' : 'text-gray-200 hover:text-white'
-                }`}
-              >
+{/* BANDEAU SUPÉRIEUR COMPACT : SÉLECTEUR B2C / B2B & DEVISE */}
+<div className="bg-sky-600 dark:bg-[#060919] text-white text-[11px] py-0.5 px-4 border-b border-sky-500/30">
+  <div className="max-w-7xl mx-auto flex justify-between items-center min-h-[26px]">
+    <div className="flex items-center gap-1.5">
+      <span className="hidden sm:inline text-sky-100 font-medium">Espace :</span>
+      <div className="inline-flex rounded-full bg-sky-800/70 dark:bg-gray-800 p-0.5">
+        <button
+          type="button"
+          onClick={() => handleModeSwitch('B2C')}
+          className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold leading-none transition-all ${
+            activeMode === 'B2C'
+              ? 'bg-amber-400 text-gray-900 shadow-sm'
+              : 'text-gray-200 hover:text-white'
+          }`}
+        >
                 <FaUser size={10} /> Particulier
               </button>
               <button
@@ -291,24 +291,26 @@ const handleSelectSuggestion = (product) => {
         </div>
       </div>
 
-            {/* NAVBAR PRINCIPALE */}
-      <nav
-        className={`w-full transition-all duration-300 ${
-          isSticky
-            ? 'bg-white/95 dark:bg-[#0a0e27]/95 backdrop-blur-md shadow-lg py-2'
-            : 'bg-white dark:bg-[#0a0e27] shadow-md py-3'
-        }`}
+ {/* NAVBAR PRINCIPALE COMPACTE */}
+<nav
+  className={`w-full transition-all duration-300 ${
+    isSticky
+      ? 'bg-white/95 dark:bg-[#0a0e27]/95 backdrop-blur-md shadow-md py-1'
+      : 'bg-white dark:bg-[#0a0e27] shadow-sm py-1.5'
+  }`}
+>
+  <div className="max-w-7xl mx-auto px-4 sm:px-6">
+    <div className="flex justify-between items-center h-11">
+      
+      {/* 1. LOGO PRO & MODERNE (Plus compact) */}
+      <motion.div
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        className="flex items-center gap-2 cursor-pointer flex-shrink-0 group"
+        onClick={() => handleNavClick('/')}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex justify-between items-center h-14">
-            
-            {/* 1. LOGO PRO & MODERNE */}
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="flex items-center gap-2.5 cursor-pointer flex-shrink-0 group"
-              onClick={() => handleNavClick('/')}
-            >
+        {/* Pensez aussi à réduire légèrement l'icône du logo (ex: w-8 h-8 au lieu de w-10 h-10) */}
+
               {/* Emblème moderne aux couleurs RDC */}
               <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 via-blue-600 to-indigo-700 flex items-center justify-center shadow-md shadow-sky-500/25 overflow-hidden">
                 <div className="absolute -right-2 -top-2 w-6 h-6 bg-amber-400/90 rotate-45" />
