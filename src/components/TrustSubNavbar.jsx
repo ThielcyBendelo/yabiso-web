@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FaStore, FaTruck, FaShieldAlt, FaCheckCircle } from 'react-icons/fa';
+import { FaStore, FaTruck, FaShieldAlt, FaCheckCircle, FaSearch } from 'react-icons/fa';
+import GlobalSearchModal from './GlobalSearchModal';
+
 
 export default function TrustSubNavbar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
 
   const links = [
     {
@@ -80,14 +84,29 @@ export default function TrustSubNavbar() {
             })}
           </div>
 
-          {/* Indicateur de confiance à droite (Desktop) */}
-          <div className="hidden lg:flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 dark:text-gray-400 shrink-0">
-            <FaCheckCircle className="text-emerald-500 text-xs" />
-            <span>Transactions sécurisées & Livraison interprovinciale</span>
-          </div>
+                   {/* BOUTON BARRE DE RECHERCHE RAPIDE (Desktop & Mobile) */}
+          <button
+            type="button"
+            onClick={() => setIsSearchOpen(true)}
+            className="flex items-center gap-2 px-3 py-1 rounded-lg bg-white dark:bg-[#131936] hover:border-sky-500 border border-slate-200 dark:border-gray-800 text-slate-500 dark:text-gray-400 text-xs transition cursor-pointer shrink-0 sm:w-64 md:w-72 justify-between"
+          >
+            <span className="flex items-center gap-1.5 truncate">
+              <FaSearch className="text-sky-500 text-[11px] shrink-0" />
+              <span className="truncate">Rechercher produit, province...</span>
+            </span>
+            <span className="hidden md:inline text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-100 dark:bg-gray-800 text-slate-400">
+              RDC
+            </span>
+          </button>
 
         </div>
       </div>
+
+      {/* MODALE EXTERNE DE RECHERCHE INSTANTANÉE */}
+      <GlobalSearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+      />
     </div>
   );
 }

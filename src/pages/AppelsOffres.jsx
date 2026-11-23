@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import TrustSubNavbar from '../components/TrustSubNavbar';
 import { getProductImage } from '../data/productsData';
+import GlobalSearchModal from '../components/GlobalSearchModal';
+import { createPortal } from 'react-dom';
 import {
   FaHandshake, FaPlus, FaMapMarkerAlt, FaCalendarAlt, FaBuilding,
   FaCheckCircle, FaPaperPlane, FaTimes, FaWhatsapp, FaPhoneAlt,
-  FaImages, FaEye, FaBars, FaStore, FaTruck, FaShieldAlt, FaTrash
+  FaImages, FaEye, FaBars, FaStore, FaTruck, FaShieldAlt, FaTrash, FaSearch
 } from 'react-icons/fa';
 
 const INITIAL_RFQS = [
@@ -86,6 +88,7 @@ export default function AppelsOffres({ currency = 'CDF' }) {
   const [rfqs, setRfqs] = useState(INITIAL_RFQS);
   const [selectedCategory, setSelectedCategory] = useState('Tout');
   const [mobileQuickMenuOpen, setMobileQuickMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   // Modaux
   const [showNewModal, setShowNewModal] = useState(false);
@@ -132,6 +135,17 @@ export default function AppelsOffres({ currency = 'CDF' }) {
       setPhotoError('Veuillez ajouter au moins 5 photos de référence (exemples de produits, conditionnement ou cahier des charges).');
       return;
     }
+
+    useEffect(() => {
+  const isAnyModalOpen = Boolean(showNewModal || selectedRfqForBid || selectedRfqDetails);
+  document.body.dataset.mobileMenuOpen = isAnyModalOpen ? 'true' : 'false';
+  window.dispatchEvent(new CustomEvent('mobileMenuToggle', { detail: isAnyModalOpen }));
+  return () => {
+    document.body.dataset.mobileMenuOpen = 'false';
+    window.dispatchEvent(new CustomEvent('mobileMenuToggle', { detail: false }));
+  };
+}, [showNewModal, selectedRfqForBid, selectedRfqDetails]);
+
 
     const created = {
       id: 'AO-2026-0' + (rfqs.length + 1),
@@ -185,7 +199,7 @@ export default function AppelsOffres({ currency = 'CDF' }) {
   };
 
   const openWhatsAppContact = (rfq) => {
-    const cleanPhone = (rfq.phone || '+243810000000').replace(/[^0-9]/g, '');
+    const cleanPhone = (rfq.phone || '+243829054350').replace(/[^0-9]/g, '');
     const text = encodeURIComponent(
       `Bonjour ${rfq.buyer}, je vous contacte depuis YaBiso RDC concernant votre appel d'offres "${rfq.title}" (${rfq.id}).`
     );
@@ -205,94 +219,139 @@ export default function AppelsOffres({ currency = 'CDF' }) {
         <TrustSubNavbar />
       </div>
 
-      {/* BARRE MOBILE COMPACTE AVEC BOUTON MENU + PUBLIER */}
-      <div className="md:hidden sticky top-0 z-30 bg-white/95 dark:bg-[#0b102b]/95 backdrop-blur-md border-b border-slate-200 dark:border-gray-800 px-3 py-2 flex items-center justify-between gap-2">
-        <button
-          type="button"
-          onClick={() => setMobileQuickMenuOpen(!mobileQuickMenuOpen)}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-[#131936] text-slate-800 dark:text-white text-xs font-bold border border-slate-200 dark:border-gray-800"
-        >
-          {mobileQuickMenuOpen ? <FaTimes /> : <FaBars />}
-          <span>Menu</span>
-        </button>
+      {/* BARRE MOBILE COMPACTE PRO & MODERNE (Sans tiroir) */}
+<div className="md:hidden sticky top-0 z-30 bg-white/95 dark:bg-[#0b102b]/95 backdrop-blur-md border-b border-slate-200 dark:border-gray-800 px-3 py-2">
+  <div className="flex items-center justify-between gap-2 relative">
+    
+    {/* Bouton Menu Popover */}
+    <button
+      type="button"
+      onClick={() => setMobileQuickMenuOpen((prev) => !prev)}
+      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold border transition cursor-pointer ${
+        mobileQuickMenuOpen
+          ? 'bg-sky-500 text-white border-sky-500 shadow-sm'
+          : 'bg-slate-100 dark:bg-[#131936] text-slate-800 dark:text-white border-slate-200 dark:border-gray-800'
+      }`}
+    >
+      {mobileQuickMenuOpen ? <FaTimes className="text-xs" /> : <FaBars className="text-xs text-sky-500" />}
+      <span></span>
+    </button>
 
-        <span className="text-xs font-black text-slate-800 dark:text-white truncate">
-          Appels d'Offres B2B
-        </span>
+    {/* Titre centré compact */}
+    <span className="text-xs font-black text-slate-800 dark:text-white truncate">
+      Appels d'Offres B2B
+    </span>
 
-        <button
-          type="button"
-          onClick={() => setShowNewModal(true)}
-          className="px-2.5 py-1.5 rounded-lg bg-amber-400 text-slate-950 font-black text-[11px] flex items-center gap-1 shadow-sm shrink-0"
-        >
-          <FaPlus /> Publier
-        </button>
-      </div>
+    {/* Actions droite : Icône Recherche + Bouton Publier */}
+    <div className="flex items-center gap-1.5 shrink-0">
+      <button
+        type="button"
+        onClick={() => setIsSearchOpen(true)}
+        aria-label="Rechercher"
+        className="p-2 rounded-xl bg-slate-100 dark:bg-[#131936] hover:border-sky-500 text-sky-600 dark:text-sky-400 border border-slate-200 dark:border-gray-800 transition cursor-pointer"
+      >
+        <FaSearch className="text-xs" />
+      </button>
 
-            {/* TIROIR MENU MOBILE (Liens Fournisseurs, Logistique, Sécurité + Publier) */}
-      <AnimatePresence>
-        {mobileQuickMenuOpen && (
+      <button
+        type="button"
+        onClick={() => setShowNewModal(true)}
+        className="px-2.5 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-[11px] flex items-center gap-1 shadow-sm transition cursor-pointer"
+      >
+        <FaPlus /> Publier
+      </button>
+    </div>
+
+    {/* MENU FLOTTANT MODERNE (POPOVER) AU CLIC SUR MENU */}
+    <AnimatePresence>
+      {mobileQuickMenuOpen && (
+        <>
+          {/* Fond invisible pour fermer en cliquant à l'extérieur */}
+          <div
+            onClick={() => setMobileQuickMenuOpen(false)}
+            className="fixed inset-0 z-30"
+          />
+
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="md:hidden overflow-hidden bg-white dark:bg-[#0b102b] border-b border-slate-200 dark:border-gray-800 px-4 py-3 space-y-2"
+            initial={{ opacity: 0, y: -6, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -6, scale: 0.96 }}
+            transition={{ duration: 0.15 }}
+            className="absolute left-0 top-11 z-40 w-64 rounded-2xl bg-white dark:bg-[#0f1638] border border-slate-200 dark:border-gray-700/80 shadow-xl p-2 space-y-1"
           >
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileQuickMenuOpen(false);
-                  navigate('/fournisseurs');
-                }}
-                className="flex flex-col items-center justify-center p-2 rounded-xl bg-slate-50 dark:bg-[#131936] border border-slate-200 dark:border-gray-800 text-[11px] font-bold"
-              >
-                <FaStore className="text-sky-500 mb-1 text-sm" />
-                Fournisseurs
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileQuickMenuOpen(false);
-                  navigate('/logistique');
-                }}
-                className="flex flex-col items-center justify-center p-2 rounded-xl bg-slate-50 dark:bg-[#131936] border border-slate-200 dark:border-gray-800 text-[11px] font-bold"
-              >
-                <FaTruck className="text-sky-500 mb-1 text-sm" />
-                Logistique
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileQuickMenuOpen(false);
-                  navigate('/securite');
-                }}
-                className="flex flex-col items-center justify-center p-2 rounded-xl bg-slate-50 dark:bg-[#131936] border border-slate-200 dark:border-gray-800 text-[11px] font-bold"
-              >
-                <FaShieldAlt className="text-emerald-500 mb-1 text-sm" />
-                Sécurité
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setMobileQuickMenuOpen(false);
+                navigate('/fournisseurs');
+              }}
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-[#18214d] text-left text-xs font-bold text-slate-800 dark:text-gray-100 transition"
+            >
+              <span className="p-1.5 rounded-lg bg-sky-500/10 text-sky-500">
+                <FaStore className="text-xs" />
+              </span>
+              <div>
+                <span className="block">Fournisseurs Vérifiés</span>
+                <span className="text-[10px] font-normal text-slate-500 dark:text-gray-400">Annuaire producteurs RDC</span>
+              </div>
+            </button>
 
             <button
               type="button"
               onClick={() => {
                 setMobileQuickMenuOpen(false);
-                setShowNewModal(true);
+                navigate('/logistique');
               }}
-              className="w-full py-2.5 rounded-xl bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center gap-2 shadow-sm"
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-[#18214d] text-left text-xs font-bold text-slate-800 dark:text-gray-100 transition"
             >
-              <FaPlus /> Publier un Appel d'Offres (avec photos)
+              <span className="p-1.5 rounded-lg bg-amber-500/10 text-amber-500">
+                <FaTruck className="text-xs" />
+              </span>
+              <div>
+                <span className="block">Logistique & Fret</span>
+                <span className="text-[10px] font-normal text-slate-500 dark:text-gray-400">Transport 26 provinces</span>
+              </div>
             </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 pt-4">
+            <button
+              type="button"
+              onClick={() => {
+                setMobileQuickMenuOpen(false);
+                navigate('/securite');
+              }}
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-[#18214d] text-left text-xs font-bold text-slate-800 dark:text-gray-100 transition"
+            >
+              <span className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-500">
+                <FaShieldAlt className="text-xs" />
+              </span>
+              <div>
+                <span className="block">Sécurité & Escrow</span>
+                <span className="text-[10px] font-normal text-slate-500 dark:text-gray-400">Paiement protégé</span>
+              </div>
+            </button>
+
+            <div className="hidden sm:block pt-1 border-t border-slate-100 dark:border-gray-800">
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileQuickMenuOpen(false);
+                  setShowNewModal(true);
+                }}
+                className="w-full py-2 px-3 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-sm transition"
+              >
+                <FaPlus /> Publier un Appel d'Offres
+              </button>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  </div>
+</div>
+
+      <div className="max-w-7xl mx-auto px-0 sm:px-6 pt-2">
         {/* EN-TÊTE COMPACT DESKTOP & MOBILE */}
-        <div className="bg-white dark:bg-[#0b102b] border border-slate-200/80 dark:border-gray-800 rounded-2xl p-4 sm:p-5 mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow-sm">
+        <div className="hidden sm:block bg-white dark:bg-[#0b102b] border border-slate-200/80 dark:border-gray-800 rounded-2xl p-4 sm:p-5 mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow-sm">
           <div>
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-amber-400/15 text-amber-700 dark:text-amber-400 text-[10px] font-extrabold uppercase tracking-wider mb-1">
               <FaHandshake /> Marchés & Contrats B2B RDC
@@ -345,16 +404,16 @@ export default function AppelsOffres({ currency = 'CDF' }) {
         )}
 
         {/* FLUX DES PUBLICATIONS D'APPELS D'OFFRES (Grille 2 cols Desktop / 1 col Mobile) */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
           {filteredRfqs.map((rfq) => {
             const photos = rfq.photos || [];
             return (
               <motion.article
-                key={rfq.id}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-white dark:bg-[#131936] rounded-2xl border border-slate-200 dark:border-gray-800 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between"
-              >
+  key={rfq.id}
+  initial={{ opacity: 0, y: 8 }}
+  animate={{ opacity: 1, y: 0 }}
+  className="bg-white dark:bg-[#131936] rounded-none sm:rounded-xl border-y sm:border border-slate-200 dark:border-gray-800 overflow-hidden shadow-sm transition flex flex-col justify-between"
+>           
                 <div>
                   {/* 1. EN-TÊTE STYLE PUBLICATION SOCIALE */}
                   <div className="p-3.5 pb-2.5 flex items-center justify-between gap-2">
@@ -496,15 +555,15 @@ export default function AppelsOffres({ currency = 'CDF' }) {
     {/* ===================================================================== */}
     {/* MODAL 1 : PUBLIER UN APPEL D'OFFRES (AVEC UPLOAD DE 5 PHOTOS MINIMUM) */}
     {/* ===================================================================== */}
-    <AnimatePresence>
-      {showNewModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <motion.div
-            initial={{ y: 40, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 40, opacity: 0 }}
-            className="w-full sm:max-w-xl max-h-[92vh] overflow-y-auto bg-white dark:bg-[#0b102b] rounded-t-2xl sm:rounded-2xl border border-slate-200 dark:border-gray-800 p-4 sm:p-6 shadow-2xl"
-          >
+   {showNewModal &&
+  createPortal(
+    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <motion.div
+        initial={{ y: 30, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 30, opacity: 0 }}
+        className="w-full h-full sm:h-auto sm:max-w-xl sm:max-h-[90vh] overflow-y-auto bg-white dark:bg-[#0b102b] rounded-none sm:rounded-2xl border-0 sm:border border-slate-200 dark:border-gray-800 p-4 sm:p-6 shadow-2xl"
+      >
             <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-200 dark:border-gray-800">
               <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
                 Publier un Appel d'Offres B2B
@@ -671,8 +730,7 @@ export default function AppelsOffres({ currency = 'CDF' }) {
                   </div>
                 )}
               </div>
-
-              <button
+                                    <button
                 type="submit"
                 className="w-full py-3 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-xs shadow-md transition cursor-pointer"
               >
@@ -680,22 +738,24 @@ export default function AppelsOffres({ currency = 'CDF' }) {
               </button>
             </form>
           </motion.div>
-        </div>
+        </div>,
+        document.body
       )}
-    </AnimatePresence>
 
     {/* ===================================================================== */}
-    {/* MODAL 2 : SOUMETTRE UN DEVIS CHIFFRÉ (FOURNISSEUR)                    */}
     {/* ===================================================================== */}
-    <AnimatePresence>
-      {selectedRfqForBid && (
-        <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <motion.div
-            initial={{ y: 40, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 40, opacity: 0 }}
-            className="w-full sm:max-w-md max-h-[90vh] overflow-y-auto bg-white dark:bg-[#0b102b] rounded-t-2xl sm:rounded-2xl border border-slate-200 dark:border-gray-800 p-4 sm:p-6 shadow-2xl"
-          >
+{/* MODAL 2 : SOUMETTRE UN DEVIS CHIFFRÉ (FOURNISSEUR)                    */}
+{/* ===================================================================== */}
+{selectedRfqForBid &&
+  createPortal(
+    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <motion.div
+        initial={{ y: 30, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 30, opacity: 0 }}
+        className="w-full h-full sm:h-auto sm:max-w-md sm:max-h-[90vh] overflow-y-auto bg-white dark:bg-[#0b102b] rounded-none sm:rounded-2xl border-0 sm:border border-slate-200 dark:border-gray-800 p-4 sm:p-6 shadow-2xl"
+      >
+
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-200 dark:border-gray-800">
               <div>
                 <span className="text-[10px] font-extrabold text-sky-500 uppercase">
@@ -772,7 +832,6 @@ export default function AppelsOffres({ currency = 'CDF' }) {
                   className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#131936] border border-slate-200 dark:border-gray-700 outline-none"
                 />
               </div>
-
               <button
                 type="submit"
                 className="w-full py-3 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-black text-xs flex items-center justify-center gap-2 shadow-md transition cursor-pointer"
@@ -781,22 +840,23 @@ export default function AppelsOffres({ currency = 'CDF' }) {
               </button>
             </form>
           </motion.div>
-        </div>
+        </div>,
+        document.body
       )}
-    </AnimatePresence>
 
-    {/* ===================================================================== */}
-    {/* MODAL 3 : DÉTAILS COMPLETS DE L'APPEL D'OFFRES + GALERIE              */}
-    {/* ===================================================================== */}
-    <AnimatePresence>
-      {selectedRfqDetails && (
-        <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <motion.div
-            initial={{ y: 40, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 40, opacity: 0 }}
-            className="w-full sm:max-w-2xl max-h-[92vh] overflow-y-auto bg-white dark:bg-[#0b102b] rounded-t-2xl sm:rounded-2xl border border-slate-200 dark:border-gray-800 p-4 sm:p-6 shadow-2xl space-y-4"
-          >
+
+{/* ===================================================================== */}
+{/* MODAL 3 : DÉTAILS COMPLETS DE L'APPEL D'OFFRES + GALERIE              */}
+{/* ===================================================================== */}
+{selectedRfqDetails &&
+  createPortal(
+    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <motion.div
+        initial={{ y: 30, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 30, opacity: 0 }}
+        className="w-full h-full sm:h-auto sm:max-w-2xl sm:max-h-[90vh] overflow-y-auto bg-white dark:bg-[#0b102b] rounded-none sm:rounded-2xl border-0 sm:border border-slate-200 dark:border-gray-800 p-4 sm:p-6 shadow-2xl space-y-4"
+      >
             <div className="flex items-start justify-between gap-2 pb-3 border-b border-slate-200 dark:border-gray-800">
               <div>
                 <span className="px-2 py-0.5 rounded bg-sky-500/10 text-sky-500 font-extrabold text-[10px]">
@@ -852,7 +912,7 @@ export default function AppelsOffres({ currency = 'CDF' }) {
             </div>
 
             <div className="grid grid-cols-2 gap-3 pt-2">
-              <button
+                            <button
                 type="button"
                 onClick={() => openWhatsAppContact(selectedRfqDetails)}
                 className="py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer"
@@ -872,9 +932,10 @@ export default function AppelsOffres({ currency = 'CDF' }) {
               </button>
             </div>
           </motion.div>
-        </div>
+        </div>,
+        document.body
       )}
-    </AnimatePresence>
+
 
     {/* LIGHTBOX PLEIN ÉCRAN AU CLIC SUR UNE PHOTO */}
     {lightboxImage && (
@@ -889,6 +950,11 @@ export default function AppelsOffres({ currency = 'CDF' }) {
         />
       </div>
     )}
+    <GlobalSearchModal
+  isOpen={isSearchOpen}
+  onClose={() => setIsSearchOpen(false)}
+  rfqs={rfqs}
+/>
   </div>
   );
 }

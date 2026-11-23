@@ -3,6 +3,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext.jsx';
+import TrustSubNavbar from './components/TrustSubNavbar';
 
 // Pages Espace Public & Acheteurs (RDC)
 import Home from './pages/Home';
@@ -17,6 +18,7 @@ import SecuritePage from './pages/Securite';
 import MobileBottomNav from './components/MobileBottomNav';
 import Footer from './components/Footer';
 import PageTransition from './components/PageTransition';
+import GlobalSearchModal from './components/GlobalSearchModal';
 
 // Composants Sécurité, Auth & Expérience Utilisateur
 import PrivateRoute from './components/PrivateRoute';
