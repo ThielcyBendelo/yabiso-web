@@ -910,7 +910,7 @@ const basinsSliderRef = useRef(null);
        {/* 3. PRODUITS LOCAUX VEDETTES */}
   <section
     ref={productsSectionRef}
-    className="relative max-w-7xl mx-auto px-4 py-8 pt-5 border-b border-gray-200 dark:border-gray-800"
+    className="relative max-w-7xl mx-auto px-3 py-8 pt-2 border-b border-gray-200 dark:border-gray-800"
   >
     {/* En-tête principal */}
     <div className="mb-4">
@@ -921,7 +921,6 @@ const basinsSliderRef = useRef(null);
         {buyerMode === 'B2B' ? 'Offres en Gros & Approvisionnement' : 'Produits Locaux Populaires'}
       </h2>
     </div>
-
     {/* 🧭 CONTENEUR REPÈRE + BARRE DE NAVIGATION FIXED CONTEXTUELLE */}
     <div ref={categoryBarRef} className="min-h-[58px] mb-6">
       <div
@@ -933,8 +932,7 @@ const basinsSliderRef = useRef(null);
         }
       >
         <div className={isCategoryBarFixed ? 'max-w-7xl mx-auto' : ''}>
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-            
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">          
             {/* FILTRES CATÉGORIES */}
             <div className="flex flex-nowrap items-center gap-2 overflow-x-auto pb-1 md:pb-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
               {displayCategories.map((category) => {
@@ -956,7 +954,6 @@ const basinsSliderRef = useRef(null);
                 );
               })}
             </div>
-
             {/* SÉLECTEUR B2C / B2B */}
             {setBuyerMode && (
               <div className="flex items-center self-start md:self-auto shrink-0 gap-1 bg-slate-100 dark:bg-[#131936] p-1 rounded-xl border border-slate-200 dark:border-gray-800">
@@ -990,16 +987,13 @@ const basinsSliderRef = useRef(null);
         </div>
       </div>
     </div>
-
     {/* 📚 LES LIGNES PAR CATÉGORIE */}
     <div className="space-y-8">
       {displayCategories.map((category, index) => {
         const categoryProducts = (PRODUCTS_DB || []).filter(
           (p) => p.categoryLabel === category
         );
-
         if (categoryProducts.length === 0) return null;
-
         return (
           <div
             key={category}
@@ -1019,7 +1013,6 @@ const basinsSliderRef = useRef(null);
                   {categoryProducts.length}
                 </span>
               </div>
-
               {/* Boutons de défilement gauche/droite */}
               <div className="hidden md:flex items-center gap-1.5">
                 <button
@@ -1040,7 +1033,6 @@ const basinsSliderRef = useRef(null);
                 </button>
               </div>
             </div>
-
             {/* CARROUSEL DE PRODUITS */}
             <div
               ref={(el) => (rowRefs.current[category] = el)}
@@ -1077,7 +1069,6 @@ const basinsSliderRef = useRef(null);
                           </span>
                         )}
                       </div>
-
                       {/* Contenu */}
                       <div className="p-3">
                         <span className="text-[10px] font-bold text-sky-600 dark:text-sky-400 uppercase tracking-wide">
@@ -1094,7 +1085,6 @@ const basinsSliderRef = useRef(null);
                         </p>
                       </div>
                     </div>
-
                     {/* Pied de carte : Prix dynamique */}
                     <div className="px-3 pb-3 pt-2 border-t border-slate-100 dark:border-gray-800/80 flex items-center justify-between">
                       <div>
@@ -1105,7 +1095,7 @@ const basinsSliderRef = useRef(null);
                           / {activeUnit}
                         </span>
                       </div>
-                                            <button
+                                           <button
                         type="button"
                         onClick={() => navigate('/produit/' + product.id)}
                         className="px-2.5 py-1.5 rounded-lg bg-sky-500/10 hover:bg-sky-500 text-sky-600 hover:text-white dark:text-sky-400 dark:hover:text-white text-xs font-bold transition"

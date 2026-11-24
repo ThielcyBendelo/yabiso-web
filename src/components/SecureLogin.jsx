@@ -1,188 +1,254 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaArrowRight } from 'react-icons/fa';
-import authService from '../services/authService';
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import {
+  FaEnvelope, FaLock, FaEye, FaEyeSlash,
+  FaArrowLeft, FaShieldAlt, FaStore
+} from 'react-icons/fa';
 import notificationService from '../services/notificationService';
 
-export default function SecureLogin() {
-  const navigate = useNavigate();
+export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleLoginSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setIsLoading(true);
+    setLoading(true);
 
     try {
-      await authService.login(email, password);
-      notificationService.success('Connexion réussie, bienvenue !');
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || 'Erreur de connexion');
+      }
+
+      localStorage.setItem('access_token', data.access_token);
+      localStorage.setItem('refresh_token', data.refresh_token || '');
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      notificationService.success('Connexion réussie ! 🎉');
       navigate('/dashboard');
     } catch (err) {
-      setError(err.message);
-      notificationService.error(err.message);
+      notificationService.error(err.message || 'Erreur de connexion');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = () => {
+    try {
+      notificationService.info('Redirection vers Google...');
+      window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
+    } catch (err) {
+      notificationService.error('Erreur Google OAuth');
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0b132b] flex items-center justify-center p-4 sm:p-6 lg:p-8 relative overflow-hidden text-white">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#070a1d] text-gray-900 dark:text-gray-100 flex flex-col justify-between relative overflow-hidden">
       
-      {/* Arrière-plan dynamique (Flous de lumière) */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[var(--accent-1)]/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
+      {/* Décoration subtile d'arrière-plan */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-24 -left-24 w-72 h-72 bg-sky-500/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-amber-400/10 rounded-full blur-3xl" />
+      </div>
 
-      {/* Conteneur Principal Grand Format split (Visuel + Formulaire) */}
-      <div className="w-full max-w-5xl bg-[#1c2541]/40 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-12 min-h-[600px] relative z-10">
-        
-        {/* PANNEAU GAUCHE : Visuel & Branding (Masqué sur mobile) */}
-        <div className="hidden md:flex md:col-span-5 bg-gradient-to-br from-[#1c2541] via-[#0b132b] to-[#1c2541] p-10 flex-col justify-between border-r border-white/5 relative">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--accent-1)]/5 rounded-full blur-3xl" />
-          
-          {/* Logo / Badge */}
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[var(--accent-1)] flex items-center justify-center font-black text-sm tracking-tighter">
-              P
-            </div>
-            <span className="font-bold text-sm tracking-wider uppercase text-slate-200">Portail Fournisseurs</span>
-          </div>
-
-          {/* Accroche textuelle */}
-          <div className="space-y-4">
-            <span className="text-xs font-bold uppercase tracking-widest text-[var(--accent-1)] bg-[var(--accent-1)]/10 px-3 py-1 rounded-full">
-              Production Locale
+      {/* =====================================================================
+          1. PETITE NAVBAR COMPACTE FIXE (h-12)
+         ===================================================================== */}
+      <header className="w-full h-12 bg-white/90 dark:bg-[#0d122b]/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 px-3 sm:px-6 z-20 shrink-0">
+        <div className="max-w-5xl mx-auto h-full flex items-center justify-between">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 text-xs font-bold text-gray-700 dark:text-gray-200 hover:text-sky-500 transition"
+          >
+            <span className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-[#131936] flex items-center justify-center text-sky-500">
+              <FaArrowLeft className="text-[11px]" />
             </span>
-            <h1 className="text-3xl font-black leading-tight text-white">
-              Valorisons le savoir-faire de nos provinces.
-            </h1>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              Connectez-vous à votre espace sécurisé pour gérer vos stocks, suivre vos commandes et propulser vos produits sur le marché.
-            </p>
-          </div>
+            <span>Accueil</span>
+          </Link>
 
-          {/* Footer de marque */}
-          <p className="text-xs text-slate-500 font-medium">
-            © {new Date().getFullYear()} — Fièrement produit en RDC.
-          </p>
+          <Link
+            to="/devenir-fournisseur"
+            className="text-[11px] font-bold text-sky-600 dark:text-sky-400 hover:underline"
+          >
+            Devenir fournisseur →
+          </Link>
         </div>
+      </header>
 
-        {/* PANNEAU DROIT : Le Formulaire */}
-        <div className="col-span-1 md:col-span-7 p-8 sm:p-12 flex flex-col justify-center bg-[#141d36]/20">
-          
-          {/* En-tête (Adapté pour mobile & desktop) */}
-          <div className="mb-8">
-            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-              Connexion Vendeur
-            </h2>
-            <p className="text-sm text-slate-400 mt-2">
-              Ravi de vous revoir ! Entrez vos accès pour continuer.
+            {/* =====================================================================
+          2. FORMULAIRE SIMPLE, PRO & MODERNE (Mobile & Desktop)
+         ===================================================================== */}
+      <main className="flex-1 flex items-center justify-center px-3 py-6 relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35 }}
+          className="w-full max-w-sm sm:max-w-md bg-white dark:bg-[#131936] rounded-2xl shadow-lg border border-gray-200/90 dark:border-gray-800 p-5 sm:p-7"
+        >
+          {/* En-tête avec Logo officiel YaBiso RDC */}
+          <div className="flex flex-col items-center text-center mb-5">
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => navigate('/')}
+              className="flex items-center gap-2 cursor-pointer flex-shrink-0 group mb-2.5"
+            >
+              {/* Emblème moderne aux couleurs RDC */}
+              <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-sky-500 via-blue-600 to-indigo-700 flex items-center justify-center shadow-md shadow-sky-500/25 overflow-hidden">
+                <div className="absolute -right-2 -top-2 w-5 h-5 bg-amber-400/90 rotate-45" />
+                <div className="absolute -right-2.5 -top-2.5 w-4 h-4 bg-red-500/90 rotate-45" />
+                <span className="relative z-10 text-white font-black text-lg tracking-tighter">
+                  Y
+                </span>
+              </div>
+
+              {/* Texte du logo */}
+              <div className="flex flex-col text-left">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+                    Ya<span className="text-sky-500">Biso</span>
+                  </span>
+                  <span className="text-[10px] font-black px-1.5 py-0.5 rounded-md bg-amber-400/20 text-amber-600 dark:text-amber-400 border border-amber-400/30 tracking-wider">
+                    RDC
+                  </span>
+                </div>
+                <span className="text-[9px] uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 font-semibold -mt-0.5">
+                  Made in Congo
+                </span>
+              </div>
+            </motion.div>
+
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Connectez-vous pour gérer vos produits et commandes
             </p>
           </div>
 
-          <form onSubmit={handleLoginSubmit} className="space-y-5">
+          {/* Bouton Google OAuth officiel (SVG multicolore + style moderne) */}
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            className="w-full h-10 flex items-center justify-center gap-2.5 px-4 bg-white dark:bg-[#0a0e27] border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-[#182044] hover:border-sky-500/50 transition text-xs font-bold text-gray-700 dark:text-gray-200 shadow-2xs"
+          >
+            <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+              <path
+                fill="#EA4335"
+                d="M12 5c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 1.19 14.97 0 12 0 7.31 0 3.25 2.69 1.25 6.64l3.66 2.84C5.78 6.89 8.63 5 12 5z"
+              />
+              <path
+                fill="#4285F4"
+                d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M4.91 14.52c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.5H1.25C.45 9.09 0 10.89 0 12.78s.45 3.69 1.25 5.28l3.66-3.54z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.37 0-6.22-1.89-7.09-4.48H1.25v2.84C3.25 21.31 7.31 24 12 24z"
+              />
+            </svg>
+            <span>Continuer avec Google</span>
+          </button>
 
-            {error && (
-              <div className="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-semibold">
-                {error}
-              </div>
-            )}
+          {/* Séparateur */}
+          <div className="flex items-center gap-3 my-4">
+            <div className="flex-1 h-px bg-gray-200 dark:bg-gray-800" />
+            <span className="text-[11px] font-medium text-gray-400">ou avec votre email</span>
+            <div className="flex-1 h-px bg-gray-200 dark:bg-gray-800" />
+          </div>
 
-            {/* Champ Email */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider block text-slate-300">
+          {/* Formulaire Email & Mot de passe */}
+          <form onSubmit={handleSubmit} className="space-y-3.5">
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
                 Adresse Email
               </label>
-              <div className="relative group">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 group-focus-within:text-[var(--accent-1)] transition-colors">
-                  <FaEnvelope size={14} />
-                </span>
-                <input 
-                  type="email" 
-                  required 
-                  value={email} 
-                  onChange={(e) => setEmail(e.target.value)} 
-                  className="w-full pl-11 pr-4 py-3.5 rounded-xl bg-[#0b132b]/60 border border-white/10 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-[var(--accent-1)] focus:ring-2 focus:ring-[var(--accent-1)]/20 transition-all" 
-                  placeholder="ex: contact@cooperative.cd" 
+              <div className="relative">
+                <FaEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="nom@entreprise.cd"
+                  className="w-full h-10 bg-gray-50 dark:bg-[#0a0e27] border border-gray-200 dark:border-gray-700 rounded-xl pl-9 pr-3 text-xs sm:text-sm text-gray-900 dark:text-white focus:outline-none focus:border-sky-500 transition"
+                  required
                 />
               </div>
             </div>
 
-            {/* Champ Mot de passe */}
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-300">
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400">
                   Mot de passe
                 </label>
-                <a href="#forgot" className="text-xs font-bold text-[var(--accent-1)] hover:underline transition-all">
-                  Oublié ?
-                </a>
+                <Link
+                  to="/forgot-password"
+                  className="text-[11px] text-sky-600 dark:text-sky-400 hover:underline font-semibold"
+                >
+                  Mot de passe oublié ?
+                </Link>
               </div>
-              <div className="relative group">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 group-focus-within:text-[var(--accent-1)] transition-colors">
-                  <FaLock size={14} />
-                </span>
-                <input 
-                  type={showPassword ? "text" : "password"} 
-                  required 
-                  value={password} 
-                  onChange={(e) => setPassword(e.target.value)} 
-                  className="w-full pl-11 pr-12 py-3.5 rounded-xl bg-[#0b132b]/60 border border-white/10 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-[var(--accent-1)] focus:ring-2 focus:ring-[var(--accent-1)]/20 transition-all" 
-                  placeholder="••••••••" 
+              <div className="relative">
+                <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs" />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full h-10 bg-gray-50 dark:bg-[#0a0e27] border border-gray-200 dark:border-gray-700 rounded-xl pl-9 pr-9 text-xs sm:text-sm text-gray-900 dark:text-white focus:outline-none focus:border-sky-500 transition"
+                  required
                 />
-                <button 
+                <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-white transition-colors"
+                  aria-label="Afficher ou masquer le mot de passe"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition text-xs"
                 >
-                  {showPassword ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </button>
               </div>
             </div>
 
-            {/* Options additionnelles */}
-            <div className="flex items-center justify-between pt-1">
-              <label className="flex items-center gap-2 cursor-pointer group select-none">
-                <input 
-                  type="checkbox" 
-                  className="w-4 h-4 rounded border-white/10 bg-[#0b132b] text-[var(--accent-1)] focus:ring-0 focus:ring-offset-0 checked:bg-[var(--accent-1)] cursor-pointer"
-                />
-                <span className="text-xs text-slate-400 group-hover:text-slate-200 transition-colors">
-                  Se souvenir de moi
-                </span>
-              </label>
-            </div>
-
-            {/* Bouton de soumission */}
-            <button 
-              type="submit" 
-              disabled={isLoading}
-              className="w-full mt-4 py-3.5 bg-[var(--accent-1)] hover:bg-[#ff5722] disabled:bg-slate-700 disabled:cursor-not-allowed text-white rounded-xl font-bold text-sm shadow-xl hover:shadow-[0_0_20px_rgba(var(--accent-1-rgb),0.3)] transition-all flex items-center justify-center gap-2 group"
+            <motion.button
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+              type="submit"
+              disabled={loading}
+              className="w-full h-10 mt-1 bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white text-xs sm:text-sm font-bold rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
             >
-              {isLoading ? (
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <>
-                  Se connecter 
-                  <FaArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
-                </>
-              )}
-            </button>
+              {loading ? 'Connexion en cours...' : 'Se connecter'}
+            </motion.button>
           </form>
 
-          {/* Lien d'inscription pour les nouveaux fournisseurs */}
-          <p className="text-center text-xs text-slate-400 mt-8">
-            Nouveau fournisseur ?{' '}
-            <a href="/register" className="font-bold text-white hover:text-[var(--accent-1)] transition-colors underline">
+          {/* Lien Inscription */}
+          <p className="mt-4 text-center text-xs text-gray-500 dark:text-gray-400">
+            Pas encore de compte ?{' '}
+            <Link
+              to="/register"
+              className="text-sky-600 dark:text-sky-400 hover:underline font-bold"
+            >
               Créer un compte
-            </a>
+            </Link>
           </p>
 
-        </div>
-      </div>
+          {/* Badge sécurité compact */}
+          <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-center gap-1.5 text-[10px] text-gray-400">
+            <FaShieldAlt className="text-emerald-500 shrink-0" />
+            <span>Connexion sécurisée • Espace Fournisseur YaBiso RDC</span>
+          </div>
+        </motion.div>
+      </main>
     </div>
   );
 }
